@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Produits</title>
+</head>
+<body>
+
+<h1>Nos produits</h1>
+
+{% if produits %}
+  <ul>
+    {% for produit in produits %}
+      <li>
+        {{ produit.nom }} — {{ produit.prix }} €
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Aucun produit disponible.</p>
+{% endif %}
+
+</body>
+</html>

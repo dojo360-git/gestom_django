@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+{% block title %}Supprimer{% endblock %}
+
+{% block content %}
+<div class="header">
+  <div>
+    <h2 class="h2">Supprimer</h2>
+    <p class="sub">Action irréversible.</p>
+  </div>
+  <a class="btn" href="{% url 'products_list' %}">Retour</a>
+</div>
+
+<div class="card">
+  <div class="card__pad">
+    <p>Confirmer la suppression de <strong>{{ produit.nom }}</strong> ?</p>
+
+    <form method="post" class="actions" style="justify-content:flex-start;">
+      {% csrf_token %}
+      <button class="btn btn--danger" type="submit">Oui, supprimer</button>
+      <a class="btn" href="{% url 'products_list' %}">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

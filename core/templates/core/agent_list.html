@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+
+{% block title %}Agents{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+
+    <div class="header">
+      <div>
+        <h1 class="h1">Agents</h1>
+        <p class="sub">Gestion des agents enregistrés</p>
+      </div>
+
+      <a href="{% url 'agent_create' %}" class="btn btn--primary">
+        + Nouvel agent
+      </a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for agent in object_list %}
+          <tr>
+            <td>{{ agent.nom }}</td>
+            <td>{{ agent.email }}</td>
+            <td>
+              {% if agent.actif %}
+                <span class="badge badge--ok">Actif</span>
+              {% else %}
+                <span class="badge badge--low">Inactif</span>
+              {% endif %}
+            </td>
+            <td class="right">
+              <div class="actions">
+                <a href="{% url 'agent_update' agent.id %}" class="btn btn--sm btn--ghost">Modifier</a>
+                <a href="{% url 'agent_delete' agent.id %}" class="btn btn--sm btn--danger">Supprimer</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="sub">Aucun agent enregistré</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

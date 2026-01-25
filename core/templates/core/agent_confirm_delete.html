@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}
+
+<h1>Supprimer {{ object.nom }} {{ object.prenom }} ?</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Oui, supprimer</button>
+  <a href="{% url 'agent_detail' object.pk %}">Annuler</a>
+</form>

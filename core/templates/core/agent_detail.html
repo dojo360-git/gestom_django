@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+
+
+<h1>{{ agent.nom }} {{ agent.prenom }}</h1>
+
+<ul>
+  <li>IdAg : {{ agent.id_ag }}</li>
+  <li>Qualification : {{ agent.qualification }}</li>
+  <li>Service : {{ agent.service }}</li>
+  <li>Employeur : {{ agent.employeur }}</li>
+  <li>HDS défaut : {{ agent.hds_defaut }}</li>
+  <li>Ajout quotidien : {{ agent.hajout_quotidien }}</li>
+  <li>Échéance permis : {{ agent.echeance_permis }}</li>
+  <li>Échéance FCO : {{ agent.echeance_fco }}</li>
+  <li>Arrivée : {{ agent.arrivee }}</li>
+  <li>Départ : {{ agent.depart }}</li>
+  <li>Tél : {{ agent.tel }}</li>
+  <li>Supp : {{ agent.supp }}</li>
+</ul>
+
+<p>
+  <a href="{% url 'agent_update' agent.pk %}">Modifier</a> |
+  <a href="{% url 'agent_delete' agent.pk %}">Supprimer</a> |
+  <a href="{% url 'agent_list' %}">Retour</a>
+</p>
+

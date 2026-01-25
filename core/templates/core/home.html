@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad header">
+    <div>
+      <h1 class="h1">Bienvenue 👋</h1>
+      <p class="sub">Gérez vos produits simplement (CRUD complet).</p>
+    </div>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="{% url 'products_list' %}">Voir les produits</a>
+      <a class="btn" href="{% url 'product_create' %}">Ajouter un produit</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

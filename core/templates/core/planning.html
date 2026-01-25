@@ -1,0 +1,86 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Planning{% endblock %}
+
+{% block content %}
+<div class="planning">
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="header">
+        <div>
+          <h1 class="h1">Planning</h1>
+          <p class="sub">Planning mensuel — change la date pour changer de mois</p>
+        </div>
+
+        <div class="planning__controls">
+          <label class="planning__control">
+            <span class="planning__label">Mois</span>
+            <input class="input" type="date" id="dateInput">
+          </label>
+
+          <button id="resetBtn" class="btn btn--ghost" type="button">
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="table-wrap planning__wrap">
+        <table class="table planning__table" id="planningTable">
+          <thead id="planningHead"></thead>
+          <tbody id="planningBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {{ agents|json_script:"agents-data" }}
+</div>
+
+
+
+
+<div class="planning-modal" id="planningModal" aria-hidden="true">
+  <div class="planning-modal__backdrop" data-close="1"></div>
+
+  <div class="planning-modal__panel" role="dialog" aria-modal="true" aria-labelledby="planningModalTitle">
+    <div class="planning-modal__head">
+      <div>
+        <h2 class="h2" id="planningModalTitle" style="margin:0;">Affectation</h2>
+        <p class="sub" style="margin:6px 0 0;">Modifier l’entrée du planning</p>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button" data-close="1">Fermer</button>
+    </div>
+
+    <form class="form" id="planningForm">
+      <div class="field">
+        <label>Agent</label>
+        <input class="input" id="pfAgent" type="text" readonly>
+      </div>
+
+      <div class="field">
+        <label>Date</label>
+        <input class="input" id="pfDate" type="date" readonly>
+      </div>
+
+      <div class="field">
+        <label>Valeur</label>
+        <input class="input" id="pfValue" type="text" placeholder="Ex: CSP, CA, 12:00...">
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <button class="btn btn--ghost" type="button" data-close="1">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script src="{% static 'core/planning.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Gestom{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav__inner">
+    <a class="brand" href="{% url 'home' %}">
+      <span class="brand__dot"></span>
+      <span>Gestom</span>
+    </a>
+
+    <div class="nav__actions">
+      <a class="btn btn--ghost" href="{% url 'products_list' %}">Collecte</a>
+      <a class="btn btn--ghost" href="{% url 'products_list' %}">Collectes du jours</a>
+      <a class="btn btn--ghost" href="{% url 'agent_list' %}">Agents</a>
+      <a class="btn btn--primary" href="{% url 'planning' %}">Planning</a>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+</body>
+</html>

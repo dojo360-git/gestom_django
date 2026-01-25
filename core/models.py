@@ -1,0 +1,48 @@
+from django.db import models
+
+class Produit(models.Model):
+    nom = models.CharField(max_length=100)
+    prix = models.DecimalField(max_digits=8, decimal_places=2)
+    stock = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.nom} ({self.stock})"
+
+
+from django.db import models
+
+
+class Agent(models.Model):
+    # IdAg : Django crée déjà un id auto, mais si tu veux garder IdAg du fichier :
+    id_ag = models.PositiveIntegerField(unique=True)
+
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+
+    qualification = models.CharField(max_length=150, blank=True)
+    service = models.CharField(max_length=150, blank=True)
+    employeur = models.CharField(max_length=150, blank=True)
+
+    # HDSDefautAg "05:00"
+    hds_defaut = models.TimeField(null=True, blank=True)
+
+    # HAjoutQuotidienAg (on ne sait pas si c'est temps ou nombre)
+    # Si c’est aussi une durée/heure => TimeField. Sinon => Decimal/Integer.
+    hajout_quotidien = models.TimeField(null=True, blank=True)
+
+    echeance_permis = models.DateField(null=True, blank=True)
+    echeance_fco = models.DateField(null=True, blank=True)
+
+    # SuppAg (suppression / flag ?)
+    supp = models.BooleanField(default=False)
+
+    arrivee = models.DateField(null=True, blank=True)
+    depart = models.DateField(null=True, blank=True)
+
+    tel = models.CharField(max_length=30, blank=True)
+
+    class Meta:
+        ordering = ["nom", "prenom"]
+
+    def __str__(self):
+        return f"{self.nom} {self.prenom}"
