@@ -21,11 +21,15 @@ DATABASE_URL=postgres://user:password@localhost:5432/dbname
 
 .env à ouvrir et modifier
 
-
 # Lancer le serveur web :
 python manage.py runserver
 
-# Ouvrir un navigateur sur http://127.0.0.1:8000/
+# Ouvrir un navigateur sur : 
+
+http://127.0.0.1:8000/
+
+
+Let's go ! 
 
 
 
