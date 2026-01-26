@@ -13,13 +13,18 @@ et lancer les commandes suivantes :
 
     git clone https://github.com/dojo360-git/gestom_django.git
 
+
     cd gestom_django
+
 
     python3 -m venv .venv
 
+
     .\.venv\Scripts\Activate.ps1
 
+
     pip install -r requirements.txt
+    
 
 ## Création du fichier .env et des infos base de données Postgre
 
