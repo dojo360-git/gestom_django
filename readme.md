@@ -1,8 +1,20 @@
 26/01/2026 : Créé par Julien Besombes
 
-# Installer l'application : 
 
-## Creer un dossier 
+
+
+
+
+
+
+
+
+
+
+
+# Installer l'application sur Windows : 
+
+## Creer un dossier / Utiliser un dossier avec les différents projets
 par exemple : mes_applis_web
 
 ## Ouvrir le dossier avec Visual Studio Code (ou autres)
@@ -11,10 +23,21 @@ par exemple : mes_applis_web
 
 et lancer les commandes suivantes : 
 
+    ### Windows :
+
     git clone https://github.com/dojo360-git/gestom_django.git
     cd gestom_django
     python3 -m venv .venv
     .\.venv\Scripts\Activate.ps1
+    pip install -r requirements.txt
+
+
+    ### Linux Debian/Ubuntu :
+
+    git clone https://github.com/dojo360-git/gestom_django.git
+    cd gestom_django
+    python3 -m venv .venv
+    source .venv/bin/activate
     pip install -r requirements.txt
 
 

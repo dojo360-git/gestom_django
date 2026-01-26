@@ -1,0 +1,103 @@
+Pour archive uniquement - ne pas utiliser directement
+
+
+# V1
+
+asgiref==3.11.0
+Django==6.0.1
+sqlparse==0.5.5
+tzdata==2025.3
+python-dotenv==1.2.1
+
+# V2  En installant Pandas ... il a installé aussi : 
+
+pandas==3.0.0
+
+
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.12.1
+blinker==1.9.0
+click==8.3.1
+colorama==0.4.6
+fastapi==0.128.0
+Flask==3.1.2
+greenlet==3.3.0
+h11==0.16.0
+idna==3.11
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+numpy==2.4.1
+psycopg2-binary==2.9.11
+pydantic==2.12.5
+pydantic_core==2.41.5
+python-dateutil==2.9.0.post0
+six==1.17.0
+SQLAlchemy==2.0.45
+starlette==0.50.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.40.0
+Werkzeug==3.1.5
+
+
+# V3 
+# =========================
+# Django (core + dépendances)
+# =========================
+Django==6.0.1
+asgiref==3.11.0
+sqlparse==0.5.5
+tzdata==2025.3
+python-dotenv==1.2.1
+
+# =========================
+# Base de données / ORM
+# =========================
+psycopg2-binary==2.9.11
+SQLAlchemy==2.0.45
+#greenlet==3.3.0
+
+
+# =========================
+# Pandas / Data
+# =========================
+pandas==3.0.0
+numpy==2.4.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+
+# =========================
+# FastAPI / ASGI
+# =========================
+#fastapi==0.128.0
+#starlette==0.50.0
+#uvicorn==0.40.0
+#anyio==4.12.1
+#h11==0.16.0
+#pydantic==2.12.5
+#pydantic_core==2.41.5
+#annotated-types==0.7.0
+#typing-inspection==0.4.2
+#typing_extensions==4.15.0
+#idna==3.11
+
+# =========================
+# Flask
+# =========================
+# Flask==3.1.2
+# Werkzeug==3.1.5
+# Jinja2==3.1.6
+# MarkupSafe==3.0.3
+# itsdangerous==2.2.0
+# click==8.3.1
+# blinker==1.9.0
+# colorama==0.4.6
+
+
+
+# =========================
+# Autres / transverses
+# =========================
+# annotated-doc==0.0.4
