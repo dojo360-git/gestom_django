@@ -1,32 +1,54 @@
-# Ouvrir un terminal dans Visual Studio Code (ou autres) :
+26/01/2026 : Créé par Julien Besombes
 
-git clone https://github.com/dojo360-git/gestom_django.git
+# Installer l'application : 
 
-cd gestom_django
+## Creer un dossier 
+par exemple : mes_applis_web
 
-python3 -m venv .venv
+## Ouvrir le dossier avec Visual Studio Code (ou autres)
 
-.\.venv\Scripts\Activate.ps1
+## Ouvrir un terminal dans Visual Studio Code (ou autres) :
 
-pip install -r requirements.txt
+et lancer les commandes suivantes : 
+
+    git clone https://github.com/dojo360-git/gestom_django.git
+
+    cd gestom_django
+
+    python3 -m venv .venv
+
+    .\.venv\Scripts\Activate.ps1
+
+    pip install -r requirements.txt
+
+## Création du fichier .env et des infos base de données Postgre
+
+26/01/2026 : la base tourne pour le moment avec sqlite3 proposée par le Fraework Django 
+
+En vue de la connection à une base postgre : 
+
+    @"
+    DEBUG=True
+    SECRET_KEY=django-insecure-xxxx
+    DATABASE_URL=postgres://user:password@localhost:5432/dbname
+    "@ | Out-File -Encoding utf8 .env
+
+    .env à ouvrir et à modifier 
 
 
-## Création du fichier .env et des infos base de données : A mettre à jour 
 
-@"
-DEBUG=True
-SECRET_KEY=django-insecure-xxxx
-DATABASE_URL=postgres://user:password@localhost:5432/dbname
-"@ | Out-File -Encoding utf8 .env
+# Lancer l'application :
 
-.env à ouvrir et modifier
+Nécéssite que gestom_django ait été installé 
 
-# Lancer le serveur web :
-python manage.py runserver
+ouvrir le dossier gestom_django avec Visual Studio Code 
+Lancer un terminal : Terminal / New terminal : 
 
-# Ouvrir un navigateur sur : 
+    python manage.py runserver
 
-http://127.0.0.1:8000/
+Ouvrir un navigateur sur : 
+
+    http://127.0.0.1:8000/
 
 
 Let's go ! 
