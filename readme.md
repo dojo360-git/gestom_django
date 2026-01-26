@@ -4,22 +4,35 @@
 
 
 
+# Pour installer l'application sur Linux Debian 🐧: 
+
+## Git : 
+
+    sudo apt update
+    
+    sudo apt install -y git
+
+## Python : 
+
+    Ton projet utilise Django 6.0.1 → Python ≥ 3.12 obligatoire.
+    Connaitre sa version :
+        python3 --version
+
+    Mettre à jour : 
+
+        sudo apt install -y python3 python3-venv python3-pip
 
 
 
 
+# Installer l'application gestom_django : 
 
-
-
-
-# Installer l'application sur Windows : 
-
-## Creer un dossier / Utiliser un dossier avec les différents projets
+## Creer un dossier / Utiliser un dossier avec les différents projets appli web :
 par exemple : mes_applis_web
 
-## Ouvrir le dossier avec Visual Studio Code (ou autres)
+## Ouvrir le dossier avec Visual Studio Code (ou equivalent)
 
-## Ouvrir un terminal dans Visual Studio Code (ou autres) :
+## Ouvrir un terminal dans Visual Studio Code (ou equivalent) :
 
 et lancer les commandes suivantes : 
 
@@ -79,4 +92,6 @@ Let's go !
 
 # Autres
 python manage.py shell
+
+
 
