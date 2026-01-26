@@ -23,7 +23,7 @@ par exemple : mes_applis_web
 
 et lancer les commandes suivantes : 
 
-    ### Windows :
+    ### 🪟 Windows :
 
     git clone https://github.com/dojo360-git/gestom_django.git
     cd gestom_django
@@ -32,7 +32,7 @@ et lancer les commandes suivantes :
     pip install -r requirements.txt
 
 
-    ### Linux Debian/Ubuntu :
+    ### 🐧 Linux Debian/Ubuntu :
 
     git clone https://github.com/dojo360-git/gestom_django.git
     cd gestom_django
