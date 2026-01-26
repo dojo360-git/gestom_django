@@ -12,13 +12,9 @@ par exemple : mes_applis_web
 et lancer les commandes suivantes : 
 
     git clone https://github.com/dojo360-git/gestom_django.git
-_
     cd gestom_django
-_
     python3 -m venv .venv
-_
     .\.venv\Scripts\Activate.ps1
-_
     pip install -r requirements.txt
 
 
