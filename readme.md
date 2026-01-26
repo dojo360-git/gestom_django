@@ -4,28 +4,29 @@
 
 
 
-# Pour installer l'application sur Linux Debian 🐧: 
+# Pré requis sur Linux Debian 🐧: 
 
 ## Git : 
 
     sudo apt update
-    
+
     sudo apt install -y git
 
 ## Python : 
 
-    Ton projet utilise Django 6.0.1 → Python ≥ 3.12 obligatoire.
-    Connaitre sa version :
-        python3 --version
+Ton projet utilise Django 6.0.1 → Python ≥ 3.12 obligatoire.
+Connaitre sa version :
 
-    Mettre à jour : 
+     python3 --version
 
-        sudo apt install -y python3 python3-venv python3-pip
+Mettre à jour : 
+
+    sudo apt install -y python3 python3-venv python3-pip
 
 
 
 
-# Installer l'application gestom_django : 
+# Installer l'application gestom_django depuis repo Github : 
 
 ## Creer un dossier / Utiliser un dossier avec les différents projets appli web :
 par exemple : mes_applis_web
