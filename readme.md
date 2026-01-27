@@ -45,15 +45,26 @@ et lancer les commandes suivantes :
 
 26/01/2026 : la base tourne pour le moment avec sqlite3 proposée par le Fraework Django 
 
-En vue de la connection à une base postgre : 
 
-    @"
-    DEBUG=True
-    SECRET_KEY=django-insecure-xxxx
-    DATABASE_URL=postgres://user:password@localhost:5432/dbname
-    "@ | Out-File -Encoding utf8 .env
+Creer le .env a la racine du projet :
 
-    .env à ouvrir et à modifier 
+gestom_django/
+├── .env                👈 ICI (IMPORTANT)
+├── manage.py
+
+
+et y coller les infos suivantes : avec les mots de passe renseignés
+DEBUG=True
+SECRET_KEY=django-insecure-XXXX
+
+
+
+DATABASE_URL=postgres://u_pgd:PASSWORD@10.153.32.49:5432/ztest
+DB_NAME=ztest
+DB_USER=u_pgd
+DB_PASSWORD=XXXX
+DB_HOST=10.153.32.49
+DB_PORT=5432
 
 
 
