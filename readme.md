@@ -6,10 +6,7 @@
 
 # Pré requis : 
 
-## Git : 
-
-
-## Python : 
+Ce projet nécessite Git et Python ≥ 3.12 
 
 Ton projet utilise Django 6.0.1 → Python ≥ 3.12 obligatoire.
 
