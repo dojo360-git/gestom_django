@@ -93,3 +93,12 @@ python manage.py shell
 
 
 
+
+
+
+
+# Maintenance : 
+
+
+
+python manage.py test core
