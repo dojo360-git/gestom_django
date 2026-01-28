@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
@@ -174,7 +175,16 @@ class CollecteListView(ListView):
     context_object_name = "collectes"
 
     def get_queryset(self):
-        return (
+        date_str = self.request.GET.get("date")
+        if date_str:
+            try:
+                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                selected_date = timezone.localdate()
+        else:
+            selected_date = timezone.localdate()
+
+        qs = (
             Collecte.objects.select_related(
                 "id_agent_1",
                 "id_agent_2",
@@ -187,8 +197,22 @@ class CollecteListView(ListView):
                 "id_energie_2",
                 "id_energie_3",
             )
-            .all()
+            .filter(date_collecte=selected_date)
         )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get("date")
+        if date_str:
+            try:
+                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                selected_date = timezone.localdate()
+        else:
+            selected_date = timezone.localdate()
+        ctx["selected_date"] = selected_date
+        return ctx
 
 
 class CollecteDetailView(DetailView):

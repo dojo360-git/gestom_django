@@ -12,9 +12,17 @@
         <p class="sub">Liste des collectes enregistrees</p>
       </div>
 
-      <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">
-        + Nouvelle collecte
-      </a>
+      <div class="actions">
+        <form method="get" class="form" id="collecte-filter">
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+          </div>
+        </form>
+        <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">
+          + Nouvelle collecte
+        </a>
+      </div>
     </div>
 
     <div class="table-wrap">
@@ -96,4 +104,13 @@
 
   </div>
 </div>
+<script>
+  const dateInput = document.getElementById("date");
+  const filterForm = document.getElementById("collecte-filter");
+  if (dateInput && filterForm) {
+    dateInput.addEventListener("change", () => {
+      filterForm.submit();
+    });
+  }
+</script>
 {% endblock %}
