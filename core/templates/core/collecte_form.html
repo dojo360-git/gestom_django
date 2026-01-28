@@ -12,16 +12,264 @@
       </div>
     </div>
 
-    <form method="post" class="form">
-      {% csrf_token %}
+    <style>
+      .collecte-form .collecte-section {
+        border: 1px solid #e6efe4;
+        border-radius: 10px;
+        margin: 16px 0;
+        overflow: hidden;
+        background: #ffffff;
+      }
+      .collecte-form .section-title {
+        background: #2f6b2f;
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+      }
+      .collecte-form .section-body {
+        padding: 12px 14px;
+        background: #f7fbf6;
+      }
+      .collecte-form .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 16px;
+      }
+      .collecte-form .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px 16px;
+      }
+      .collecte-form .grid-4 {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 10px 12px;
+        align-items: end;
+      }
+      .collecte-form .row-labels {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 10px 12px;
+        font-weight: 600;
+        color: #2f6b2f;
+        margin-bottom: 6px;
+      }
+      .collecte-form .row-labels div {
+        font-size: 0.85rem;
+      }
+      .collecte-form .field {
+        margin: 0;
+      }
+      .collecte-form .field label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .collecte-form input,
+      .collecte-form select,
+      .collecte-form textarea {
+        width: 100%;
+      }
+      .collecte-form .thin {
+        max-width: 160px;
+      }
+      @media (max-width: 980px) {
+        .collecte-form .grid-4,
+        .collecte-form .row-labels {
+          grid-template-columns: 1fr;
+        }
+        .collecte-form .grid-3,
+        .collecte-form .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
 
-      {% for field in form %}
-      <div class="field">
-        {{ field.label_tag }}
-        {{ field }}
-        {{ field.errors }}
+    <form method="post" class="form collecte-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="collecte-section">
+        <div class="section-title">Collecte</div>
+        <div class="section-body grid-2">
+          <div class="field">
+            {{ form.date_collecte.label_tag }}
+            {{ form.date_collecte }}
+            {{ form.date_collecte.errors }}
+          </div>
+        </div>
       </div>
-      {% endfor %}
+
+      <div class="collecte-section">
+        <div class="section-title">Equipage</div>
+        <div class="section-body">
+          <div class="row-labels">
+            <div>Agent</div>
+            <div>Debut</div>
+            <div>Fin</div>
+            <div></div>
+          </div>
+
+          <div class="grid-4">
+            <div class="field">
+              {{ form.id_agent_1.label_tag }}
+              {{ form.id_agent_1 }}
+              {{ form.id_agent_1.errors }}
+            </div>
+            <div class="field">
+              {{ form.a1_hr_debut.label_tag }}
+              {{ form.a1_hr_debut }}
+              {{ form.a1_hr_debut.errors }}
+            </div>
+            <div class="field">
+              {{ form.a1_hr_fin.label_tag }}
+              {{ form.a1_hr_fin }}
+              {{ form.a1_hr_fin.errors }}
+            </div>
+            <div></div>
+
+            <div class="field">
+              {{ form.id_agent_2.label_tag }}
+              {{ form.id_agent_2 }}
+              {{ form.id_agent_2.errors }}
+            </div>
+            <div class="field">
+              {{ form.a2_hr_debut.label_tag }}
+              {{ form.a2_hr_debut }}
+              {{ form.a2_hr_debut.errors }}
+            </div>
+            <div class="field">
+              {{ form.a2_hr_fin.label_tag }}
+              {{ form.a2_hr_fin }}
+              {{ form.a2_hr_fin.errors }}
+            </div>
+            <div></div>
+
+            <div class="field">
+              {{ form.id_agent_3.label_tag }}
+              {{ form.id_agent_3 }}
+              {{ form.id_agent_3.errors }}
+            </div>
+            <div class="field">
+              {{ form.a3_hr_debut.label_tag }}
+              {{ form.a3_hr_debut }}
+              {{ form.a3_hr_debut.errors }}
+            </div>
+            <div class="field">
+              {{ form.a3_hr_fin.label_tag }}
+              {{ form.a3_hr_fin }}
+              {{ form.a3_hr_fin.errors }}
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collecte-section">
+        <div class="section-title">Vehicule</div>
+        <div class="section-body grid-3">
+          <div class="field">
+            {{ form.id_vehicule.label_tag }}
+            {{ form.id_vehicule }}
+            {{ form.id_vehicule.errors }}
+          </div>
+          <div class="field">
+            {{ form.km_depart.label_tag }}
+            {{ form.km_depart }}
+            {{ form.km_depart.errors }}
+          </div>
+          <div class="field">
+            {{ form.km_retour.label_tag }}
+            {{ form.km_retour }}
+            {{ form.km_retour.errors }}
+          </div>
+        </div>
+      </div>
+
+      <div class="collecte-section">
+        <div class="section-title">Flux</div>
+        <div class="section-body grid-3">
+          <div class="field">
+            {{ form.id_flux1.label_tag }}
+            {{ form.id_flux1 }}
+            {{ form.id_flux1.errors }}
+          </div>
+          <div class="field">
+            {{ form.tonnage1.label_tag }}
+            {{ form.tonnage1 }}
+            {{ form.tonnage1.errors }}
+          </div>
+          <div class="field"></div>
+
+          <div class="field">
+            {{ form.id_flux2.label_tag }}
+            {{ form.id_flux2 }}
+            {{ form.id_flux2.errors }}
+          </div>
+          <div class="field">
+            {{ form.tonnage2.label_tag }}
+            {{ form.tonnage2 }}
+            {{ form.tonnage2.errors }}
+          </div>
+          <div class="field"></div>
+
+          <div class="field">
+            {{ form.id_flux3.label_tag }}
+            {{ form.id_flux3 }}
+            {{ form.id_flux3.errors }}
+          </div>
+          <div class="field">
+            {{ form.tonnage3.label_tag }}
+            {{ form.tonnage3 }}
+            {{ form.tonnage3.errors }}
+          </div>
+          <div class="field"></div>
+        </div>
+      </div>
+
+      <div class="collecte-section">
+        <div class="section-title">Energie</div>
+        <div class="section-body grid-3">
+          <div class="field">
+            {{ form.id_energie_1.label_tag }}
+            {{ form.id_energie_1 }}
+            {{ form.id_energie_1.errors }}
+          </div>
+          <div class="field">
+            {{ form.energie_qte_1.label_tag }}
+            {{ form.energie_qte_1 }}
+            {{ form.energie_qte_1.errors }}
+          </div>
+          <div class="field"></div>
+
+          <div class="field">
+            {{ form.id_energie_2.label_tag }}
+            {{ form.id_energie_2 }}
+            {{ form.id_energie_2.errors }}
+          </div>
+          <div class="field">
+            {{ form.energie_qte_2.label_tag }}
+            {{ form.energie_qte_2 }}
+            {{ form.energie_qte_2.errors }}
+          </div>
+          <div class="field"></div>
+
+          <div class="field">
+            {{ form.id_energie_3.label_tag }}
+            {{ form.id_energie_3 }}
+            {{ form.id_energie_3.errors }}
+          </div>
+          <div class="field">
+            {{ form.energie_qte_3.label_tag }}
+            {{ form.energie_qte_3 }}
+            {{ form.energie_qte_3.errors }}
+          </div>
+          <div class="field"></div>
+        </div>
+      </div>
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>
