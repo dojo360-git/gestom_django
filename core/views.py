@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
-from .forms import AgentForm, FluxForm, EnergieForm, VehiculeForm
-from .models import Agent, Flux, Energie, Vehicule
+from .forms import AgentForm, FluxForm, EnergieForm, VehiculeForm, CollecteForm
+from .models import Agent, Flux, Energie, Vehicule, Collecte
 
 
 def home(request):
@@ -166,6 +166,65 @@ class VehiculeDeleteView(DeleteView):
     model = Vehicule
     template_name = "core/vehicule_confirm_delete.html"
     success_url = reverse_lazy("core:vehicule_list")
+
+
+class CollecteListView(ListView):
+    model = Collecte
+    template_name = "core/collecte_list.html"
+    context_object_name = "collectes"
+
+    def get_queryset(self):
+        return (
+            Collecte.objects.select_related(
+                "id_agent_1",
+                "id_agent_2",
+                "id_agent_3",
+                "id_vehicule",
+                "id_flux1",
+                "id_flux2",
+                "id_flux3",
+                "id_energie_1",
+                "id_energie_2",
+                "id_energie_3",
+            )
+            .all()
+        )
+
+
+class CollecteDetailView(DetailView):
+    model = Collecte
+    template_name = "core/collecte_detail.html"
+    context_object_name = "collecte"
+
+
+class CollecteCreateView(CreateView):
+    model = Collecte
+    form_class = CollecteForm
+    template_name = "core/collecte_form.html"
+    success_url = reverse_lazy("core:collecte_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Nouvelle collecte"
+        return ctx
+
+
+class CollecteUpdateView(UpdateView):
+    model = Collecte
+    form_class = CollecteForm
+    template_name = "core/collecte_form.html"
+    success_url = reverse_lazy("core:collecte_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Modifier collecte"
+        return ctx
+
+
+class CollecteDeleteView(DeleteView):
+    model = Collecte
+    template_name = "core/collecte_confirm_delete.html"
+    success_url = reverse_lazy("core:collecte_list")
 
 
 class PlanningView(TemplateView):

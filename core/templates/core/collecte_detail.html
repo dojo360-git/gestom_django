@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+
+{% block title %}Collecte{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Collecte #{{ collecte.id_collecte }}</h1>
+        <p class="sub">Details de la collecte</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Date collecte : {{ collecte.date_collecte }}</li>
+      <li>Agent 1 : {{ collecte.id_agent_1 }}</li>
+      <li>Agent 1 heure debut : {{ collecte.a1_hr_debut }}</li>
+      <li>Agent 1 heure fin : {{ collecte.a1_hr_fin }}</li>
+      <li>Agent 2 : {{ collecte.id_agent_2 }}</li>
+      <li>Agent 2 heure debut : {{ collecte.a2_hr_debut }}</li>
+      <li>Agent 2 heure fin : {{ collecte.a2_hr_fin }}</li>
+      <li>Agent 3 : {{ collecte.id_agent_3 }}</li>
+      <li>Agent 3 heure debut : {{ collecte.a3_hr_debut }}</li>
+      <li>Agent 3 heure fin : {{ collecte.a3_hr_fin }}</li>
+      <li>Vehicule : {{ collecte.id_vehicule }}</li>
+      <li>Km depart : {{ collecte.km_depart }}</li>
+      <li>Km retour : {{ collecte.km_retour }}</li>
+      <li>Flux 1 : {{ collecte.id_flux1 }}</li>
+      <li>Tonnage 1 : {{ collecte.tonnage1 }}</li>
+      <li>Flux 2 : {{ collecte.id_flux2 }}</li>
+      <li>Tonnage 2 : {{ collecte.tonnage2 }}</li>
+      <li>Flux 3 : {{ collecte.id_flux3 }}</li>
+      <li>Tonnage 3 : {{ collecte.tonnage3 }}</li>
+      <li>Energie 1 : {{ collecte.id_energie_1 }}</li>
+      <li>Energie 1 quantite : {{ collecte.energie_qte_1 }}</li>
+      <li>Energie 2 : {{ collecte.id_energie_2 }}</li>
+      <li>Energie 2 quantite : {{ collecte.energie_qte_2 }}</li>
+      <li>Energie 3 : {{ collecte.id_energie_3 }}</li>
+      <li>Energie 3 quantite : {{ collecte.energie_qte_3 }}</li>
+      <li>Date creation : {{ collecte.date_creation }}</li>
+      <li>Date modification : {{ collecte.date_modification }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:collecte_update' collecte.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:collecte_delete' collecte.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

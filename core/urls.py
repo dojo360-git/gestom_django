@@ -6,6 +6,7 @@ from .views import (
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
+    CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     PlanningView,
 )
 
@@ -25,6 +26,11 @@ urlpatterns = [
     path("vehicules/<int:pk>/", VehiculeDetailView.as_view(), name="vehicule_detail"),
     path("vehicules/<int:pk>/modifier/", VehiculeUpdateView.as_view(), name="vehicule_update"),
     path("vehicules/<int:pk>/supprimer/", VehiculeDeleteView.as_view(), name="vehicule_delete"),
+    path("collectes/", CollecteListView.as_view(), name="collecte_list"),
+    path("collectes/nouveau/", CollecteCreateView.as_view(), name="collecte_create"),
+    path("collectes/<int:pk>/", CollecteDetailView.as_view(), name="collecte_detail"),
+    path("collectes/<int:pk>/modifier/", CollecteUpdateView.as_view(), name="collecte_update"),
+    path("collectes/<int:pk>/supprimer/", CollecteDeleteView.as_view(), name="collecte_delete"),
     path("flux/", FluxListView.as_view(), name="flux_list"),
     path("flux/nouveau/", FluxCreateView.as_view(), name="flux_create"),
     path("flux/<int:pk>/", FluxDetailView.as_view(), name="flux_detail"),

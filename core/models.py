@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Agent(models.Model):
@@ -71,3 +72,107 @@ class Vehicule(models.Model):
 
     def __str__(self):
         return self.nom_vehicule
+
+
+class Collecte(models.Model):
+    id_collecte = models.BigAutoField(primary_key=True)
+    date_collecte = models.DateField(default=timezone.localdate)
+
+    id_agent_1 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_agent_1",
+    )
+    a1_hr_debut = models.TimeField(null=True, blank=True)
+    a1_hr_fin = models.TimeField(null=True, blank=True)
+
+    id_agent_2 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_agent_2",
+    )
+    a2_hr_debut = models.TimeField(null=True, blank=True)
+    a2_hr_fin = models.TimeField(null=True, blank=True)
+
+    id_agent_3 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_agent_3",
+    )
+    a3_hr_debut = models.TimeField(null=True, blank=True)
+    a3_hr_fin = models.TimeField(null=True, blank=True)
+
+    id_vehicule = models.ForeignKey(
+        Vehicule,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes",
+    )
+    km_depart = models.FloatField(null=True, blank=True)
+    km_retour = models.FloatField(null=True, blank=True)
+
+    id_flux1 = models.ForeignKey(
+        Flux,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_flux1",
+    )
+    id_flux2 = models.ForeignKey(
+        Flux,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_flux2",
+    )
+    id_flux3 = models.ForeignKey(
+        Flux,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_flux3",
+    )
+    tonnage1 = models.FloatField(null=True, blank=True)
+    tonnage2 = models.FloatField(null=True, blank=True)
+    tonnage3 = models.FloatField(null=True, blank=True)
+
+    id_energie_1 = models.ForeignKey(
+        Energie,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_energie1",
+    )
+    id_energie_2 = models.ForeignKey(
+        Energie,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_energie2",
+    )
+    id_energie_3 = models.ForeignKey(
+        Energie,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes_energie3",
+    )
+    energie_qte_1 = models.FloatField(null=True, blank=True)
+    energie_qte_2 = models.FloatField(null=True, blank=True)
+    energie_qte_3 = models.FloatField(null=True, blank=True)
+
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date_collecte", "-date_creation"]
+
+    def __str__(self):
+        return f"Collecte {self.id_collecte}"

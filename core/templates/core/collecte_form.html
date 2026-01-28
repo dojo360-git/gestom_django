@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% block title %}Collecte{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ title|default:"Collecte" }}</h1>
+        <p class="sub">Saisie de collecte</p>
+      </div>
+    </div>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="field">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+
+      <div class="actions">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
