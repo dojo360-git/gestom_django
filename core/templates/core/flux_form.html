@@ -19,7 +19,19 @@
       {% for field in form %}
       <div class="field">
         {{ field.label_tag }}
-        {{ field }}
+        {% if field.name == "couleur_flux" %}
+          <div style="display: flex; gap: 10px; align-items: center;">
+            {{ field }}
+            <input
+              type="text"
+              id="couleur_flux_text"
+              placeholder="#RRGGBB"
+              style="max-width: 120px;"
+            >
+          </div>
+        {% else %}
+          {{ field }}
+        {% endif %}
         {{ field.errors }}
       </div>
       {% endfor %}
@@ -32,4 +44,22 @@
 
   </div>
 </div>
+<script>
+  const colorInput = document.querySelector('input[name="couleur_flux"]');
+  const hexInput = document.getElementById("couleur_flux_text");
+  if (colorInput && hexInput) {
+    const syncFromColor = () => {
+      hexInput.value = colorInput.value || "";
+    };
+    const syncFromHex = () => {
+      const v = hexInput.value.trim();
+      if (/^#([0-9a-fA-F]{6})$/.test(v)) {
+        colorInput.value = v;
+      }
+    };
+    syncFromColor();
+    colorInput.addEventListener("input", syncFromColor);
+    hexInput.addEventListener("input", syncFromHex);
+  }
+</script>
 {% endblock %}

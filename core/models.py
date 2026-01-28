@@ -42,6 +42,7 @@ class Flux(models.Model):
     id_flux = models.AutoField(primary_key=True)
     flux = models.CharField(max_length=150)
     flux_long = models.CharField(max_length=255)
+    couleur_flux = models.CharField(max_length=50, blank=True)
     archive = models.BooleanField(default=False)
 
     class Meta:

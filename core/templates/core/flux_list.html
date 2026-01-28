@@ -23,6 +23,7 @@
           <tr>
             <th>Flux</th>
             <th>Flux long</th>
+            <th>Couleur</th>
             <th>Statut</th>
             <th class="right">Actions</th>
           </tr>
@@ -32,6 +33,16 @@
           <tr>
             <td>{{ f.flux }}</td>
             <td>{{ f.flux_long }}</td>
+            <td>
+              {% if f.couleur_flux %}
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                  <span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #cbd7c8;background:{{ f.couleur_flux }};"></span>
+                  <span>{{ f.couleur_flux }}</span>
+                </span>
+              {% else %}
+                <span class="sub">-</span>
+              {% endif %}
+            </td>
             <td>
               {% if f.archive %}
                 <span class="badge badge--low">Archive</span>

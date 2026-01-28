@@ -23,7 +23,10 @@ class AgentForm(forms.ModelForm):
 class FluxForm(forms.ModelForm):
     class Meta:
         model = Flux
-        fields = ["flux", "flux_long", "archive"]
+        fields = ["flux", "flux_long", "couleur_flux", "archive"]
+        widgets = {
+            "couleur_flux": forms.TextInput(attrs={"type": "color"}),
+        }
 
 
 class EnergieForm(forms.ModelForm):
