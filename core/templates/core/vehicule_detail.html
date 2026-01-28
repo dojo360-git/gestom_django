@@ -7,16 +7,17 @@
   <div class="card__pad">
     <div class="header">
       <div>
-        <h1 class="h1">{{ vehicule.vehicule }}</h1>
+        <h1 class="h1">{{ vehicule.nom_vehicule }}</h1>
         <p class="sub">Details du vehicule</p>
       </div>
     </div>
 
     <ul class="list">
+      <li>Nom : {{ vehicule.nom_vehicule }}</li>
       <li>Type : {{ vehicule.type }}</li>
       <li>Archive : {{ vehicule.archive }}</li>
       <li>Creation : {{ vehicule.date_creation }}</li>
-      <li>Modification : {{ vehicule.date_modif }}</li>
+      <li>Modification : {{ vehicule.date_modification }}</li>
     </ul>
 
     <div class="actions">

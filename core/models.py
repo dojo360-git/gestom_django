@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Agent(models.Model):
-    # IdAg : Django crée déjà un id auto, mais si tu veux garder IdAg du fichier :
+    # IdAg : Django crÃ©e dÃ©jÃ  un id auto, mais si tu veux garder IdAg du fichier :
     id_ag = models.PositiveIntegerField(unique=True)
 
     nom = models.CharField(max_length=100)
@@ -16,7 +16,7 @@ class Agent(models.Model):
     hds_defaut = models.TimeField(null=True, blank=True)
 
     # HAjoutQuotidienAg (on ne sait pas si c'est temps ou nombre)
-    # Si c’est aussi une durée/heure => TimeField. Sinon => Decimal/Integer.
+    # Si câ€™est aussi une durÃ©e/heure => TimeField. Sinon => Decimal/Integer.
     hajout_quotidien = models.TimeField(null=True, blank=True)
 
     echeance_permis = models.DateField(null=True, blank=True)
@@ -35,20 +35,6 @@ class Agent(models.Model):
 
     def __str__(self):
         return f"{self.nom} {self.prenom}"
-
-
-# app/models.py
-#from django.db import models
-
-class Vehicule(models.Model):
-    vehicule = models.CharField(primary_key=True, max_length=80)  # clé primaire string
-    type = models.CharField(max_length=80)
-    archive = models.BooleanField(default=False)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_modif = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.vehicule
 
 
 class Flux(models.Model):
@@ -75,3 +61,13 @@ class Energie(models.Model):
     def __str__(self):
         return self.energie
 
+
+class Vehicule(models.Model):
+    nom_vehicule = models.CharField(max_length=150)
+    type = models.CharField(max_length=150)
+    archive = models.BooleanField(default=False)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.nom_vehicule

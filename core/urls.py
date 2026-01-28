@@ -3,9 +3,9 @@ from django.urls import path
 from . import views
 from .views import (
     AgentListView, AgentDetailView, AgentCreateView, AgentUpdateView, AgentDeleteView,
-    VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
+    VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     PlanningView,
 )
 
@@ -22,9 +22,9 @@ urlpatterns = [
     path("agents/<int:pk>/supprimer/", AgentDeleteView.as_view(), name="agent_delete"),
     path("vehicules/", VehiculeListView.as_view(), name="vehicule_list"),
     path("vehicules/nouveau/", VehiculeCreateView.as_view(), name="vehicule_create"),
-    path("vehicules/<str:pk>/", VehiculeDetailView.as_view(), name="vehicule_detail"),
-    path("vehicules/<str:pk>/modifier/", VehiculeUpdateView.as_view(), name="vehicule_update"),
-    path("vehicules/<str:pk>/supprimer/", VehiculeDeleteView.as_view(), name="vehicule_delete"),
+    path("vehicules/<int:pk>/", VehiculeDetailView.as_view(), name="vehicule_detail"),
+    path("vehicules/<int:pk>/modifier/", VehiculeUpdateView.as_view(), name="vehicule_update"),
+    path("vehicules/<int:pk>/supprimer/", VehiculeDeleteView.as_view(), name="vehicule_delete"),
     path("flux/", FluxListView.as_view(), name="flux_list"),
     path("flux/nouveau/", FluxCreateView.as_view(), name="flux_create"),
     path("flux/<int:pk>/", FluxDetailView.as_view(), name="flux_detail"),

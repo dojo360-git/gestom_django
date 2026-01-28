@@ -1,5 +1,5 @@
 from django import forms
-from .models import Agent, Vehicule, Flux, Energie
+from .models import Agent, Flux, Energie, Vehicule
 
 
 class AgentForm(forms.ModelForm):
@@ -20,12 +20,6 @@ class AgentForm(forms.ModelForm):
         }
 
 
-class VehiculeForm(forms.ModelForm):
-    class Meta:
-        model = Vehicule
-        fields = ["vehicule", "type", "archive"]
-
-
 class FluxForm(forms.ModelForm):
     class Meta:
         model = Flux
@@ -36,3 +30,9 @@ class EnergieForm(forms.ModelForm):
     class Meta:
         model = Energie
         fields = ["energie"]
+
+
+class VehiculeForm(forms.ModelForm):
+    class Meta:
+        model = Vehicule
+        fields = ["nom_vehicule", "type", "archive"]

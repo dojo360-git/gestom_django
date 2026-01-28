@@ -21,7 +21,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Vehicule</th>
+            <th>Nom</th>
             <th>Type</th>
             <th>Statut</th>
             <th class="right">Actions</th>
@@ -30,7 +30,7 @@
         <tbody>
           {% for v in object_list %}
           <tr>
-            <td>{{ v.vehicule }}</td>
+            <td>{{ v.nom_vehicule }}</td>
             <td>{{ v.type }}</td>
             <td>
               {% if v.archive %}
@@ -41,6 +41,7 @@
             </td>
             <td class="right">
               <div class="actions">
+                <a href="{% url 'core:vehicule_detail' v.pk %}" class="btn btn--sm btn--ghost">Voir</a>
                 <a href="{% url 'core:vehicule_update' v.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
                 <a href="{% url 'core:vehicule_delete' v.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
               </div>
