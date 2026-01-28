@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block title %}Flux{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ flux.flux }}</h1>
+        <p class="sub">Details du flux</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Flux : {{ flux.flux }}</li>
+      <li>Flux long : {{ flux.flux_long }}</li>
+      <li>Archive : {{ flux.archive }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:flux_update' flux.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:flux_delete' flux.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:flux_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

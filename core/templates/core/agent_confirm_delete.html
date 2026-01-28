@@ -5,5 +5,5 @@
 <form method="post">
   {% csrf_token %}
   <button type="submit">Oui, supprimer</button>
-  <a href="{% url 'agent_detail' object.pk %}">Annuler</a>
+  <a href="{% url 'core:agent_detail' object.pk %}">Annuler</a>
 </form>

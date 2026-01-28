@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+
+{% block title %}Vehicule{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ vehicule.vehicule }}</h1>
+        <p class="sub">Details du vehicule</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Type : {{ vehicule.type }}</li>
+      <li>Archive : {{ vehicule.archive }}</li>
+      <li>Creation : {{ vehicule.date_creation }}</li>
+      <li>Modification : {{ vehicule.date_modif }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:vehicule_update' vehicule.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:vehicule_delete' vehicule.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:vehicule_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

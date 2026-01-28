@@ -12,16 +12,19 @@
 
 <header class="nav">
   <div class="container nav__inner">
-    <a class="brand" href="{% url 'home' %}">
+    <a class="brand" href="{% url 'core:home' %}">
       <span class="brand__dot"></span>
       <span>Gestom</span>
     </a>
 
     <div class="nav__actions">
-      <a class="btn btn--ghost" href="{% url 'products_list' %}">Collecte</a>
-      <a class="btn btn--ghost" href="{% url 'products_list' %}">Collectes du jours</a>
-      <a class="btn btn--ghost" href="{% url 'agent_list' %}">Agents</a>
-      <a class="btn btn--primary" href="{% url 'planning' %}">Planning</a>
+      <a class="btn btn--ghost" href="{% url 'core:products_list' %}">Collecte</a>
+      <a class="btn btn--ghost" href="{% url 'core:products_list' %}">Collectes du jours</a>
+      <a class="btn btn--ghost" href="{% url 'core:agent_list' %}">Agents</a>
+      <a class="btn btn--ghost" href="{% url 'core:vehicule_list' %}">Vehicules</a>
+      <a class="btn btn--ghost" href="{% url 'core:flux_list' %}">Flux</a>
+      <a class="btn btn--ghost" href="{% url 'core:energie_list' %}">Energies</a>
+      <a class="btn btn--primary" href="{% url 'core:planning' %}">Planning</a>
     </div>
   </div>
 </header>

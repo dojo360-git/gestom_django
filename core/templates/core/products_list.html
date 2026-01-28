@@ -7,7 +7,7 @@
     <h2 class="h2">Produits</h2>
     <p class="sub">Liste des produits enregistrés.</p>
   </div>
-  <a class="btn btn--primary" href="{% url 'product_create' %}">+ Ajouter</a>
+  <a class="btn btn--primary" href="{% url 'core:product_create' %}">+ Ajouter</a>
 </div>
 
 <div class="card">
@@ -35,8 +35,8 @@
           </td>
           <td class="right">
             <div class="actions">
-              <a class="btn btn--sm" href="{% url 'product_update' p.pk %}">Modifier</a>
-              <a class="btn btn--sm btn--danger" href="{% url 'product_delete' p.pk %}">Supprimer</a>
+              <a class="btn btn--sm" href="{% url 'core:product_update' p.pk %}">Modifier</a>
+              <a class="btn btn--sm btn--danger" href="{% url 'core:product_delete' p.pk %}">Supprimer</a>
             </div>
           </td>
         </tr>

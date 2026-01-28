@@ -12,7 +12,7 @@
         <p class="sub">Gestion des agents enregistrés</p>
       </div>
 
-      <a href="{% url 'agent_create' %}" class="btn btn--primary">
+      <a href="{% url 'core:agent_create' %}" class="btn btn--primary">
         + Nouvel agent
       </a>
     </div>
@@ -41,8 +41,8 @@
             </td>
             <td class="right">
               <div class="actions">
-                <a href="{% url 'agent_update' agent.id %}" class="btn btn--sm btn--ghost">Modifier</a>
-                <a href="{% url 'agent_delete' agent.id %}" class="btn btn--sm btn--danger">Supprimer</a>
+                <a href="{% url 'core:agent_update' agent.id %}" class="btn btn--sm btn--ghost">Modifier</a>
+                <a href="{% url 'core:agent_delete' agent.id %}" class="btn btn--sm btn--danger">Supprimer</a>
               </div>
             </td>
           </tr>

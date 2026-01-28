@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+
+{% block title %}Energies{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+
+    <div class="header">
+      <div>
+        <h1 class="h1">Energies</h1>
+        <p class="sub">Gestion des energies enregistrees</p>
+      </div>
+
+      <a href="{% url 'core:energie_create' %}" class="btn btn--primary">
+        + Nouvelle energie
+      </a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Energie</th>
+            <th>Creation</th>
+            <th>Modification</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in object_list %}
+          <tr>
+            <td>{{ e.energie }}</td>
+            <td>{{ e.date_creation }}</td>
+            <td>{{ e.date_modification }}</td>
+            <td class="right">
+              <div class="actions">
+                <a href="{% url 'core:energie_update' e.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+                <a href="{% url 'core:energie_delete' e.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="sub">Aucune energie enregistree</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

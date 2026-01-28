@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+
+{% block title %}Flux{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+
+    <div class="header">
+      <div>
+        <h1 class="h1">Flux</h1>
+        <p class="sub">Gestion des flux enregistres</p>
+      </div>
+
+      <a href="{% url 'core:flux_create' %}" class="btn btn--primary">
+        + Nouveau flux
+      </a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Flux</th>
+            <th>Flux long</th>
+            <th>Statut</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in object_list %}
+          <tr>
+            <td>{{ f.flux }}</td>
+            <td>{{ f.flux_long }}</td>
+            <td>
+              {% if f.archive %}
+                <span class="badge badge--low">Archive</span>
+              {% else %}
+                <span class="badge badge--ok">Actif</span>
+              {% endif %}
+            </td>
+            <td class="right">
+              <div class="actions">
+                <a href="{% url 'core:flux_update' f.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+                <a href="{% url 'core:flux_delete' f.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="sub">Aucun flux enregistre</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

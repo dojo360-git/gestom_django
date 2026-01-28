@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block title %}Energie{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ energie.energie }}</h1>
+        <p class="sub">Details de l'energie</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Energie : {{ energie.energie }}</li>
+      <li>Creation : {{ energie.date_creation }}</li>
+      <li>Modification : {{ energie.date_modification }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:energie_update' energie.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:energie_delete' energie.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:energie_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@
     <h2 class="h2">Supprimer</h2>
     <p class="sub">Action irréversible.</p>
   </div>
-  <a class="btn" href="{% url 'products_list' %}">Retour</a>
+  <a class="btn" href="{% url 'core:products_list' %}">Retour</a>
 </div>
 
 <div class="card">
@@ -17,7 +17,7 @@
     <form method="post" class="actions" style="justify-content:flex-start;">
       {% csrf_token %}
       <button class="btn btn--danger" type="submit">Oui, supprimer</button>
-      <a class="btn" href="{% url 'products_list' %}">Annuler</a>
+      <a class="btn" href="{% url 'core:products_list' %}">Annuler</a>
     </form>
   </div>
 </div>

@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+
+{% block title %}Supprimer vehicule{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <h1 class="h1">Supprimer {{ object.vehicule }} ?</h1>
+    <form method="post" class="form">
+      {% csrf_token %}
+      <div class="actions">
+        <button class="btn btn--danger" type="submit">Oui, supprimer</button>
+        <a href="{% url 'core:vehicule_list' %}" class="btn btn--ghost">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

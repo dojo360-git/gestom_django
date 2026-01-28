@@ -8,7 +8,7 @@ class ProduitForm(forms.ModelForm):
 
 
 
-from .models import Agent
+from .models import Agent, Vehicule, Flux, Energie
 
 
 class AgentForm(forms.ModelForm):
@@ -27,3 +27,21 @@ class AgentForm(forms.ModelForm):
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
             "hajout_quotidien": forms.TimeInput(attrs={"type": "time"}),
         }
+
+
+class VehiculeForm(forms.ModelForm):
+    class Meta:
+        model = Vehicule
+        fields = ["vehicule", "type", "archive"]
+
+
+class FluxForm(forms.ModelForm):
+    class Meta:
+        model = Flux
+        fields = ["flux", "flux_long", "archive"]
+
+
+class EnergieForm(forms.ModelForm):
+    class Meta:
+        model = Energie
+        fields = ["energie"]

@@ -46,3 +46,43 @@ class Agent(models.Model):
 
     def __str__(self):
         return f"{self.nom} {self.prenom}"
+
+
+# app/models.py
+#from django.db import models
+
+class Vehicule(models.Model):
+    vehicule = models.CharField(primary_key=True, max_length=80)  # clé primaire string
+    type = models.CharField(max_length=80)
+    archive = models.BooleanField(default=False)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modif = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.vehicule
+
+
+class Flux(models.Model):
+    id_flux = models.AutoField(primary_key=True)
+    flux = models.CharField(max_length=150)
+    flux_long = models.CharField(max_length=255)
+    archive = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["flux"]
+
+    def __str__(self):
+        return self.flux
+
+
+class Energie(models.Model):
+    energie = models.CharField(max_length=150)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["energie"]
+
+    def __str__(self):
+        return self.energie
+
