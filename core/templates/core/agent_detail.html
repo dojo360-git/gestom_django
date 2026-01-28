@@ -1,26 +1,37 @@
 {% extends "core/base.html" %}
 
+{% block title %}Agent{% endblock %}
 
-<h1>{{ agent.nom }} {{ agent.prenom }}</h1>
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ agent.nom }} {{ agent.prenom }}</h1>
+        <p class="sub">Details de l'agent</p>
+      </div>
+    </div>
 
-<ul>
-  <li>IdAg : {{ agent.id_ag }}</li>
-  <li>Qualification : {{ agent.qualification }}</li>
-  <li>Service : {{ agent.service }}</li>
-  <li>Employeur : {{ agent.employeur }}</li>
-  <li>HDS défaut : {{ agent.hds_defaut }}</li>
-  <li>Ajout quotidien : {{ agent.hajout_quotidien }}</li>
-  <li>Échéance permis : {{ agent.echeance_permis }}</li>
-  <li>Échéance FCO : {{ agent.echeance_fco }}</li>
-  <li>Arrivée : {{ agent.arrivee }}</li>
-  <li>Départ : {{ agent.depart }}</li>
-  <li>Tél : {{ agent.tel }}</li>
-  <li>Supp : {{ agent.supp }}</li>
-</ul>
+    <ul class="list">
+      <li>IdAg : {{ agent.id_ag }}</li>
+      <li>Qualification : {{ agent.qualification }}</li>
+      <li>Service : {{ agent.service }}</li>
+      <li>Employeur : {{ agent.employeur }}</li>
+      <li>HDS defaut : {{ agent.hds_defaut }}</li>
+      <li>Ajout quotidien : {{ agent.hajout_quotidien }}</li>
+      <li>Echeance permis : {{ agent.echeance_permis }}</li>
+      <li>Echeance FCO : {{ agent.echeance_fco }}</li>
+      <li>Arrivee : {{ agent.arrivee }}</li>
+      <li>Depart : {{ agent.depart }}</li>
+      <li>Tel : {{ agent.tel }}</li>
+      <li>Supp : {{ agent.supp }}</li>
+    </ul>
 
-<p>
-  <a href="{% url 'core:agent_update' agent.pk %}">Modifier</a> |
-  <a href="{% url 'core:agent_delete' agent.pk %}">Supprimer</a> |
-  <a href="{% url 'core:agent_list' %}">Retour</a>
-</p>
-
+    <div class="actions">
+      <a href="{% url 'core:agent_update' agent.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:agent_delete' agent.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:agent_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
