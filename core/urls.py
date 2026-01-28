@@ -1,27 +1,19 @@
 from django.urls import path
-from .import views
 
-from django.urls import path
+from . import views
 from .views import (
     AgentListView, AgentDetailView, AgentCreateView, AgentUpdateView, AgentDeleteView,
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
+    PlanningView,
 )
 
-from .views import (
-    PlanningView
-)
-
-app_name = "core" 
+app_name = "core"
 
 
 urlpatterns = [
-    path("", views.home, name="home"),  # 👈 page d’accueil
-    path("products/", views.products_list, name="products_list"),
-    path("products/new/", views.product_create, name="product_create"),
-    path("products/<int:pk>/edit/", views.product_update, name="product_update"),
-    path("products/<int:pk>/delete/", views.product_delete, name="product_delete"),
+    path("", views.home, name="home"),
     path("planning/", PlanningView.as_view(), name="planning"),
     path("agents/", AgentListView.as_view(), name="agent_list"),
     path("agents/nouveau/", AgentCreateView.as_view(), name="agent_create"),
@@ -44,4 +36,3 @@ urlpatterns = [
     path("energies/<int:pk>/modifier/", EnergieUpdateView.as_view(), name="energie_update"),
     path("energies/<int:pk>/supprimer/", EnergieDeleteView.as_view(), name="energie_delete"),
 ]
-
