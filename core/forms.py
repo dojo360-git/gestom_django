@@ -65,14 +65,14 @@ class CollecteForm(forms.ModelForm):
             "a2_hr_fin": forms.TimeInput(attrs={"type": "time"}),
             "a3_hr_debut": forms.TimeInput(attrs={"type": "time"}),
             "a3_hr_fin": forms.TimeInput(attrs={"type": "time"}),
-            "km_depart": forms.NumberInput(attrs={"step": "0.01"}),
-            "km_retour": forms.NumberInput(attrs={"step": "0.01"}),
-            "tonnage1": forms.NumberInput(attrs={"step": "0.01"}),
-            "tonnage2": forms.NumberInput(attrs={"step": "0.01"}),
-            "tonnage3": forms.NumberInput(attrs={"step": "0.01"}),
-            "energie_qte_1": forms.NumberInput(attrs={"step": "0.01"}),
-            "energie_qte_2": forms.NumberInput(attrs={"step": "0.01"}),
-            "energie_qte_3": forms.NumberInput(attrs={"step": "0.01"}),
+            "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "km_retour": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "tonnage1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "energie_qte_2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "energie_qte_3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -278,4 +278,69 @@
     </form>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const flux1 = document.getElementById("id_id_flux1");
+    const flux2 = document.getElementById("id_id_flux2");
+    const flux3 = document.getElementById("id_id_flux3");
+    if (flux1 && flux2 && flux3) {
+      flux1.addEventListener("change", function () {
+        const value = flux1.value;
+        flux2.value = value;
+        flux3.value = value;
+      });
+    }
+
+    const numericIds = [
+      "id_km_depart",
+      "id_km_retour",
+      "id_tonnage1",
+      "id_tonnage2",
+      "id_tonnage3",
+      "id_energie_qte_1",
+      "id_energie_qte_2",
+      "id_energie_qte_3",
+    ];
+    const inputs = numericIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    function stripSpaces(value) {
+      return value.replace(/\s+/g, "").replace(",", ".");
+    }
+
+    function formatThousands(value) {
+      if (!value) {
+        return value;
+      }
+      const raw = stripSpaces(value);
+      const parts = raw.split(".");
+      const intPart = parts[0].replace(/\D/g, "");
+      const decPart = parts[1] ? parts[1].replace(/\D/g, "") : "";
+      const withSpaces = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      return decPart ? `${withSpaces}.${decPart}` : withSpaces;
+    }
+
+    inputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        input.value = stripSpaces(input.value);
+      });
+      input.addEventListener("blur", function () {
+        input.value = formatThousands(input.value);
+      });
+      if (input.value) {
+        input.value = formatThousands(input.value);
+      }
+    });
+
+    const form = document.querySelector("form.collecte-form");
+    if (form) {
+      form.addEventListener("submit", function () {
+        inputs.forEach((input) => {
+          input.value = stripSpaces(input.value);
+        });
+      });
+    }
+  });
+</script>
 {% endblock %}
