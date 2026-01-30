@@ -10,6 +10,6 @@ cursor = conn.cursor()
 
 
 # Avoir les noms des champs : 
-cursor.execute("PRAGMA table_info(core_flux);")
+cursor.execute("PRAGMA table_info(core_collecte);")
 print([col[1] for col in cursor.fetchall()])
 
