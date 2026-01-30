@@ -90,3 +90,11 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_energie_1"].queryset = energie_qs
         self.fields["id_energie_2"].queryset = energie_qs
         self.fields["id_energie_3"].queryset = energie_qs
+
+        if not self.instance.pk:
+            self.fields["a1_hr_debut"].initial = "05:00"
+            self.fields["a2_hr_debut"].initial = "05:00"
+            self.fields["a3_hr_debut"].initial = "05:00"
+            self.fields["a1_hr_fin"].initial = "12:00"
+            self.fields["a2_hr_fin"].initial = "12:00"
+            self.fields["a3_hr_fin"].initial = "12:00"
