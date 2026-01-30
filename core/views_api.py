@@ -17,7 +17,9 @@ def tonnages_json(request):
         cflux.flux,
         SUM(tonnages.tonnage)/1000.0 AS tonnage,
         COUNT(*) as NbVidages,
-        COUNT(DISTINCT tonnages.id_collecte) as NbTournees
+        COUNT(DISTINCT tonnages.id_collecte) as NbTournees,
+        SUM(tonnages.tonnage)/1000/ NULLIF(COUNT(*), 0) AS tonnage_moyen
+
     FROM (
         SELECT
             id_collecte,

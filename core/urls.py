@@ -54,6 +54,6 @@ urlpatterns = [
     path("energies/<int:pk>/supprimer/", EnergieDeleteView.as_view(), name="energie_delete"),
 
     # API
-    #path("api/tonnages_json/", views_api.tonnages_json, name="home"),
+    path("api/tonnages_json/", views_api.tonnages_json, name="tonnages_json"),
 
 ]
