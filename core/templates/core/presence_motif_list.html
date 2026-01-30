@@ -25,6 +25,8 @@
             <th>Presence</th>
             <th>Jour travail</th>
             <th>Couleur</th>
+            <th>Creation</th>
+            <th>Modification</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
@@ -44,6 +46,8 @@
                 <span class="sub">-</span>
               {% endif %}
             </td>
+            <td>{{ m.date_creation }}</td>
+            <td>{{ m.date_modification }}</td>
             <td class="right">
               <div class="actions">
                 <a href="{% url 'core:presence_motif_update' m.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
@@ -53,7 +57,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="sub">Aucun motif enregistre</td>
+            <td colspan="7" class="sub">Aucun motif enregistre</td>
           </tr>
           {% endfor %}
         </tbody>

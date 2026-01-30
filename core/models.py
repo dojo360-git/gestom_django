@@ -69,6 +69,8 @@ class PresenceMotif(models.Model):
     presence = models.CharField(max_length=150)
     jour_travail = models.FloatField()
     couleur_hex_motif_presence = models.CharField(max_length=7, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["pres", "presence"]
