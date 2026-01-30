@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_api
 from .views import (
     AgentListView, AgentDetailView, AgentCreateView, AgentUpdateView, AgentDeleteView,
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
@@ -14,6 +14,7 @@ app_name = "core"
 
 
 urlpatterns = [
+    # Home
     path("", views.home, name="home"),
     path("planning/", PlanningView.as_view(), name="planning"),
     path("agents/", AgentListView.as_view(), name="agent_list"),
@@ -41,4 +42,8 @@ urlpatterns = [
     path("energies/<int:pk>/", EnergieDetailView.as_view(), name="energie_detail"),
     path("energies/<int:pk>/modifier/", EnergieUpdateView.as_view(), name="energie_update"),
     path("energies/<int:pk>/supprimer/", EnergieDeleteView.as_view(), name="energie_delete"),
+
+    # API
+    path("api/tonnages_json/", views_api.tonnages_json, name="home"),
+
 ]
