@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+
+{% block title %}Presences{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+
+    <div class="header">
+      <div>
+        <h1 class="h1">Presences</h1>
+        <p class="sub">Gestion des motifs de presence</p>
+      </div>
+
+      <a href="{% url 'core:presence_motif_create' %}" class="btn btn--primary">
+        + Nouveau motif
+      </a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Pres</th>
+            <th>Presence</th>
+            <th>Jour travail</th>
+            <th>Couleur</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in presence_motifs %}
+          <tr>
+            <td>{{ m.pres }}</td>
+            <td>{{ m.presence }}</td>
+            <td>{{ m.jour_travail }}</td>
+            <td>
+              {% if m.couleur_hex_motif_presence %}
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                  <span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #cbd7c8;background:{{ m.couleur_hex_motif_presence }};"></span>
+                  <span>{{ m.couleur_hex_motif_presence }}</span>
+                </span>
+              {% else %}
+                <span class="sub">-</span>
+              {% endif %}
+            </td>
+            <td class="right">
+              <div class="actions">
+                <a href="{% url 'core:presence_motif_update' m.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+                <a href="{% url 'core:presence_motif_delete' m.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="sub">Aucun motif enregistre</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

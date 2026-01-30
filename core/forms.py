@@ -1,5 +1,5 @@
 from django import forms
-from .models import Agent, Flux, Energie, Vehicule, Collecte
+from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif
 
 
 class AgentForm(forms.ModelForm):
@@ -33,6 +33,20 @@ class EnergieForm(forms.ModelForm):
     class Meta:
         model = Energie
         fields = ["energie"]
+
+
+class PresenceMotifForm(forms.ModelForm):
+    class Meta:
+        model = PresenceMotif
+        fields = [
+            "pres",
+            "presence",
+            "jour_travail",
+            "couleur_hex_motif_presence",
+        ]
+        widgets = {
+            "couleur_hex_motif_presence": forms.TextInput(attrs={"type": "color"}),
+        }
 
 
 class VehiculeForm(forms.ModelForm):

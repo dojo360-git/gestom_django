@@ -64,6 +64,19 @@ class Energie(models.Model):
         return self.energie
 
 
+class PresenceMotif(models.Model):
+    pres = models.CharField(max_length=150)
+    presence = models.CharField(max_length=150)
+    jour_travail = models.FloatField()
+    couleur_hex_motif_presence = models.CharField(max_length=7, blank=True)
+
+    class Meta:
+        ordering = ["pres", "presence"]
+
+    def __str__(self):
+        return self.pres
+
+
 class Vehicule(models.Model):
     nom_vehicule = models.CharField(max_length=150)
     type = models.CharField(max_length=150)

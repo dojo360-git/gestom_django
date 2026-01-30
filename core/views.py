@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 
-from .forms import AgentForm, FluxForm, EnergieForm, VehiculeForm, CollecteForm
-from .models import Agent, Flux, Energie, Vehicule, Collecte
+from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm
+from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte
 
 
 def home(request):
@@ -214,6 +214,48 @@ class EnergieDeleteView(DeleteView):
     model = Energie
     template_name = "core/energie_confirm_delete.html"
     success_url = reverse_lazy("core:energie_list")
+
+
+class PresenceMotifListView(ListView):
+    model = PresenceMotif
+    template_name = "core/presence_motif_list.html"
+    context_object_name = "presence_motifs"
+
+
+class PresenceMotifDetailView(DetailView):
+    model = PresenceMotif
+    template_name = "core/presence_motif_detail.html"
+    context_object_name = "presence_motif"
+
+
+class PresenceMotifCreateView(CreateView):
+    model = PresenceMotif
+    form_class = PresenceMotifForm
+    template_name = "core/presence_motif_form.html"
+    success_url = reverse_lazy("core:presence_motif_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Nouveau motif de presence"
+        return ctx
+
+
+class PresenceMotifUpdateView(UpdateView):
+    model = PresenceMotif
+    form_class = PresenceMotifForm
+    template_name = "core/presence_motif_form.html"
+    success_url = reverse_lazy("core:presence_motif_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Modifier motif de presence"
+        return ctx
+
+
+class PresenceMotifDeleteView(DeleteView):
+    model = PresenceMotif
+    template_name = "core/presence_motif_confirm_delete.html"
+    success_url = reverse_lazy("core:presence_motif_list")
 
 
 class VehiculeListView(ListView):

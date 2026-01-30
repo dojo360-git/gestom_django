@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+
+{% block title %}Motif de presence{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ presence_motif.pres }}</h1>
+        <p class="sub">Details du motif de presence</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Pres : {{ presence_motif.pres }}</li>
+      <li>Presence : {{ presence_motif.presence }}</li>
+      <li>Jour travail : {{ presence_motif.jour_travail }}</li>
+      <li>Couleur : {{ presence_motif.couleur_hex_motif_presence }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:presence_motif_update' presence_motif.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:presence_motif_delete' presence_motif.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:presence_motif_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

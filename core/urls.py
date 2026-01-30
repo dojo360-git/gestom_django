@@ -5,6 +5,7 @@ from .views import (
     AgentListView, AgentDetailView, AgentCreateView, AgentUpdateView, AgentDeleteView,
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
+    PresenceMotifListView, PresenceMotifDetailView, PresenceMotifCreateView, PresenceMotifUpdateView, PresenceMotifDeleteView,
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     PlanningView,
@@ -52,6 +53,13 @@ urlpatterns = [
     path("energies/<int:pk>/", EnergieDetailView.as_view(), name="energie_detail"),
     path("energies/<int:pk>/modifier/", EnergieUpdateView.as_view(), name="energie_update"),
     path("energies/<int:pk>/supprimer/", EnergieDeleteView.as_view(), name="energie_delete"),
+
+    # Presence motifs
+    path("presence-motifs/", PresenceMotifListView.as_view(), name="presence_motif_list"),
+    path("presence-motifs/nouveau/", PresenceMotifCreateView.as_view(), name="presence_motif_create"),
+    path("presence-motifs/<int:pk>/", PresenceMotifDetailView.as_view(), name="presence_motif_detail"),
+    path("presence-motifs/<int:pk>/modifier/", PresenceMotifUpdateView.as_view(), name="presence_motif_update"),
+    path("presence-motifs/<int:pk>/supprimer/", PresenceMotifDeleteView.as_view(), name="presence_motif_delete"),
 
     # API
     path("api/tonnages_json/", views_api.tonnages_json, name="tonnages_json"),
