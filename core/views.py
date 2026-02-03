@@ -33,6 +33,7 @@ def home(request):
             SELECT *
             FROM core_flux
         )
+        
         SELECT
             cflux.flux,
             SUM(tonnages.tonnage) / 1000.0 AS tonnage,

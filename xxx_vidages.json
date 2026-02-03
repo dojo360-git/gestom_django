@@ -1,0 +1,182 @@
+[
+  {
+    "id_collecte": 1,
+    "date_collecte": "2026-01-28",
+    "flux": "OM",
+    "tonnage": 8400.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 11404.0,
+    "km_attribue": 58.92669238863557
+  },
+  {
+    "id_collecte": 2,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 8400.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 22200.0,
+    "km_attribue": 30.270270270270274
+  },
+  {
+    "id_collecte": 3,
+    "date_collecte": "2026-01-30",
+    "flux": "OM BIO",
+    "tonnage": 7800.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 16900.0,
+    "km_attribue": 36.92307692307693
+  },
+  {
+    "id_collecte": 4,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 4000.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 13200.0,
+    "km_attribue": 24.242424242424242
+  },
+  {
+    "id_collecte": 5,
+    "date_collecte": "2026-01-30",
+    "flux": "OE",
+    "tonnage": 4500.0,
+    "km_tournee": 756030.0,
+    "tonnage_tournee": 13500.0,
+    "km_attribue": 252010.0
+  },
+  {
+    "id_collecte": 6,
+    "date_collecte": "2026-01-29",
+    "flux": "OM BIO",
+    "tonnage": 4600.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 18800.0,
+    "km_attribue": 19.574468085106382
+  },
+  {
+    "id_collecte": 7,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 4300.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 14500.0,
+    "km_attribue": 23.72413793103448
+  },
+  {
+    "id_collecte": 1,
+    "date_collecte": "2026-01-28",
+    "flux": "DMR",
+    "tonnage": 3004.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 11404.0,
+    "km_attribue": 21.073307611364434
+  },
+  {
+    "id_collecte": 2,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 6300.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 22200.0,
+    "km_attribue": 22.7027027027027
+  },
+  {
+    "id_collecte": 3,
+    "date_collecte": "2026-01-30",
+    "flux": "OM BIO",
+    "tonnage": 5600.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 16900.0,
+    "km_attribue": 26.50887573964497
+  },
+  {
+    "id_collecte": 4,
+    "date_collecte": "2026-01-30",
+    "flux": "OM BIO",
+    "tonnage": 6000.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 13200.0,
+    "km_attribue": 36.36363636363636
+  },
+  {
+    "id_collecte": 5,
+    "date_collecte": "2026-01-30",
+    "flux": "OE",
+    "tonnage": 6000.0,
+    "km_tournee": 756030.0,
+    "tonnage_tournee": 13500.0,
+    "km_attribue": 336013.3333333333
+  },
+  {
+    "id_collecte": 6,
+    "date_collecte": "2026-01-29",
+    "flux": "OM BIO",
+    "tonnage": 5800.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 18800.0,
+    "km_attribue": 24.680851063829788
+  },
+  {
+    "id_collecte": 7,
+    "date_collecte": "2026-01-30",
+    "flux": "OM BIO",
+    "tonnage": 6800.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 14500.0,
+    "km_attribue": 37.51724137931034
+  },
+  {
+    "id_collecte": 2,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 7500.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 22200.0,
+    "km_attribue": 27.027027027027025
+  },
+  {
+    "id_collecte": 3,
+    "date_collecte": "2026-01-30",
+    "flux": "OM",
+    "tonnage": 3500.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 16900.0,
+    "km_attribue": 16.568047337278106
+  },
+  {
+    "id_collecte": 4,
+    "date_collecte": "2026-01-30",
+    "flux": "VERRE",
+    "tonnage": 3200.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 13200.0,
+    "km_attribue": 19.393939393939394
+  },
+  {
+    "id_collecte": 5,
+    "date_collecte": "2026-01-30",
+    "flux": "OE",
+    "tonnage": 3000.0,
+    "km_tournee": 756030.0,
+    "tonnage_tournee": 13500.0,
+    "km_attribue": 168006.66666666666
+  },
+  {
+    "id_collecte": 6,
+    "date_collecte": "2026-01-29",
+    "flux": "OM BIO",
+    "tonnage": 8400.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 18800.0,
+    "km_attribue": 35.744680851063826
+  },
+  {
+    "id_collecte": 7,
+    "date_collecte": "2026-01-30",
+    "flux": "OM BIO",
+    "tonnage": 3400.0,
+    "km_tournee": 80.0,
+    "tonnage_tournee": 14500.0,
+    "km_attribue": 18.75862068965517
+  }
+]

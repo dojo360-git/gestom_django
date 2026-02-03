@@ -20,9 +20,9 @@
           </div>
         </form>
         <div class="actions">
-          <button class="btn btn--sm btn--ghost" type="button" id="date-prev" title="Jour precedent">-1</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-today" title="Aujourd'hui">Aujourd'hui</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-next" title="Jour suivant">+1</button>
+          <button class="btn btn--sm btn--ghost" type="button" id="date-prev" title="Jour precedent">◀️</button>
+          <button class="btn btn--sm btn--ghost" type="button" id="date-today" title="Aujourd'hui">🌍</button>
+          <button class="btn btn--sm btn--ghost" type="button" id="date-next" title="Jour suivant">▶️</button>
         </div>
         <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">
           + Nouvelle collecte
@@ -34,7 +34,7 @@
       {% for c in collectes %}
       <div class="collecte-card">
         <div class="collecte-card__head">
-          <div class="collecte-card__date">{{ c.date_collecte }}</div>
+          <div class="collecte-card__date">{{ c.date_collecte|date:"l d F Y" }}</div>
           <div class="actions">
             <a href="{% url 'core:collecte_detail' c.pk %}" class="btn btn--sm btn--ghost">Voir</a>
             <a href="{% url 'core:collecte_update' c.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
@@ -54,9 +54,9 @@
             <div class="collecte-col">
               <div class="collecte-col__title">Heures de fin</div>
               <div class="collecte-col__values">
-                <div>{{ c.a1_hr_fin|default:"-" }}</div>
-                <div>{{ c.a2_hr_fin|default:"-" }}</div>
-                <div>{{ c.a3_hr_fin|default:"-" }}</div>
+                <div>{{ c.a1_hr_fin|time:"H:i"|default:"-" }}</div>
+                <div>{{ c.a2_hr_fin|time:"H:i"|default:"-" }}</div>
+                <div>{{ c.a3_hr_fin|time:"H:i"|default:"-" }}</div>
               </div>
             </div>
             <div class="collecte-col">
