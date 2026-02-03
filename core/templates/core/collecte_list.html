@@ -25,81 +25,83 @@
       </div>
     </div>
 
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Agent 1</th>
-            <th>H1 debut</th>
-            <th>H1 fin</th>
-            <th>Agent 2</th>
-            <th>H2 debut</th>
-            <th>H2 fin</th>
-            <th>Agent 3</th>
-            <th>H3 debut</th>
-            <th>H3 fin</th>
-            <th>Vehicule</th>
-            <th>Km depart</th>
-            <th>Km retour</th>
-            <th>Flux 1</th>
-            <th>Tonnage 1</th>
-            <th>Flux 2</th>
-            <th>Tonnage 2</th>
-            <th>Flux 3</th>
-            <th>Tonnage 3</th>
-            <th>Energie 1</th>
-            <th>Qte 1</th>
-            <th>Energie 2</th>
-            <th>Qte 2</th>
-            <th>Energie 3</th>
-            <th>Qte 3</th>
-            <th class="right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in collectes %}
-          <tr>
-            <td>{{ c.date_collecte }}</td>
-            <td>{{ c.id_agent_1 }}</td>
-            <td>{{ c.a1_hr_debut }}</td>
-            <td>{{ c.a1_hr_fin }}</td>
-            <td>{{ c.id_agent_2 }}</td>
-            <td>{{ c.a2_hr_debut }}</td>
-            <td>{{ c.a2_hr_fin }}</td>
-            <td>{{ c.id_agent_3 }}</td>
-            <td>{{ c.a3_hr_debut }}</td>
-            <td>{{ c.a3_hr_fin }}</td>
-            <td>{{ c.id_vehicule }}</td>
-            <td>{{ c.km_depart }}</td>
-            <td>{{ c.km_retour }}</td>
-            <td>{{ c.id_flux1 }}</td>
-            <td>{{ c.tonnage1 }}</td>
-            <td>{{ c.id_flux2 }}</td>
-            <td>{{ c.tonnage2 }}</td>
-            <td>{{ c.id_flux3 }}</td>
-            <td>{{ c.tonnage3 }}</td>
-            <td>{{ c.id_energie_1 }}</td>
-            <td>{{ c.energie_qte_1 }}</td>
-            <td>{{ c.id_energie_2 }}</td>
-            <td>{{ c.energie_qte_2 }}</td>
-            <td>{{ c.id_energie_3 }}</td>
-            <td>{{ c.energie_qte_3 }}</td>
-            <td class="right">
-              <div class="actions">
-                <a href="{% url 'core:collecte_detail' c.pk %}" class="btn btn--sm btn--ghost">Voir</a>
-                <a href="{% url 'core:collecte_update' c.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
-                <a href="{% url 'core:collecte_delete' c.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+    <div class="collecte-cards">
+      {% for c in collectes %}
+      <div class="collecte-card">
+        <div class="collecte-card__head">
+          <div class="collecte-card__date">{{ c.date_collecte }}</div>
+          <div class="actions">
+            <a href="{% url 'core:collecte_detail' c.pk %}" class="btn btn--sm btn--ghost">Voir</a>
+            <a href="{% url 'core:collecte_update' c.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+            <a href="{% url 'core:collecte_delete' c.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+          </div>
+        </div>
+        <div class="collecte-card__body">
+          <div class="collecte-grid">
+            <div class="collecte-col">
+              <div class="collecte-col__title">Agents</div>
+              <div class="collecte-col__values">
+                <div>{{ c.id_agent_1|default:"-" }}</div>
+                <div>{{ c.id_agent_2|default:"-" }}</div>
+                <div>{{ c.id_agent_3|default:"-" }}</div>
               </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="26" class="sub">Aucune collecte enregistree</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Heures de fin</div>
+              <div class="collecte-col__values">
+                <div>{{ c.a1_hr_fin|default:"-" }}</div>
+                <div>{{ c.a2_hr_fin|default:"-" }}</div>
+                <div>{{ c.a3_hr_fin|default:"-" }}</div>
+              </div>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Benne</div>
+              <div class="collecte-col__values">
+                <div>{{ c.id_vehicule|default:"-" }}</div>
+                <div>{{ c.km_retour|default:"-" }}</div>
+                <div>{{ c.km_depart|default:"-" }}</div>
+              </div>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Flux</div>
+              <div class="collecte-col__values">
+                <div>{{ c.id_flux1|default:"-" }}</div>
+                <div>{{ c.id_flux2|default:"-" }}</div>
+                <div>{{ c.id_flux3|default:"-" }}</div>
+              </div>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Tonnages</div>
+              <div class="collecte-col__values">
+                <div>{{ c.tonnage1|default:"-" }}</div>
+                <div>{{ c.tonnage2|default:"-" }}</div>
+                <div>{{ c.tonnage3|default:"-" }}</div>
+              </div>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Energies</div>
+              <div class="collecte-col__values">
+                <div>{{ c.id_energie_1|default:"-" }}</div>
+                <div>{{ c.id_energie_2|default:"-" }}</div>
+                <div>{{ c.id_energie_3|default:"-" }}</div>
+              </div>
+            </div>
+            <div class="collecte-col">
+              <div class="collecte-col__title">Qte</div>
+              <div class="collecte-col__values">
+                <div>{{ c.energie_qte_1|default:"-" }}</div>
+                <div>{{ c.energie_qte_2|default:"-" }}</div>
+                <div>{{ c.energie_qte_3|default:"-" }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card">
+        <div class="card__pad sub">Aucune collecte enregistree</div>
+      </div>
+      {% endfor %}
     </div>
 
   </div>

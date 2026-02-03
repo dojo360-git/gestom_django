@@ -83,18 +83,12 @@ vidages AS (
     SELECT 
         *,
         round(km_tournee * ventil,2) km,
-        round(energie_qte_1_tournee * ventil,2)   energie_qte_1,
-        round(energie_qte_2_tournee * ventil,2)   energie_qte_2,
+        round(energie_qte_1_tournee * ventil,2)  energie_qte_1,
+        round(energie_qte_2_tournee * ventil,2)  energie_qte_2,
         round(energie_qte_3_tournee * ventil,2)  energie_qte_3
-               
 
 
-
-
-
-    FROM vidages2
-
-;
+    FROM vidages2;
 """)
 
 rows = cursor.fetchall()
@@ -106,6 +100,7 @@ for r in rows:
     #    continue
     data.append(dict(r))
 
+print(rows)
 json_data = json.dumps(data, indent=2, ensure_ascii=False)
 print(json_data)
 

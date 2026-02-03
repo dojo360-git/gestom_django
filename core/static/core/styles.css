@@ -174,6 +174,60 @@ a{ color: inherit; text-decoration: none; }
 .actions{ display:flex; justify-content:flex-end; gap: 8px; flex-wrap: wrap; }
 
 /* =========================
+   Collecte cards
+========================= */
+.collecte-cards{ display:grid; gap: 14px; }
+.collecte-card{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.collecte-card__head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+}
+.collecte-card__date{
+  font-weight: 800;
+  color: var(--text);
+}
+.collecte-card__body{ padding: 14px 16px; }
+.collecte-grid{
+  display:grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.collecte-col{
+  min-width: 140px;
+}
+.collecte-col__title{
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.collecte-col__values{
+  display:grid;
+  gap: 4px;
+}
+.collecte-col__values div{
+  line-height: 1.25;
+}
+@media (max-width: 980px){
+  .collecte-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px){
+  .collecte-grid{ grid-template-columns: 1fr; }
+  .collecte-card__head{ flex-direction: column; align-items: flex-start; }
+}
+
+/* =========================
    Badges
 ========================= */
 .badge{
