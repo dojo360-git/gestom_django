@@ -22,8 +22,10 @@
         <thead>
           <tr>
             <th>Nom</th>
-            <th>Email</th>
-            <th>Rôle</th>
+            <th>Prenom</th>
+            <th>Qualification</th>
+            <th>Service</th>
+            <th>Archive</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
@@ -31,12 +33,14 @@
           {% for agent in object_list %}
           <tr>
             <td>{{ agent.nom }}</td>
-            <td>{{ agent.email }}</td>
+            <td>{{ agent.prenom }}</td>
+            <td>{{ agent.qualification }}</td>
+            <td>{{ agent.service }}</td>
             <td>
-              {% if agent.actif %}
-                <span class="badge badge--ok">Actif</span>
+              {% if agent.archive %}
+                <span class="badge badge--low">Archive</span>
               {% else %}
-                <span class="badge badge--low">Inactif</span>
+                <span class="badge badge--ok">Actif</span>
               {% endif %}
             </td>
             <td class="right">
@@ -48,7 +52,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="sub">Aucun agent enregistré</td>
+            <td colspan="6" class="sub">Aucun agent enregistré</td>
           </tr>
           {% endfor %}
         </tbody>

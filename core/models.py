@@ -25,6 +25,7 @@ class Agent(models.Model):
 
     # SuppAg (suppression / flag ?)
     supp = models.BooleanField(default=False)
+    archive = models.BooleanField(default=False)
 
     arrivee = models.DateField(null=True, blank=True)
     depart = models.DateField(null=True, blank=True)

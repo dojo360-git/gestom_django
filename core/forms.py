@@ -8,7 +8,7 @@ class AgentForm(forms.ModelForm):
         fields = [
             "id_ag", "nom", "prenom", "qualification", "service", "employeur",
             "hds_defaut", "hajout_quotidien", "echeance_permis", "echeance_fco",
-            "supp", "arrivee", "depart", "tel",
+            "supp", "archive", "arrivee", "depart", "tel",
         ]
         widgets = {
             "echeance_permis": forms.DateInput(attrs={"type": "date"}),
