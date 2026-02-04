@@ -9,6 +9,7 @@ from .views import (
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     PlanningView,
+    planning2,
 )
 
 app_name = "core"
@@ -18,6 +19,7 @@ urlpatterns = [
     # Home
     path("", views.home, name="home"),
     path("planning/", PlanningView.as_view(), name="planning"),
+    path("planning2/", views.planning2, name="planning2"),
     path("agents/", AgentListView.as_view(), name="agent_list"),
 
     # Agents

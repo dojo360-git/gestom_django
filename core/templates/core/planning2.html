@@ -1,0 +1,113 @@
+{% extends "core/base.html" %}
+
+{% block title %}Planning mensuel{% endblock %}
+
+{% block content %}
+<div class="planning">
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="header">
+        <div>
+          <h1 class="h1">Planning mensuel</h1>
+          <p class="sub">Change la date pour changer de mois</p>
+        </div>
+
+        <form class="planning__controls" id="planning2Form" method="get">
+          <label class="planning__control">
+            <span class="planning__label">Mois</span>
+            <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+          </label>
+
+          <button id="prevMonthBtn" class="btn btn--ghost" type="button">Mois precedent</button>
+          <button id="todayBtn" class="btn btn--ghost" type="button">Aujourd'hui</button>
+          <button id="nextMonthBtn" class="btn btn--ghost" type="button">Mois suivant</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="table-wrap planning__wrap">
+        <table class="table planning__table">
+          <thead>
+            <tr>
+              <th class="planning__sticky planning__sticky--qualif">Qualification</th>
+              <th class="planning__sticky planning__sticky--nom">Nom</th>
+              {% for day in days %}
+                <th class="planning__cell">{{ day|date:"d" }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td class="planning__sticky planning__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
+                <td class="planning__sticky planning__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
+                {% for value in row.durations %}
+                  <td class="planning__cell">
+                    {% if value %}
+                      <div>{{ value }}</div>
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{{ days|length|add:'2' }}" class="sub">Aucun agent actif</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const dateInput = document.getElementById("dateInput");
+  const prevBtn = document.getElementById("prevMonthBtn");
+  const nextBtn = document.getElementById("nextMonthBtn");
+  const todayBtn = document.getElementById("todayBtn");
+  const form = document.getElementById("planning2Form");
+
+  function setDateAndSubmit(date) {
+    if (!dateInput || !form) return;
+    dateInput.value = date.toISOString().slice(0, 10);
+    form.submit();
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener("change", () => {
+      const value = dateInput.value;
+      if (!value) return;
+      const selected = new Date(value);
+      setDateAndSubmit(selected);
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      const target = new Date(base.getFullYear(), base.getMonth() - 1, 1);
+      setDateAndSubmit(target);
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      const target = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+      setDateAndSubmit(target);
+    });
+  }
+
+  if (todayBtn) {
+    todayBtn.addEventListener("click", () => {
+      setDateAndSubmit(new Date());
+    });
+  }
+</script>
+{% endblock %}

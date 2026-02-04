@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+import calendar
 
 from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm
 from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte
@@ -391,3 +392,106 @@ class PlanningView(TemplateView):
         agents_qs = Agent.objects.all().order_by("nom")
         ctx["agents"] = list(agents_qs.values("id", "nom", "qualification"))
         return ctx
+
+
+def planning2(request):
+    today = timezone.localdate()
+    date_str = request.GET.get("date")
+    if date_str:
+        try:
+            selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+    else:
+        selected_date = today
+
+    month_start = selected_date.replace(day=1)
+    last_day = calendar.monthrange(selected_date.year, selected_date.month)[1]
+    month_end = selected_date.replace(day=last_day)
+    days = [
+        month_start + timezone.timedelta(days=offset)
+        for offset in range(last_day)
+    ]
+
+    agents = list(
+        Agent.objects.filter(archive=False).order_by("qualification", "nom", "prenom")
+    )
+
+    sql = """
+        WITH collecte AS (
+            SELECT
+                id_collecte,
+                id_agent_1_id AS id_agent,
+                date_collecte AS date,
+                a1_hr_debut AS hr_debut,
+                a1_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_1_id IS NOT NULL
+
+            UNION ALL
+
+            SELECT
+                id_collecte,
+                id_agent_2_id AS id_agent,
+                date_collecte AS date,
+                a2_hr_debut AS hr_debut,
+                a2_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_2_id IS NOT NULL
+
+            UNION ALL
+
+            SELECT
+                id_collecte,
+                id_agent_3_id AS id_agent,
+                date_collecte AS date,
+                a3_hr_debut AS hr_debut,
+                a3_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_3_id IS NOT NULL
+        )
+        SELECT
+            id_agent,
+            date,
+            SUM(
+                CASE
+                    WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL
+                    THEN (strftime('%%s', '1970-01-01 ' || hr_fin) - strftime('%%s', '1970-01-01 ' || hr_debut))
+                    ELSE 0
+                END
+            ) AS duree_sec
+        FROM collecte
+        WHERE date BETWEEN %s AND %s
+        GROUP BY id_agent, date
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [month_start, month_end])
+        rows = cursor.fetchall()
+
+    durations_map = {}
+    for agent_id, date_value, duree_sec in rows:
+        if not duree_sec:
+            continue
+        total_minutes = int(duree_sec // 60)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        durations_map[(agent_id, date_value)] = f"{hours:02d}:{minutes:02d}"
+
+    table_rows = []
+    for agent in agents:
+        durations = [
+            durations_map.get((agent.id, day), "")
+            for day in days
+        ]
+        table_rows.append({"agent": agent, "durations": durations})
+
+    return render(
+        request,
+        "core/planning2.html",
+        {
+            "selected_date": selected_date,
+            "days": days,
+            "rows": table_rows,
+        },
+    )

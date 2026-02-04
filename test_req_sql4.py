@@ -5,15 +5,22 @@ conn = sqlite3.connect("db.sqlite3")
 conn.row_factory = sqlite3.Row   # 👈 important
 cursor = conn.cursor()
 
+
+# python test_req_sql4.py
+
+
 cursor.execute("""
 WITH collecte AS (
-    SELECT *,
-    "collecte" type 
+    SELECT 
+    *,
+    "collecte" type,
+    (hr_fin - hr_debut) AS duree
                
 
     FROM (
 
     SELECT 
+        id_collecte,
         id_agent_1_id  id_agent, 
         date_collecte date,
         a1_hr_debut AS hr_debut, 
@@ -24,6 +31,7 @@ WITH collecte AS (
     UNION ALL 
 
     SELECT
+        id_collecte,
         id_agent_2_id id_agent, 
         date_collecte date,
         a2_hr_debut AS hr_debut, 
@@ -33,7 +41,8 @@ WITH collecte AS (
 
     UNION ALL 
 
-    SELECT 
+    SELECT
+        id_collecte, 
         id_agent_3_id id_agent,
         date_collecte date,
         a3_hr_debut AS hr_debut, 
