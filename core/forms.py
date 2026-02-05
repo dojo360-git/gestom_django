@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif
 
 
@@ -72,7 +73,7 @@ class CollecteForm(forms.ModelForm):
             "id_energie_3", "energie_qte_3",
         ]
         widgets = {
-            "date_collecte": forms.DateInput(attrs={"type": "date"}),
+            "date_collecte": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "a1_hr_debut": forms.TimeInput(attrs={"type": "time"}),
             "a1_hr_fin": forms.TimeInput(attrs={"type": "time"}),
             "a2_hr_debut": forms.TimeInput(attrs={"type": "time"}),
@@ -106,9 +107,14 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_energie_3"].queryset = energie_qs
 
         if not self.instance.pk:
+            self.fields["date_collecte"].initial = timezone.localdate()
             self.fields["a1_hr_debut"].initial = "05:00"
             self.fields["a2_hr_debut"].initial = "05:00"
             self.fields["a3_hr_debut"].initial = "05:00"
             self.fields["a1_hr_fin"].initial = "12:00"
             self.fields["a2_hr_fin"].initial = "12:00"
             self.fields["a3_hr_fin"].initial = "12:00"
+
+        self.fields["date_collecte"].input_formats = ["%Y-%m-%d"]
+        self.fields["date_collecte"].localize = False
+        self.fields["date_collecte"].widget.format = "%Y-%m-%d"

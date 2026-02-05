@@ -11,48 +11,50 @@ cursor = conn.cursor()
 
 cursor.execute("""
 WITH collecte AS (
-    SELECT 
+  SELECT
     *,
-    "collecte" type,
-    (hr_fin - hr_debut) AS duree
-               
-
-    FROM (
-
-    SELECT 
-        id_collecte,
-        id_agent_1_id  id_agent, 
-        date_collecte date,
-        a1_hr_debut AS hr_debut, 
-        a1_hr_fin AS hr_fin
+    'collecte' AS type,
+    CASE
+      WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL
+      THEN (strftime('%s', '1970-01-01 ' || hr_fin)
+         - strftime('%s', '1970-01-01 ' || hr_debut))/3600.0
+      ELSE 0
+    END AS duree
+  FROM (
+    SELECT
+      id_collecte,
+      id_agent_1_id AS id_agent,
+      date_collecte AS date,
+      a1_hr_debut AS hr_debut,
+      a1_hr_fin   AS hr_fin
     FROM core_collecte
-    WHERE id_agent_1_id is not null
+    WHERE id_agent_1_id IS NOT NULL
 
-    UNION ALL 
+    UNION ALL
 
     SELECT
-        id_collecte,
-        id_agent_2_id id_agent, 
-        date_collecte date,
-        a2_hr_debut AS hr_debut, 
-        a2_hr_fin AS hr_fin
+      id_collecte,
+      id_agent_2_id AS id_agent,
+      date_collecte AS date,
+      a2_hr_debut AS hr_debut,
+      a2_hr_fin   AS hr_fin
     FROM core_collecte
-    WHERE tonnage2 is not null
+    WHERE id_agent_2_id IS NOT NULL  -- (plutôt que tonnage2 si tu veux filtrer sur l’agent)
 
-    UNION ALL 
+    UNION ALL
 
     SELECT
-        id_collecte, 
-        id_agent_3_id id_agent,
-        date_collecte date,
-        a3_hr_debut AS hr_debut, 
-        a3_hr_fin AS hr_fin
+      id_collecte,
+      id_agent_3_id AS id_agent,
+      date_collecte AS date,
+      a3_hr_debut AS hr_debut,
+      a3_hr_fin   AS hr_fin
     FROM core_collecte
-    )
+    WHERE id_agent_3_id IS NOT NULL
+  )
 )
-SELECT 
-    *
-FROM collecte
+SELECT * FROM collecte;
+
 """)
 
 rows = cursor.fetchall()

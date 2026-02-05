@@ -420,7 +420,6 @@ def planning2(request):
     sql = """
         WITH collecte AS (
             SELECT
-                id_collecte,
                 id_agent_1_id AS id_agent,
                 date_collecte AS date,
                 a1_hr_debut AS hr_debut,
@@ -431,7 +430,6 @@ def planning2(request):
             UNION ALL
 
             SELECT
-                id_collecte,
                 id_agent_2_id AS id_agent,
                 date_collecte AS date,
                 a2_hr_debut AS hr_debut,
@@ -442,7 +440,6 @@ def planning2(request):
             UNION ALL
 
             SELECT
-                id_collecte,
                 id_agent_3_id AS id_agent,
                 date_collecte AS date,
                 a3_hr_debut AS hr_debut,
