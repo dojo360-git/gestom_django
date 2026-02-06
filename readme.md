@@ -43,21 +43,22 @@ et lancer les commandes suivantes :
 
 ## Création du fichier .env et des infos base de données Postgre
 
-26/01/2026 : la base tourne pour le moment avec sqlite3 proposée par le Fraework Django 
+26/01/2026 : la base tourne pour le moment avec sqlite3 proposée par le Framework Django 
+06/02/2026 : La base tourne maintenant avec Postgres V17
 
 
 Creer le .env a la racine du projet :
 
 gestom_django/
+
 ├── .env                👈 ICI (IMPORTANT)
+├── .env.template 
 ├── manage.py
 
 
 et y coller les infos suivantes : avec les mots de passe renseignés
 DEBUG=True
 SECRET_KEY=django-insecure-XXXX
-
-
 
 DATABASE_URL=postgres://u_pgd:PASSWORD@10.153.32.49:5432/ztest
 DB_NAME=ztest
@@ -66,7 +67,8 @@ DB_PASSWORD=XXXX
 DB_HOST=10.153.32.49
 DB_PORT=5432
 
-
+A
+python manage.py migrate  
 
 # Lancer l'application :
 
@@ -75,6 +77,7 @@ Nécéssite que gestom_django ait été installé
 ouvrir le dossier gestom_django avec Visual Studio Code 
 Lancer un terminal : Terminal / New terminal : 
 
+    .\.venv\Scripts\Activate.ps1   (Windows)
     python manage.py runserver
 
 Ouvrir un navigateur sur : 
