@@ -4,11 +4,18 @@ from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif
 
 
 class AgentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields["hds_defaut"].initial = "05:00"
+            self.fields["arrivee"].initial = timezone.localdate()
+            self.fields["depart"].initial = "2036-12-31"
+
     class Meta:
         model = Agent
         fields = [
-            "id_ag", "nom", "prenom", "qualification", "service", "employeur",
-            "hds_defaut", "hajout_quotidien", "echeance_permis", "echeance_fco",
+            "nom", "prenom", "qualification", "service", "employeur",
+            "hds_defaut", "echeance_permis", "echeance_fco",
             "supp", "archive", "arrivee", "depart", "tel",
         ]
         widgets = {
@@ -17,7 +24,8 @@ class AgentForm(forms.ModelForm):
             "arrivee": forms.DateInput(attrs={"type": "date"}),
             "depart": forms.DateInput(attrs={"type": "date"}),
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
-            "hajout_quotidien": forms.TimeInput(attrs={"type": "time"}),
+            "employeur": forms.TextInput(attrs={"list": "employeur-options"}),
+            "service": forms.TextInput(attrs={"list": "service-options"}),
         }
 
 

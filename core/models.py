@@ -3,9 +3,6 @@ from django.utils import timezone
 
 
 class Agent(models.Model):
-    # IdAg : Django crÃ©e dÃ©jÃ  un id auto, mais si tu veux garder IdAg du fichier :
-    id_ag = models.PositiveIntegerField(unique=True)
-
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
 
@@ -15,10 +12,6 @@ class Agent(models.Model):
 
     # HDSDefautAg "05:00"
     hds_defaut = models.TimeField(null=True, blank=True)
-
-    # HAjoutQuotidienAg (on ne sait pas si c'est temps ou nombre)
-    # Si câ€™est aussi une durÃ©e/heure => TimeField. Sinon => Decimal/Integer.
-    hajout_quotidien = models.TimeField(null=True, blank=True)
 
     echeance_permis = models.DateField(null=True, blank=True)
     echeance_fco = models.DateField(null=True, blank=True)
@@ -193,3 +186,4 @@ class Collecte(models.Model):
 
     def __str__(self):
         return f"Collecte {self.id_collecte}"
+

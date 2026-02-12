@@ -20,6 +20,20 @@
       <div class="field">
         {{ field.label_tag }}
         {{ field }}
+        {% if field.name == "employeur" %}
+        <datalist id="employeur-options">
+          <option value="CDEA"></option>
+          <option value="Hercule"></option>
+        </datalist>
+        {% endif %}
+        {% if field.name == "service" %}
+        <datalist id="service-options">
+          <option value="Collecte"></option>
+          <option value="PréCollecte"></option>
+          <option value="Propreté PAV"></option>
+          <option value="Encadrement"></option>
+        </datalist>
+        {% endif %}
         {{ field.errors }}
       </div>
       {% endfor %}

@@ -60,7 +60,6 @@ class FluxTests(TestCase):
 class AgentTests(TestCase):
     def setUp(self):
         self.agent = Agent.objects.create(
-            id_ag=1001,
             nom="Durand",
             prenom="Alice",
         )
@@ -69,8 +68,8 @@ class AgentTests(TestCase):
         self.assertEqual(str(self.agent), "Durand Alice")
 
     def test_agent_ordering(self):
-        Agent.objects.create(id_ag=1002, nom="Martin", prenom="Zoe")
-        Agent.objects.create(id_ag=1003, nom="Martin", prenom="Alice")
+        Agent.objects.create(nom="Martin", prenom="Zoe")
+        Agent.objects.create(nom="Martin", prenom="Alice")
         names = list(Agent.objects.values_list("nom", "prenom"))
         self.assertEqual(names, sorted(names))
 
@@ -90,7 +89,6 @@ class AgentTests(TestCase):
         response = self.client.post(
             reverse("core:agent_create"),
             data={
-                "id_ag": 1004,
                 "nom": "Bernard",
                 "prenom": "Luc",
                 "qualification": "",
@@ -100,13 +98,12 @@ class AgentTests(TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Agent.objects.filter(id_ag=1004).exists())
+        self.assertTrue(Agent.objects.filter(nom="Bernard", prenom="Luc").exists())
 
     def test_agent_update_view(self):
         response = self.client.post(
             reverse("core:agent_update", args=[self.agent.pk]),
             data={
-                "id_ag": 1001,
                 "nom": "Durand",
                 "prenom": "Alice",
                 "qualification": "Senior",
