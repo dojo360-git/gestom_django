@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Gestom{% endblock %}</title>
+  <link rel="icon" type="image/png" href="https://storage.googleapis.com/dojo360-public/cdea/gestom/fav_gestom.png">
 
   <link rel="stylesheet" href="{% static 'core/styles.css' %}">
 </head>
@@ -13,8 +14,12 @@
 <header class="nav">
   <div class="container nav__inner">
     <a class="brand" href="{% url 'core:home' %}">
-      <span class="brand__dot"></span>
-      <span>Gestom</span>
+      <img
+        class="brand__logo"
+        src="https://storage.googleapis.com/dojo360-public/cdea/gestom/Logo_coeuressone.png"
+        alt="Logo Gestom"
+      >
+      <span>Régie de collecte</span>
     </a>
 
     <div class="nav__actions">
