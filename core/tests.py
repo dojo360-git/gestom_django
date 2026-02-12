@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from datetime import date
 
 from .models import Flux, Agent, Vehicule
 
@@ -116,6 +117,29 @@ class AgentTests(TestCase):
         self.agent.refresh_from_db()
         self.assertEqual(self.agent.qualification, "Senior")
         self.assertTrue(self.agent.supp)
+
+    def test_agent_update_echeance_permis_fr_date(self):
+        response = self.client.post(
+            reverse("core:agent_update", args=[self.agent.pk]),
+            data={
+                "nom": "Durand",
+                "prenom": "Alice",
+                "qualification": "",
+                "service": "",
+                "employeur": "",
+                "hds_defaut": "",
+                "echeance_permis": "14/02/2026",
+                "echeance_fco": "",
+                "supp": False,
+                "archive": False,
+                "arrivee": "",
+                "depart": "",
+                "tel": "",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.agent.refresh_from_db()
+        self.assertEqual(self.agent.echeance_permis, date(2026, 2, 14))
 
     def test_agent_delete_view(self):
         response = self.client.post(reverse("core:agent_delete", args=[self.agent.pk]))

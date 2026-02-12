@@ -6,6 +6,11 @@ from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif
 class AgentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        date_formats = ["%Y-%m-%d", "%d/%m/%Y"]
+        for field_name in ["echeance_permis", "echeance_fco", "arrivee", "depart"]:
+            self.fields[field_name].input_formats = date_formats
+            self.fields[field_name].localize = False
+            self.fields[field_name].widget.format = "%Y-%m-%d"
         if not self.instance.pk:
             self.fields["hds_defaut"].initial = "05:00"
             self.fields["arrivee"].initial = timezone.localdate()
@@ -19,10 +24,10 @@ class AgentForm(forms.ModelForm):
             "supp", "archive", "arrivee", "depart", "tel",
         ]
         widgets = {
-            "echeance_permis": forms.DateInput(attrs={"type": "date"}),
-            "echeance_fco": forms.DateInput(attrs={"type": "date"}),
-            "arrivee": forms.DateInput(attrs={"type": "date"}),
-            "depart": forms.DateInput(attrs={"type": "date"}),
+            "echeance_permis": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "echeance_fco": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "arrivee": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "depart": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
             "employeur": forms.TextInput(attrs={"list": "employeur-options"}),
             "service": forms.TextInput(attrs={"list": "service-options"}),
