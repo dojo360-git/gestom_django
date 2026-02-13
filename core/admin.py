@@ -3,9 +3,9 @@ from django.contrib import admin
 from .models import Agent, Collecte
 @admin.register(Agent)
 class AgentAdmin(admin.ModelAdmin):
-    list_display = ("id", "nom", "prenom", "service", "employeur", "tel", "supp")
+    list_display = ("id", "nom", "prenom", "service", "employeur", "tel")
     search_fields = ("nom", "prenom", "tel")
-    list_filter = ("service", "employeur", "supp")
+    list_filter = ("service", "employeur")
 
 
 @admin.register(Collecte)

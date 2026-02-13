@@ -12,13 +12,10 @@ class Agent(models.Model):
 
     # HDSDefautAg "05:00"
     hds_defaut = models.TimeField(null=True, blank=True)
+    hfs_defaut = models.TimeField(null=True, blank=True)
 
     echeance_permis = models.DateField(null=True, blank=True)
     echeance_fco = models.DateField(null=True, blank=True)
-
-    # SuppAg (suppression / flag ?)
-    supp = models.BooleanField(default=False)
-    archive = models.BooleanField(default=False)
 
     arrivee = models.DateField(null=True, blank=True)
     depart = models.DateField(null=True, blank=True)

@@ -9,7 +9,7 @@
     <div class="header">
       <div>
         <h1 class="h1">Agents</h1>
-        <p class="sub">Gestion des agents enregistrés</p>
+        <p class="sub">Gestion des agents enregistres</p>
       </div>
 
       <a href="{% url 'core:agent_create' %}" class="btn btn--primary">
@@ -25,7 +25,6 @@
             <th>Prenom</th>
             <th>Qualification</th>
             <th>Service</th>
-            <th>Archive</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
@@ -36,13 +35,6 @@
             <td>{{ agent.prenom }}</td>
             <td>{{ agent.qualification }}</td>
             <td>{{ agent.service }}</td>
-            <td>
-              {% if agent.archive %}
-                <span class="badge badge--low">Archive</span>
-              {% else %}
-                <span class="badge badge--ok">Actif</span>
-              {% endif %}
-            </td>
             <td class="right">
               <div class="actions">
                 <a href="{% url 'core:agent_update' agent.id %}" class="btn btn--sm btn--ghost">Modifier</a>
@@ -52,7 +44,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="6" class="sub">Aucun agent enregistré</td>
+            <td colspan="5" class="sub">Aucun agent enregistre</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -95,7 +95,6 @@ class AgentTests(TestCase):
                 "qualification": "",
                 "service": "",
                 "employeur": "",
-                "supp": False,
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -110,13 +109,11 @@ class AgentTests(TestCase):
                 "qualification": "Senior",
                 "service": "Ops",
                 "employeur": "Dojo",
-                "supp": True,
             },
         )
         self.assertEqual(response.status_code, 302)
         self.agent.refresh_from_db()
         self.assertEqual(self.agent.qualification, "Senior")
-        self.assertTrue(self.agent.supp)
 
     def test_agent_update_echeance_permis_fr_date(self):
         response = self.client.post(
@@ -130,8 +127,6 @@ class AgentTests(TestCase):
                 "hds_defaut": "",
                 "echeance_permis": "14/02/2026",
                 "echeance_fco": "",
-                "supp": False,
-                "archive": False,
                 "arrivee": "",
                 "depart": "",
                 "tel": "",

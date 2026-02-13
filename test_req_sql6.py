@@ -7,56 +7,59 @@ cursor = conn.cursor()
 
 
 # python test_req_sql6.py
-
+# docker exec -it django6 python test_req_sql6.py
 
 cursor.execute("""
-        WITH collecte AS (
-            SELECT
-                id_collecte,
-                id_agent_1_id AS id_agent,
-                date_collecte AS date,
-                a1_hr_debut AS hr_debut,
-                a1_hr_fin AS hr_fin
-            FROM core_collecte
-            WHERE id_agent_1_id IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                id_collecte,
-                id_agent_2_id AS id_agent,
-                date_collecte AS date,
-                a2_hr_debut AS hr_debut,
-                a2_hr_fin AS hr_fin
-            FROM core_collecte
-            WHERE id_agent_2_id IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                id_collecte,
-                id_agent_3_id AS id_agent,
-                date_collecte AS date,
-                a3_hr_debut AS hr_debut,
-                a3_hr_fin AS hr_fin
-            FROM core_collecte
-            WHERE id_agent_3_id IS NOT NULL
-        )
+    WITH collecte AS (
         SELECT
-            id_agent,
-            date,
-            --SUM(
-                CASE
-                    WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL
-                    THEN (strftime('%%s', '1970-01-01 ' || hr_fin) - strftime('%%s', '1970-01-01 ' || hr_debut))
-                    ELSE 0
-                END
-            --) AS 
-            duree_sec,
-            --duree_sec*3600 duree_heure
-        FROM collecte
-        --WHERE date BETWEEN %s AND %s
-        --GROUP BY id_agent, date
+            "collecte" type,
+            id_collecte,
+            id_agent_1_id AS id_agent,
+            date_collecte AS date,
+            a1_hr_debut AS hr_debut,
+            a1_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_1_id IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            "Manuelles" type, 
+            id_collecte,
+            id_agent_2_id AS id_agent,
+            date_collecte AS date,
+            a2_hr_debut AS hr_debut,
+            a2_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_2_id IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            "Heures Sup" type,
+            id_collecte,
+            id_agent_3_id AS id_agent,
+            date_collecte AS date,
+            a3_hr_debut AS hr_debut,
+            a3_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_3_id IS NOT NULL
+    )
+    SELECT
+        type,
+        id_collecte,
+        id_agent,
+        date,
+        CASE
+            WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL THEN
+                (
+                    (strftime('%s', '1970-01-01 ' || hr_fin) - strftime('%s', '1970-01-01 ' || hr_debut) + 86400)
+                    % 86400
+                )
+            ELSE 0
+        END AS duree_sec
+    FROM collecte
+    ORDER BY date, id_collecte, id_agent;
 """)
 
 rows = cursor.fetchall()

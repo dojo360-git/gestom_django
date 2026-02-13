@@ -12,7 +12,8 @@ class AgentForm(forms.ModelForm):
             self.fields[field_name].localize = False
             self.fields[field_name].widget.format = "%Y-%m-%d"
         if not self.instance.pk:
-            self.fields["hds_defaut"].initial = "05:00"
+            self.fields["hds_defaut"].initial = "12:00"
+            self.fields["hfs_defaut"].initial = "12:00"
             self.fields["arrivee"].initial = timezone.localdate()
             self.fields["depart"].initial = "2036-12-31"
 
@@ -20,8 +21,8 @@ class AgentForm(forms.ModelForm):
         model = Agent
         fields = [
             "nom", "prenom", "qualification", "service", "employeur",
-            "hds_defaut", "echeance_permis", "echeance_fco",
-            "supp", "archive", "arrivee", "depart", "tel",
+            "hds_defaut", "hfs_defaut", "echeance_permis", "echeance_fco",
+            "arrivee", "depart", "tel",
         ]
         widgets = {
             "echeance_permis": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
@@ -29,6 +30,7 @@ class AgentForm(forms.ModelForm):
             "arrivee": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "depart": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
+            "hfs_defaut": forms.TimeInput(attrs={"type": "time"}),
             "employeur": forms.TextInput(attrs={"list": "employeur-options"}),
             "service": forms.TextInput(attrs={"list": "service-options"}),
         }
