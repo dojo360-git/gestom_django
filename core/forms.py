@@ -12,7 +12,7 @@ class AgentForm(forms.ModelForm):
             self.fields[field_name].localize = False
             self.fields[field_name].widget.format = "%Y-%m-%d"
         if not self.instance.pk:
-            self.fields["hds_defaut"].initial = "12:00"
+            self.fields["hds_defaut"].initial = "05:00"
             self.fields["hfs_defaut"].initial = "12:00"
             self.fields["arrivee"].initial = timezone.localdate()
             self.fields["depart"].initial = "2036-12-31"
