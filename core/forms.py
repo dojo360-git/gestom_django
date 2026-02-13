@@ -31,6 +31,7 @@ class AgentForm(forms.ModelForm):
             "depart": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
             "hfs_defaut": forms.TimeInput(attrs={"type": "time"}),
+            "qualification": forms.TextInput(attrs={"list": "qualification-options"}),
             "employeur": forms.TextInput(attrs={"list": "employeur-options"}),
             "service": forms.TextInput(attrs={"list": "service-options"}),
         }

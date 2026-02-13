@@ -1,4 +1,5 @@
 from django.db import connection
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -106,6 +107,27 @@ class AgentListView(ListView):
     model = Agent
     template_name = "core/agent_list.html"
     context_object_name = "agents"
+
+    def _selected_date(self):
+        date_str = self.request.GET.get("date")
+        if date_str:
+            try:
+                return timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                return timezone.localdate()
+        return timezone.localdate()
+
+    def get_queryset(self):
+        selected_date = self._selected_date()
+        return Agent.objects.filter(
+            (Q(arrivee__isnull=True) | Q(arrivee__lte=selected_date))
+            & (Q(depart__isnull=True) | Q(depart__gte=selected_date))
+        ).order_by("nom", "prenom")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["selected_date"] = self._selected_date()
+        return ctx
 
 
 class AgentDetailView(DetailView):

@@ -9,7 +9,7 @@
     <div class="header">
       <div>
         <h1 class="h1">{{ title }}</h1>
-        <p class="sub">Informations de l’agent</p>
+        <p class="sub">Informations de l'agent</p>
       </div>
     </div>
 
@@ -34,6 +34,15 @@
           <option value="Encadrement"></option>
         </datalist>
         {% endif %}
+        {% if field.name == "qualification" %}
+        <datalist id="qualification-options">
+          <option value="Agent précollecte"></option>
+          <option value="Agent Propreté PAV"></option>
+          <option value="Chauffeur"></option>
+          <option value="Encadrement"></option>
+          <option value="Ripeur"></option>
+        </datalist>
+        {% endif %}
         {{ field.errors }}
       </div>
       {% endfor %}
@@ -41,9 +50,6 @@
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>
         <a href="{% url 'core:agent_list' %}" class="btn btn--ghost">Annuler</a>
-
-
-
       </div>
     </form>
 

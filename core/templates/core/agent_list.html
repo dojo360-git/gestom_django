@@ -17,6 +17,12 @@
       </a>
     </div>
 
+    <form method="get" class="actions" style="margin-bottom: 14px; justify-content: flex-start;">
+      <label for="date" class="sub" style="align-self: center;">Date</label>
+      <input id="date" name="date" type="date" class="input" value="{{ selected_date|date:'Y-m-d' }}" style="max-width: 220px;">
+      <button type="submit" class="btn btn--ghost">Filtrer</button>
+    </form>
+
     <div class="table-wrap">
       <table class="table">
         <thead>
