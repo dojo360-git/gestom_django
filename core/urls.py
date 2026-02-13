@@ -10,6 +10,7 @@ from .views import (
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     PlanningView,
     planning2,
+    planning3,
 )
 
 app_name = "core"
@@ -19,7 +20,8 @@ urlpatterns = [
     # Home
     path("", views.home, name="home"),
     path("planning/", PlanningView.as_view(), name="planning"),
-    path("planning2/", views.planning2, name="planning2"),
+    path("planning2/", planning2, name="planning2"),
+    path("planning3/", planning3, name="planning3"),
     path("agents/", AgentListView.as_view(), name="agent_list"),
 
     # Agents

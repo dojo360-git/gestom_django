@@ -440,3 +440,53 @@ input:focus, select:focus, textarea:focus{
   align-items:flex-start;
   margin-bottom: 12px;
 }
+
+/* =========================
+   Planning3
+========================= */
+.planning3__table td{
+  vertical-align: top;
+}
+.planning3__cell{
+  min-width: 120px;
+}
+.planning3__cell .planning3__entry + .planning3__entry{
+  margin-top: 4px;
+}
+.planning .planning3__sticky--service{
+  left: 0;
+  min-width: 150px;
+  font-weight: 800;
+}
+.planning .planning3__sticky--qualif{
+  left: 150px;
+  min-width: 170px;
+  font-weight: 800;
+}
+.planning .planning3__sticky--nom{
+  left: 320px;
+  min-width: 210px;
+  font-weight: 800;
+}
+.planning3__entry{
+  display: block;
+  min-width: 42px;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0f172a;
+  border: 1px solid var(--border);
+}
+.planning3__entry--collecte{
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.planning3__entry--manuelles{
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+.planning3__entry--heures-sup{
+  background: #fee2e2;
+  border-color: #fca5a5;
+}

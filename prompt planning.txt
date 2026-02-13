@@ -1,0 +1,127 @@
+on va creer la page planning3 : 
+on un a selecteur de date  :  par default aujourd'hui
+3 boutons : 
+- Ce mois ci : mets à jour selecteur de date date = aujourd'hui
+- Mois suivant : mets à jour la date = permier jour du mois suivant
+- Mois précédant : mets à jour la date = permier jour du mois suivant
+
+
+On va construire le planning : 
+
+les 3 premieres colonnes concernent les agents 
+on garde les agents where date selecteur comprise  debut_de_mois(depart de arrivee) et fin_de_mois(date de depart))
+premiere colonne : service 
+deuxieme colonne : qualification 
+troisieme colonne : nom agent
+
+
+en colonnes les dates de debut de mois (selecteur de date) à fin de mois (selecteur de date)
+
+dans les valeur du tableau : 
+
+Voici la requete que l'on va utiliser :
+
+    WITH 
+        collecte_brut as (
+        
+               select * 
+               from core_collecte
+               ),
+
+        collecte AS (
+        SELECT
+            'collecte' type,
+            id_collecte,
+            id_agent_1_id AS id_agent,
+            date_collecte AS date,
+            a1_hr_debut AS hr_debut,
+            a1_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_1_id IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            'Manuelles' type, 
+            id_collecte,
+            id_agent_2_id AS id_agent,
+            date_collecte AS date,
+            a2_hr_debut AS hr_debut,
+            a2_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_2_id IS NOT NULL
+
+        UNION ALL
+
+        SELECT
+            'Heures Sup' type,
+            id_collecte,
+            id_agent_3_id AS id_agent,
+            date_collecte AS date,
+            a3_hr_debut AS hr_debut,
+            a3_hr_fin AS hr_fin
+        FROM core_collecte
+        WHERE id_agent_3_id IS NOT NULL
+    )
+    SELECT        
+        id_agent,
+        date,
+        type,
+        id_collecte id_stat,
+        CASE
+            WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL THEN
+                round((
+                    (EXTRACT(EPOCH FROM (hr_fin - hr_debut))::bigint + 86400)
+                    % 86400
+                )/3600,1)
+            ELSE 0
+        END AS stat
+    FROM collecte
+    ORDER BY id_agent, date,  id_collecte ;
+"""
+
+voici un exemple de resultat : 
+[
+  {
+    "id_agent": 1,
+    "date": "2026-02-10",
+    "type": "Heures Sup",
+    "id_stat": 1,
+    "stat": "6.0"
+  },
+  {
+    "id_agent": 1,
+    "date": "2026-02-10",
+    "type": "Manuelles",
+    "id_stat": 2,
+    "stat": "7.0"
+  },
+  {
+    "id_agent": 2,
+    "date": "2026-02-10",
+    "type": "Manuelles",
+    "id_stat": 1,
+    "stat": "4.0"
+  },
+  {
+    "id_agent": 2,
+    "date": "2026-02-10",
+    "type": "collecte",
+    "id_stat": 2,
+    "stat": "6.0"
+  },
+  {
+    "id_agent": 4,
+    "date": "2026-02-10",
+    "type": "collecte",
+    "id_stat": 1,
+    "stat": "3.0"
+  }
+]
+
+
+Pour chaque element de cet array : 
+    on ajoute une div dans la case concercernée(agent, date) : 
+    valeur : "stat"  
+    remplissage : choisi une couleur par "type"
+    largeur : ajusté à la valeur

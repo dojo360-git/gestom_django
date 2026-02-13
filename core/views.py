@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 import calendar
+from collections import defaultdict
 
 from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm
 from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte
@@ -414,6 +415,111 @@ class PlanningView(TemplateView):
         agents_qs = Agent.objects.all().order_by("nom")
         ctx["agents"] = list(agents_qs.values("id", "nom", "qualification"))
         return ctx
+
+
+def planning3(request):
+    today = timezone.localdate()
+    date_str = request.GET.get("date")
+    if date_str:
+        try:
+            selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+    else:
+        selected_date = today
+
+    month_start = selected_date.replace(day=1)
+    last_day = calendar.monthrange(selected_date.year, selected_date.month)[1]
+    month_end = selected_date.replace(day=last_day)
+    days = [month_start + timezone.timedelta(days=offset) for offset in range(last_day)]
+
+    agents = list(
+        Agent.objects.filter(
+            (Q(arrivee__isnull=True) | Q(arrivee__lte=month_end))
+            & (Q(depart__isnull=True) | Q(depart__gte=month_start))
+        ).order_by("service", "qualification", "nom", "prenom")
+    )
+
+    sql = """
+        WITH collecte AS (
+            SELECT
+                'collecte' AS type,
+                id_collecte,
+                id_agent_1_id AS id_agent,
+                date_collecte AS date,
+                a1_hr_debut AS hr_debut,
+                a1_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_1_id IS NOT NULL
+
+            UNION ALL
+
+            SELECT
+                'Manuelles' AS type,
+                id_collecte,
+                id_agent_2_id AS id_agent,
+                date_collecte AS date,
+                a2_hr_debut AS hr_debut,
+                a2_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_2_id IS NOT NULL
+
+            UNION ALL
+
+            SELECT
+                'Heures Sup' AS type,
+                id_collecte,
+                id_agent_3_id AS id_agent,
+                date_collecte AS date,
+                a3_hr_debut AS hr_debut,
+                a3_hr_fin AS hr_fin
+            FROM core_collecte
+            WHERE id_agent_3_id IS NOT NULL
+        )
+        SELECT
+            id_agent,
+            date,
+            type,
+            id_collecte AS id_stat,
+            CASE
+                WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL THEN
+                    round(((EXTRACT(EPOCH FROM (hr_fin - hr_debut))::bigint + 86400) %% 86400) / 3600.0, 1)
+                ELSE 0
+            END AS stat
+        FROM collecte
+        WHERE date BETWEEN %s AND %s
+        ORDER BY id_agent, date, id_collecte;
+    """
+
+    entries_map = defaultdict(list)
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [month_start, month_end])
+        for agent_id, date_value, entry_type, id_stat, stat in cursor.fetchall():
+            stat_value = float(stat or 0)
+            entries_map[(agent_id, date_value)].append(
+                {
+                    "type": entry_type,
+                    "id_stat": id_stat,
+                    "stat": stat_value,
+                    "stat_label": f"{stat_value:.1f}",
+                    "width_pct": max(8, min(100, (stat_value / 8.0) * 100)),
+                }
+            )
+
+    table_rows = []
+    for agent in agents:
+        day_entries = [entries_map.get((agent.id, day), []) for day in days]
+        table_rows.append({"agent": agent, "day_entries": day_entries})
+
+    return render(
+        request,
+        "core/planning3.html",
+        {
+            "selected_date": selected_date,
+            "days": days,
+            "rows": table_rows,
+        },
+    )
 
 
 def planning2(request):

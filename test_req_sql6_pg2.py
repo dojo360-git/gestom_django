@@ -31,8 +31,8 @@ cursor.execute("""
     WITH 
         collecte_brut as (
         
-               select * from core_collecte
-               where date between 01/01/2025 fin  
+               select * 
+               from core_collecte
                ),
 
         collecte AS (
@@ -70,11 +70,11 @@ cursor.execute("""
         FROM core_collecte
         WHERE id_agent_3_id IS NOT NULL
     )
-    SELECT
-        type,
-        id_collecte,
+    SELECT        
         id_agent,
         date,
+        type,
+        id_collecte id_stat,
         CASE
             WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL THEN
                 round((
@@ -82,9 +82,9 @@ cursor.execute("""
                     % 86400
                 )/3600,1)
             ELSE 0
-        END AS duree_heure
+        END AS stat
     FROM collecte
-    ORDER BY date, id_collecte, id_agent;
+    ORDER BY id_agent, date,  id_collecte ;
 """)
 
 rows = cursor.fetchall()

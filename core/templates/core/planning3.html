@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+
+{% block title %}Planning 3{% endblock %}
+
+{% block content %}
+<div class="planning">
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="header">
+        <div>
+          <h1 class="h1">Planning 3</h1>
+          <p class="sub">Vue mensuelle des heures par agent et par type</p>
+        </div>
+
+        <form class="planning__controls" id="planning3Form" method="get">
+          <label class="planning__control">
+            <span class="planning__label">Date</span>
+            <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+          </label>
+
+          <button id="thisMonthBtn" class="btn btn--ghost" type="button">Ce mois ci</button>
+          <button id="nextMonthBtn" class="btn btn--ghost" type="button">Mois suivant</button>
+          <button id="prevMonthBtn" class="btn btn--ghost" type="button">Mois precedent</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="table-wrap planning__wrap">
+        <table class="table planning__table planning3__table">
+          <thead>
+            <tr>
+              <th class="planning__sticky planning3__sticky--service">Service</th>
+              <th class="planning__sticky planning3__sticky--qualif">Qualification</th>
+              <th class="planning__sticky planning3__sticky--nom">Nom agent</th>
+              {% for day in days %}
+                <th class="planning__cell">{{ day|date:"d" }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td class="planning__sticky planning3__sticky--service">{{ row.agent.service|default:"-" }}</td>
+                <td class="planning__sticky planning3__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
+                <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
+                {% for entries in row.day_entries %}
+                  <td class="planning__cell planning3__cell">
+                    {% for e in entries %}
+                      <div class="planning3__entry planning3__entry--{{ e.type|slugify }}" style="width: {{ e.width_pct }}%;" title="{{ e.type }} #{{ e.id_stat }}">
+                        {{ e.stat_label }}
+                      </div>
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{{ days|length|add:'3' }}" class="sub">Aucun agent sur la periode</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const dateInput = document.getElementById("dateInput");
+  const prevBtn = document.getElementById("prevMonthBtn");
+  const nextBtn = document.getElementById("nextMonthBtn");
+  const thisMonthBtn = document.getElementById("thisMonthBtn");
+  const form = document.getElementById("planning3Form");
+
+  function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function setDateAndSubmit(date) {
+    if (!dateInput || !form) return;
+    dateInput.value = formatLocalDate(date);
+    form.submit();
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener("change", () => {
+      if (!dateInput.value) return;
+      setDateAndSubmit(new Date(dateInput.value));
+    });
+  }
+
+  if (thisMonthBtn) {
+    thisMonthBtn.addEventListener("click", () => {
+      setDateAndSubmit(new Date());
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      const target = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+      setDateAndSubmit(target);
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      const target = new Date(base.getFullYear(), base.getMonth() - 1, 1);
+      setDateAndSubmit(target);
+    });
+  }
+</script>
+{% endblock %}
