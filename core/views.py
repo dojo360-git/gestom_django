@@ -110,6 +110,9 @@ class AgentListView(ListView):
     template_name = "core/agent_list.html"
     context_object_name = "agents"
 
+    def _show_all(self):
+        return self.request.GET.get("all") in {"1", "true", "True"}
+
     def _selected_date(self):
         date_str = self.request.GET.get("date")
         if date_str:
@@ -120,6 +123,9 @@ class AgentListView(ListView):
         return timezone.localdate()
 
     def get_queryset(self):
+        if self._show_all():
+            return Agent.objects.all().order_by("nom", "prenom")
+
         selected_date = self._selected_date()
         return Agent.objects.filter(
             (Q(arrivee__isnull=True) | Q(arrivee__lte=selected_date))
@@ -129,6 +135,7 @@ class AgentListView(ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["selected_date"] = self._selected_date()
+        ctx["show_all"] = self._show_all()
         return ctx
 
 
