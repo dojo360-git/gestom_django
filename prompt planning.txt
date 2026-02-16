@@ -125,3 +125,26 @@ Pour chaque element de cet array :
     valeur : "stat"  
     remplissage : choisi une couleur par "type"
     largeur : ajusté à la valeur
+
+
+
+_____________________
+
+on va creer la table heures_manuelles :
+
+date : par defaut date du jour
+agent : liste déroulante des agents dont date comprise entre les champs date depart et date arrivee de l'agent
+
+heure_debut  : valeur par defaut : hds_defaut de l'agent 
+heure_fin    : valeur par defaut : hfs_defaut de l'agent 
+
+Presences : liste déroulante du champs PRES de la table presences 
+
+Motif_heures_sup :  listes des valeurs proposée : 
+    Renfort 
+    Remplacement 
+    Rattrapage 
+    Manifestation 
+    GDV 
+    l'utilisateur peut saisir la valeur qu'il veut 
+

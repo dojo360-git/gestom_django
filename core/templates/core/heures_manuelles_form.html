@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+
+{% block title %}Heures manuelles{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ title }}</h1>
+        <p class="sub">Saisie des heures manuelles</p>
+      </div>
+    </div>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="field">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.name == "motif_heures_sup" %}
+        <datalist id="motif-heures-sup-options">
+          <option value="Renfort"></option>
+          <option value="Remplacement"></option>
+          <option value="Rattrapage"></option>
+          <option value="Manifestation"></option>
+          <option value="GDV"></option>
+        </datalist>
+        {% endif %}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+
+      <div class="actions">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a href="{% url 'core:heures_manuelles_list' %}" class="btn btn--ghost">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const agentInput = document.getElementById("id_agent");
+  const hdInput = document.getElementById("id_heure_debut");
+  const hfInput = document.getElementById("id_heure_fin");
+  const defaults = {
+    {% for a in form.fields.agent.queryset %}
+    "{{ a.pk }}": {
+      "hds": "{% if a.hds_defaut %}{{ a.hds_defaut|time:'H:i' }}{% endif %}",
+      "hfs": "{% if a.hfs_defaut %}{{ a.hfs_defaut|time:'H:i' }}{% endif %}"
+    },
+    {% endfor %}
+  };
+
+  if (agentInput) {
+    agentInput.addEventListener("change", () => {
+      const v = defaults[agentInput.value];
+      if (!v) return;
+      if (hdInput) hdInput.value = v.hds || "";
+      if (hfInput) hfInput.value = v.hfs || "";
+    });
+  }
+</script>
+{% endblock %}

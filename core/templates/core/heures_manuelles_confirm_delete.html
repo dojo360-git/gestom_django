@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+
+{% block title %}Supprimer heure manuelle{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Supprimer la saisie</h1>
+        <p class="sub">Cette action est irreversible.</p>
+      </div>
+    </div>
+
+    <p>Supprimer la saisie du {{ object.date|date:"Y-m-d" }} pour {{ object.agent }} ?</p>
+
+    <form method="post" class="actions">
+      {% csrf_token %}
+      <button type="submit" class="btn btn--danger">Supprimer</button>
+      <a href="{% url 'core:heures_manuelles_list' %}" class="btn btn--ghost">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

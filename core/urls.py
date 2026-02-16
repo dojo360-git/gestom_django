@@ -8,6 +8,7 @@ from .views import (
     PresenceMotifListView, PresenceMotifDetailView, PresenceMotifCreateView, PresenceMotifUpdateView, PresenceMotifDeleteView,
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
+    HeuresManuellesListView, HeuresManuellesDetailView, HeuresManuellesCreateView, HeuresManuellesUpdateView, HeuresManuellesDeleteView,
     PlanningView,
     planning2,
     planning3,
@@ -43,6 +44,13 @@ urlpatterns = [
     path("collectes/<int:pk>/", CollecteDetailView.as_view(), name="collecte_detail"),
     path("collectes/<int:pk>/modifier/", CollecteUpdateView.as_view(), name="collecte_update"),
     path("collectes/<int:pk>/supprimer/", CollecteDeleteView.as_view(), name="collecte_delete"),
+
+    # Heures manuelles
+    path("heures-manuelles/", HeuresManuellesListView.as_view(), name="heures_manuelles_list"),
+    path("heures-manuelles/nouveau/", HeuresManuellesCreateView.as_view(), name="heures_manuelles_create"),
+    path("heures-manuelles/<int:pk>/", HeuresManuellesDetailView.as_view(), name="heures_manuelles_detail"),
+    path("heures-manuelles/<int:pk>/modifier/", HeuresManuellesUpdateView.as_view(), name="heures_manuelles_update"),
+    path("heures-manuelles/<int:pk>/supprimer/", HeuresManuellesDeleteView.as_view(), name="heures_manuelles_delete"),
 
     # Flux
     path("flux/", FluxListView.as_view(), name="flux_list"),

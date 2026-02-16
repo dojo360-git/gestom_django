@@ -7,8 +7,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 import calendar
 from collections import defaultdict
 
-from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm
-from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte
+from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm, HeuresManuellesForm
+from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte, HeuresManuelles
 
 
 def home(request):
@@ -405,6 +405,48 @@ class CollecteDeleteView(DeleteView):
     model = Collecte
     template_name = "core/collecte_confirm_delete.html"
     success_url = reverse_lazy("core:collecte_list")
+
+
+class HeuresManuellesListView(ListView):
+    model = HeuresManuelles
+    template_name = "core/heures_manuelles_list.html"
+    context_object_name = "heures_manuelles"
+
+
+class HeuresManuellesDetailView(DetailView):
+    model = HeuresManuelles
+    template_name = "core/heures_manuelles_detail.html"
+    context_object_name = "heures_manuel"
+
+
+class HeuresManuellesCreateView(CreateView):
+    model = HeuresManuelles
+    form_class = HeuresManuellesForm
+    template_name = "core/heures_manuelles_form.html"
+    success_url = reverse_lazy("core:heures_manuelles_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Nouvelle heure manuelle"
+        return ctx
+
+
+class HeuresManuellesUpdateView(UpdateView):
+    model = HeuresManuelles
+    form_class = HeuresManuellesForm
+    template_name = "core/heures_manuelles_form.html"
+    success_url = reverse_lazy("core:heures_manuelles_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Modifier heure manuelle"
+        return ctx
+
+
+class HeuresManuellesDeleteView(DeleteView):
+    model = HeuresManuelles
+    template_name = "core/heures_manuelles_confirm_delete.html"
+    success_url = reverse_lazy("core:heures_manuelles_list")
 
 
 class PlanningView(TemplateView):

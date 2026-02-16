@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block title %}Heure manuelle{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Heure manuelle #{{ heures_manuel.id }}</h1>
+        <p class="sub">Detail de la saisie</p>
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Date : {{ heures_manuel.date|date:"Y-m-d" }}</li>
+      <li>Agent : {{ heures_manuel.agent }}</li>
+      <li>Heure debut : {{ heures_manuel.heure_debut|default:"-" }}</li>
+      <li>Heure fin : {{ heures_manuel.heure_fin|default:"-" }}</li>
+      <li>Presence : {{ heures_manuel.presence|default:"-" }}</li>
+      <li>Motif heures sup : {{ heures_manuel.motif_heures_sup|default:"-" }}</li>
+    </ul>
+
+    <div class="actions">
+      <a href="{% url 'core:heures_manuelles_update' heures_manuel.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
+      <a href="{% url 'core:heures_manuelles_delete' heures_manuel.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+      <a href="{% url 'core:heures_manuelles_list' %}" class="btn btn--ghost">Retour</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

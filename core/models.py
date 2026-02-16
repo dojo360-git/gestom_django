@@ -184,3 +184,24 @@ class Collecte(models.Model):
     def __str__(self):
         return f"Collecte {self.id_collecte}"
 
+
+class HeuresManuelles(models.Model):
+    date = models.DateField(default=timezone.localdate)
+    agent = models.ForeignKey(
+        Agent,
+        on_delete=models.PROTECT,
+        related_name="heures_manuelles",
+    )
+    heure_debut = models.TimeField(null=True, blank=True)
+    heure_fin = models.TimeField(null=True, blank=True)
+    presence = models.CharField(max_length=150, blank=True)
+    motif_heures_sup = models.CharField(max_length=150, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date", "agent__nom", "agent__prenom", "-date_creation"]
+
+    def __str__(self):
+        return f"{self.date} - {self.agent}"
+
