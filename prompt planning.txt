@@ -148,3 +148,32 @@ Motif_heures_sup :  listes des valeurs proposée :
     GDV 
     l'utilisateur peut saisir la valeur qu'il veut 
 
+_____________________
+
+
+
+planning3/ 
+
+Quand je double clique sur une case du tableau td planning cell  par exemple
+
+<div class="planning3__entry planning3__entry--heures-sup planning3__w-100" title="Heures Sup #300">
+                        CA
+                      </div>
+
+si title contient Heures ou title contient Manuel ouvre un popup avec le formulaire de modification heures-manuelles id = caracteres de titles après # 
+
+à l'enregistrement du formulaire mets à jour le planning3
+
+
+__________________
+
+quand je clique sur <td class="planning__cell planning3__cell"> 
+
+ouvre le formulaire de nouveau heures manuelles 
+
+
+
+garde le meme style et fonctionnement que heures_manuelles_form_embedded
+
+
+                  </td>

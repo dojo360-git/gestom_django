@@ -455,9 +455,48 @@ class HeuresManuellesCreateView(CreateView):
     template_name = "core/heures_manuelles_form.html"
     success_url = reverse_lazy("core:heures_manuelles_list")
 
+    def _is_embedded(self):
+        return (self.request.GET.get("embedded") or self.request.POST.get("embedded")) == "1"
+
+    def get_template_names(self):
+        if self._is_embedded():
+            return ["core/heures_manuelles_form_embedded.html"]
+        return [self.template_name]
+
+    def _get_next_url(self):
+        next_url = self.request.POST.get("next") or self.request.GET.get("next") or ""
+        if not next_url:
+            return ""
+        if not url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return ""
+        return next_url
+
+    def get_success_url(self):
+        return self._get_next_url() or str(self.success_url)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        agent_id = self.request.GET.get("agent")
+        date_str = self.request.GET.get("date")
+        if agent_id:
+            initial["agent"] = agent_id
+        if date_str:
+            try:
+                initial["date"] = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        return initial
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = "Nouvelle heure manuelle"
+        ctx["next_url"] = self._get_next_url()
+        ctx["embedded"] = self._is_embedded()
+        ctx["form_action"] = self.request.get_full_path()
         return ctx
 
 
@@ -628,8 +667,14 @@ def planning3(request):
 
     table_rows = []
     for agent in agents:
-        day_entries = [entries_map.get((agent.id, day), []) for day in days]
-        table_rows.append({"agent": agent, "day_entries": day_entries})
+        day_cells = [
+            {
+                "day": day,
+                "entries": entries_map.get((agent.id, day), []),
+            }
+            for day in days
+        ]
+        table_rows.append({"agent": agent, "day_cells": day_cells})
 
     return render(
         request,

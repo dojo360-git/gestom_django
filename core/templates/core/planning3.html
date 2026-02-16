@@ -47,9 +47,9 @@
                 <td class="planning__sticky planning3__sticky--service">{{ row.agent.service|default:"-" }}</td>
                 <td class="planning__sticky planning3__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
                 <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
-                {% for entries in row.day_entries %}
-                  <td class="planning__cell planning3__cell">
-                    {% for e in entries %}
+                {% for cell in row.day_cells %}
+                  <td class="planning__cell planning3__cell" data-agent-id="{{ row.agent.id }}" data-date="{{ cell.day|date:'Y-m-d' }}">
+                    {% for e in cell.entries %}
                       <div class="planning3__entry planning3__entry--{{ e.type|slugify }} {{ e.width_class }}" title="{{ e.type }} #{{ e.id_stat }}">
                         {{ e.stat_label }}
                       </div>
@@ -93,6 +93,9 @@
   const form = document.getElementById("planning3Form");
   const hmModal = document.getElementById("planning3HmModal");
   const hmContent = document.getElementById("planning3HmContent");
+  const hmModalTitle = document.getElementById("planning3HmModalTitle");
+  const hmModalSubtitle = hmModal?.querySelector(".sub");
+  const hmCreateUrl = "{% url 'core:heures_manuelles_create' %}";
   const hmUpdateUrlTemplate = "{% url 'core:heures_manuelles_update' 0 %}";
   let hmReturnUrl = "";
 
@@ -184,19 +187,35 @@
     });
   }
 
-  async function openHeuresManuellesModal(id) {
+  async function loadHeuresManuellesForm(url) {
     if (!hmModal || !hmContent) return;
-    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
-    const editUrl = buildHeuresManuellesUpdateUrl(id);
     hmContent.innerHTML = '<p class="sub">Chargement du formulaire...</p>';
     hmModal.setAttribute("aria-hidden", "false");
 
-    const response = await fetch(
-      `${editUrl}?next=${encodeURIComponent(hmReturnUrl)}&embedded=1`,
-      { headers: { "X-Requested-With": "XMLHttpRequest" } }
-    );
+    const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
     hmContent.innerHTML = await response.text();
     bindEmbeddedHeuresForm();
+  }
+
+  async function openHeuresManuellesModal(id) {
+    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
+    const editUrl = buildHeuresManuellesUpdateUrl(id);
+    if (hmModalTitle) hmModalTitle.textContent = "Heures manuelles";
+    if (hmModalSubtitle) hmModalSubtitle.textContent = "Modifier l'entree depuis le planning";
+    await loadHeuresManuellesForm(`${editUrl}?next=${encodeURIComponent(hmReturnUrl)}&embedded=1`);
+  }
+
+  async function openHeuresManuellesCreateModal(agentId, date) {
+    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
+    if (hmModalTitle) hmModalTitle.textContent = "Heures manuelles";
+    if (hmModalSubtitle) hmModalSubtitle.textContent = "Nouvelle entree depuis le planning";
+    const params = new URLSearchParams({
+      agent: agentId,
+      date,
+      next: hmReturnUrl,
+      embedded: "1",
+    });
+    await loadHeuresManuellesForm(`${hmCreateUrl}?${params.toString()}`);
   }
 
   if (hmModal) {
@@ -223,6 +242,16 @@
   document.addEventListener("click", (event) => {
     if (event.target?.dataset?.close) {
       closeHeuresManuellesModal();
+      return;
+    }
+
+    const cell = event.target.closest("td.planning3__cell");
+    const clickedEntry = event.target.closest(".planning3__entry[title]");
+    if (cell && !clickedEntry) {
+      const agentId = cell.dataset.agentId || "";
+      const date = cell.dataset.date || "";
+      if (!agentId || !date) return;
+      openHeuresManuellesCreateModal(agentId, date);
       return;
     }
 
