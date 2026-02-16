@@ -1,0 +1,31 @@
+<form method="post" action="{{ form_action }}" class="form" id="heuresManuellesEmbeddedForm">
+  {% csrf_token %}
+  {% if next_url %}
+  <input type="hidden" name="next" value="{{ next_url }}">
+  {% endif %}
+  {% if embedded %}
+  <input type="hidden" name="embedded" value="1">
+  {% endif %}
+
+  {% for field in form %}
+  <div class="field">
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.name == "motif_heures_sup" %}
+    <datalist id="motif-heures-sup-options">
+      <option value="Renfort"></option>
+      <option value="Remplacement"></option>
+      <option value="Rattrapage"></option>
+      <option value="Manifestation"></option>
+      <option value="GDV"></option>
+    </datalist>
+    {% endif %}
+    {{ field.errors }}
+  </div>
+  {% endfor %}
+
+  <div class="actions">
+    <button class="btn btn--primary" type="submit">Enregistrer</button>
+    <button class="btn btn--ghost" type="button" data-close="1">Annuler</button>
+  </div>
+</form>

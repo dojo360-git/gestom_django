@@ -70,12 +70,31 @@
 
 </div>
 
+<div class="planning-modal" id="planning3HmModal" aria-hidden="true">
+  <div class="planning-modal__backdrop" data-close="1"></div>
+
+  <div class="planning-modal__panel planning-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="planning3HmModalTitle">
+    <div class="planning-modal__head">
+      <div>
+        <h2 class="h2" id="planning3HmModalTitle" style="margin:0;">Heures manuelles</h2>
+        <p class="sub" style="margin:6px 0 0;">Modifier l'entree depuis le planning</p>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button" data-close="1">Fermer</button>
+    </div>
+    <div id="planning3HmContent" class="planning3-modal__body"></div>
+  </div>
+</div>
+
 <script>
   const dateInput = document.getElementById("dateInput");
   const prevBtn = document.getElementById("prevMonthBtn");
   const nextBtn = document.getElementById("nextMonthBtn");
   const thisMonthBtn = document.getElementById("thisMonthBtn");
   const form = document.getElementById("planning3Form");
+  const hmModal = document.getElementById("planning3HmModal");
+  const hmContent = document.getElementById("planning3HmContent");
+  const hmUpdateUrlTemplate = "{% url 'core:heures_manuelles_update' 0 %}";
+  let hmReturnUrl = "";
 
   function formatLocalDate(date) {
     const y = date.getFullYear();
@@ -118,5 +137,105 @@
       setDateAndSubmit(target);
     });
   }
+
+  function isHeuresManuellesTitle(title) {
+    const t = (title || "").toLowerCase();
+    return t.includes("heures") || t.includes("manuel");
+  }
+
+  function extractIdFromTitle(title) {
+    const match = (title || "").match(/#\s*(\d+)/);
+    return match ? match[1] : "";
+  }
+
+  function buildHeuresManuellesUpdateUrl(id) {
+    return hmUpdateUrlTemplate.replace("/0/", `/${id}/`);
+  }
+
+  function closeHeuresManuellesModal() {
+    if (!hmModal) return;
+    hmModal.setAttribute("aria-hidden", "true");
+    if (hmContent) hmContent.innerHTML = "";
+  }
+
+  function bindEmbeddedHeuresForm() {
+    if (!hmContent) return;
+    const embeddedForm = hmContent.querySelector("form");
+    if (!embeddedForm) return;
+
+    embeddedForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const action = embeddedForm.getAttribute("action") || window.location.href;
+      const body = new FormData(embeddedForm);
+      const response = await fetch(action, {
+        method: "POST",
+        body,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+
+      if (response.redirected || response.url.includes("/planning3/")) {
+        window.location.href = hmReturnUrl || response.url;
+        return;
+      }
+
+      hmContent.innerHTML = await response.text();
+      bindEmbeddedHeuresForm();
+    });
+  }
+
+  async function openHeuresManuellesModal(id) {
+    if (!hmModal || !hmContent) return;
+    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
+    const editUrl = buildHeuresManuellesUpdateUrl(id);
+    hmContent.innerHTML = '<p class="sub">Chargement du formulaire...</p>';
+    hmModal.setAttribute("aria-hidden", "false");
+
+    const response = await fetch(
+      `${editUrl}?next=${encodeURIComponent(hmReturnUrl)}&embedded=1`,
+      { headers: { "X-Requested-With": "XMLHttpRequest" } }
+    );
+    hmContent.innerHTML = await response.text();
+    bindEmbeddedHeuresForm();
+  }
+
+  if (hmModal) {
+    hmModal.addEventListener("click", (event) => {
+      if (event.target?.dataset?.close) {
+        closeHeuresManuellesModal();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && hmModal && hmModal.getAttribute("aria-hidden") === "false") {
+      closeHeuresManuellesModal();
+    }
+  });
+
+  document.querySelectorAll(".planning3__entry[title]").forEach((entry) => {
+    const title = entry.getAttribute("title") || "";
+    if (isHeuresManuellesTitle(title)) {
+      entry.classList.add("planning3__entry--editable");
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target?.dataset?.close) {
+      closeHeuresManuellesModal();
+      return;
+    }
+
+    const entry = event.target.closest(".planning3__entry[title]");
+    if (!entry) return;
+
+    const title = entry.getAttribute("title") || "";
+    if (!isHeuresManuellesTitle(title)) return;
+
+    const id = extractIdFromTitle(title);
+    if (!id) return;
+
+    openHeuresManuellesModal(id);
+  });
 </script>
 {% endblock %}
