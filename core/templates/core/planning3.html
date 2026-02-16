@@ -50,7 +50,7 @@
                 {% for entries in row.day_entries %}
                   <td class="planning__cell planning3__cell">
                     {% for e in entries %}
-                      <div class="planning3__entry planning3__entry--{{ e.type|slugify }}" style="width: {{ e.width_pct }}%;" title="{{ e.type }} #{{ e.id_stat }}">
+                      <div class="planning3__entry planning3__entry--{{ e.type|slugify }} {{ e.width_class }}" title="{{ e.type }} #{{ e.id_stat }}">
                         {{ e.stat_label }}
                       </div>
                     {% endfor %}

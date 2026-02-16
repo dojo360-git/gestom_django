@@ -502,7 +502,7 @@ def planning3(request):
                     "id_stat": id_stat,
                     "stat": stat_value,
                     "stat_label": f"{stat_value:.1f}",
-                    "width_pct": max(8, min(100, (stat_value / 8.0) * 100)),
+                    "width_class": f"planning3__w-{max(10, min(100, int(round((stat_value / 8.0) * 100 / 10.0) * 10)))}",
                 }
             )
 
