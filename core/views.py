@@ -483,68 +483,90 @@ def planning3(request):
     )
 
     sql = """
-        WITH collecte AS (
+        WITH hr_manuelles AS (
+            SELECT
+                CASE
+                    WHEN COALESCE(NULLIF(BTRIM(motif_heures_sup), ''), '') <> '' THEN 'Heures Sup'
+                    ELSE 'Manuelles'
+                END AS type,
+                id AS id_stat,
+                agent_id AS id_agent,
+                date,
+                heure_debut AS hr_debut,
+                heure_fin AS hr_fin,
+                presence
+            FROM core_heuresmanuelles
+        ),
+        hr_collecte AS (
             SELECT
                 'collecte' AS type,
-                id_collecte,
+                id_collecte AS id_stat,
                 id_agent_1_id AS id_agent,
                 date_collecte AS date,
                 a1_hr_debut AS hr_debut,
-                a1_hr_fin AS hr_fin
+                a1_hr_fin AS hr_fin,
+                '' AS presence
             FROM core_collecte
             WHERE id_agent_1_id IS NOT NULL
 
             UNION ALL
 
             SELECT
-                'Manuelles' AS type,
-                id_collecte,
+                'collecte' AS type,
+                id_collecte AS id_stat,
                 id_agent_2_id AS id_agent,
                 date_collecte AS date,
                 a2_hr_debut AS hr_debut,
-                a2_hr_fin AS hr_fin
+                a2_hr_fin AS hr_fin,
+                '' AS presence
             FROM core_collecte
             WHERE id_agent_2_id IS NOT NULL
 
             UNION ALL
 
             SELECT
-                'Heures Sup' AS type,
-                id_collecte,
+                'collecte' AS type,
+                id_collecte AS id_stat,
                 id_agent_3_id AS id_agent,
                 date_collecte AS date,
                 a3_hr_debut AS hr_debut,
-                a3_hr_fin AS hr_fin
+                a3_hr_fin AS hr_fin,
+                '' AS presence
             FROM core_collecte
             WHERE id_agent_3_id IS NOT NULL
+        ),
+        entries AS (
+            SELECT * FROM hr_collecte
+            UNION ALL
+            SELECT * FROM hr_manuelles
         )
         SELECT
             id_agent,
             date,
             type,
-            id_collecte AS id_stat,
+            id_stat,
             CASE
-                WHEN hr_debut IS NOT NULL AND hr_fin IS NOT NULL THEN
-                    round(((EXTRACT(EPOCH FROM (hr_fin - hr_debut))::bigint + 86400) %% 86400) / 3600.0, 1)
-                ELSE 0
+                WHEN COALESCE(NULLIF(BTRIM(presence), ''), '') <> '' THEN presence
+                WHEN hr_fin IS NOT NULL THEN TO_CHAR(hr_fin, 'HH24:MI')
+                ELSE ''
             END AS stat
-        FROM collecte
+        FROM entries
         WHERE date BETWEEN %s AND %s
-        ORDER BY id_agent, date, id_collecte;
+        ORDER BY id_agent, date, stat;
     """
 
     entries_map = defaultdict(list)
     with connection.cursor() as cursor:
         cursor.execute(sql, [month_start, month_end])
         for agent_id, date_value, entry_type, id_stat, stat in cursor.fetchall():
-            stat_value = float(stat or 0)
+            stat_value = stat #float(stat or 0)
             entries_map[(agent_id, date_value)].append(
                 {
                     "type": entry_type,
                     "id_stat": id_stat,
-                    "stat": stat_value,
-                    "stat_label": f"{stat_value:.1f}",
-                    "width_class": f"planning3__w-{max(10, min(100, int(round((stat_value / 8.0) * 100 / 10.0) * 10)))}",
+                    "stat": stat,
+                    "stat_label": stat,
+                    "width_class": "planning3__w-100"
                 }
             )
 
