@@ -20,8 +20,11 @@
           </label>
 
           <button id="thisMonthBtn" class="btn btn--ghost" type="button">Ce mois ci</button>
-          <button id="nextMonthBtn" class="btn btn--ghost" type="button">Mois suivant</button>
-          <button id="prevMonthBtn" class="btn btn--ghost" type="button">Mois precedent</button>
+          <button id="prevMonthBtn" class="btn btn--ghost" type="button">Mois -</button>
+          <button id="nextMonthBtn" class="btn btn--ghost" type="button">Mois +</button>
+          <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">
+          + Nouvelle collecte
+        </a>
         </form>
       </div>
     </div>
