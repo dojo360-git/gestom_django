@@ -40,7 +40,7 @@
               <th class="planning__sticky planning3__sticky--qualif">Qualification</th>
               <th class="planning__sticky planning3__sticky--nom">Nom agent</th>
               {% for day in days %}
-                <th class="planning__cell">{{ day|date:"d" }}</th>
+                <th class="planning__cell">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
               {% endfor %}
             </tr>
           </thead>
@@ -51,7 +51,7 @@
                 <td class="planning__sticky planning3__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
                 <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
                 {% for cell in row.day_cells %}
-                  <td class="planning__cell planning3__cell" data-agent-id="{{ row.agent.id }}" data-date="{{ cell.day|date:'Y-m-d' }}">
+                  <td class="planning__cell planning3__cell {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}" data-agent-id="{{ row.agent.id }}" data-date="{{ cell.day|date:'Y-m-d' }}">
                     {% for e in cell.entries %}
                       <div class="planning3__entry planning3__entry--{{ e.type|slugify }} {{ e.width_class }}" title="{{ e.type }} #{{ e.id_stat }}">
                         {{ e.stat_label }}
