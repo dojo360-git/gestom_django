@@ -23,14 +23,22 @@
     </a>
 
     <div class="nav__actions">
+      <a class="btn btn--ghost" href="{% url 'core:home' %}">Accueil</a>
+      
       <a class="btn btn--ghost" href="{% url 'core:collecte_list' %}">Collectes</a>
-      <a class="btn btn--ghost" href="{% url 'core:agent_list' %}">Agents</a>
-      <a class="btn btn--ghost" href="{% url 'core:vehicule_list' %}">Vehicules</a>
-      <a class="btn btn--ghost" href="{% url 'core:flux_list' %}">Flux</a>
-      <a class="btn btn--ghost" href="{% url 'core:energie_list' %}">Energies</a>
-      <a class="btn btn--ghost" href="{% url 'core:presence_motif_list' %}">Presences</a>
-      <a class="btn btn--ghost" href="{% url 'core:heures_manuelles_list' %}">Heures manuelles</a>
+      <details class="nav__dropdown">
+        <summary class="btn btn--ghost nav__dropdown-toggle">Parametres</summary>
+        <div class="nav__dropdown-menu">
+          <a class="nav__dropdown-item" href="{% url 'core:agent_list' %}">Agents</a>
+          <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">Vehicules</a>
+          <a class="nav__dropdown-item" href="{% url 'core:flux_list' %}">Flux</a>
+          <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">Energies</a>
+          <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">Presences</a>
+          <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">Heures manuelles</a>
+        </div>
+      </details>
       <a class="btn btn--primary" href="{% url 'core:planning3' %}">Planning</a>
+      
     </div>
   </div>
 </header>

@@ -170,7 +170,8 @@ __________________
 quand je clique sur <td class="planning__cell planning3__cell"> 
 
 ouvre le formulaire de nouveau heures manuelles 
-
+par defaut agent = agent de ligne du tableau 
+date = date du tableau 
 
 
 garde le meme style et fonctionnement que heures_manuelles_form_embedded
