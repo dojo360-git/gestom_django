@@ -46,7 +46,7 @@ body{
 
 a{ color: inherit; text-decoration: none; }
 .container{
-  width: min(1100px, calc(100% - 32px));
+  width: 95%; /*min(1100px, calc(100% - 32px)) */
   margin: 0 auto;
 }
 
@@ -156,7 +156,7 @@ a{ color: inherit; text-decoration: none; }
   min-width: 620px;
 }
 .table th, .table td{
-  padding: 14px 12px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
@@ -387,7 +387,7 @@ input:focus, select:focus, textarea:focus{
 
 /* 2 colonnes sticky */
 .planning .planning__sticky{
-  position: sticky;
+  /*position: sticky;*/
   background: #ffffff;
   z-index: 4;
   white-space: nowrap;
@@ -456,17 +456,17 @@ input:focus, select:focus, textarea:focus{
 .planning .planning3__sticky--service{
   left: 0;
   min-width: 150px;
-  font-weight: 800;
+  font-weight: 700;
 }
 .planning .planning3__sticky--qualif{
   left: 150px;
   min-width: 170px;
-  font-weight: 800;
+  font-weight: 700;
 }
 .planning .planning3__sticky--nom{
   left: 320px;
   min-width: 210px;
-  font-weight: 800;
+  font-weight: 700;
 }
 .planning3__entry{
   display: block;
