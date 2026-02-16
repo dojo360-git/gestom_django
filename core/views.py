@@ -504,6 +504,7 @@ class HeuresManuellesCreateView(CreateView):
         ctx["next_url"] = self._get_next_url()
         ctx["embedded"] = self._is_embedded()
         ctx["form_action"] = self.request.get_full_path()
+        ctx["delete_url"] = ""
         return ctx
 
 
@@ -542,6 +543,7 @@ class HeuresManuellesUpdateView(UpdateView):
         ctx["next_url"] = self._get_next_url()
         ctx["embedded"] = self._is_embedded()
         ctx["form_action"] = self.request.get_full_path()
+        ctx["delete_url"] = reverse_lazy("core:heures_manuelles_delete", kwargs={"pk": self.object.pk})
         return ctx
 
 
@@ -549,6 +551,21 @@ class HeuresManuellesDeleteView(DeleteView):
     model = HeuresManuelles
     template_name = "core/heures_manuelles_confirm_delete.html"
     success_url = reverse_lazy("core:heures_manuelles_list")
+
+    def _get_next_url(self):
+        next_url = self.request.POST.get("next") or self.request.GET.get("next") or ""
+        if not next_url:
+            return ""
+        if not url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return ""
+        return next_url
+
+    def get_success_url(self):
+        return self._get_next_url() or str(self.success_url)
 
 
 class PlanningView(TemplateView):

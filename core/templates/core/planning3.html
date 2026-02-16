@@ -168,6 +168,7 @@
     if (!hmContent) return;
     const embeddedForm = hmContent.querySelector("form");
     if (!embeddedForm) return;
+    const csrfInput = embeddedForm.querySelector('input[name="csrfmiddlewaretoken"]');
 
     embeddedForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -188,6 +189,39 @@
       hmContent.innerHTML = await response.text();
       bindEmbeddedHeuresForm();
     });
+
+    const deleteBtn = embeddedForm.querySelector("[data-delete-url]");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        if (!window.confirm("Confirmer la suppression de cette heure manuelle ?")) {
+          return;
+        }
+
+        const deleteUrl = deleteBtn.getAttribute("data-delete-url");
+        if (!deleteUrl || !csrfInput?.value) return;
+
+        const payload = new URLSearchParams();
+        payload.set("csrfmiddlewaretoken", csrfInput.value);
+        payload.set("next", hmReturnUrl || window.location.href);
+
+        const response = await fetch(deleteUrl, {
+          method: "POST",
+          body: payload,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+
+        if (response.redirected || response.url.includes("/planning3/")) {
+          window.location.href = hmReturnUrl || response.url;
+          return;
+        }
+
+        hmContent.innerHTML = await response.text();
+        bindEmbeddedHeuresForm();
+      });
+    }
   }
 
   async function loadHeuresManuellesForm(url) {

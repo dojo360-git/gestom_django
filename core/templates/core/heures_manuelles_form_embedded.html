@@ -26,6 +26,9 @@
 
   <div class="actions">
     <button class="btn btn--primary" type="submit">Enregistrer</button>
+    {% if delete_url %}
+    <button class="btn btn--danger" type="button" data-delete-url="{{ delete_url }}">Supprimer</button>
+    {% endif %}
     <button class="btn btn--ghost" type="button" data-close="1">Annuler</button>
   </div>
 </form>
