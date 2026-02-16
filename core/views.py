@@ -412,6 +412,35 @@ class HeuresManuellesListView(ListView):
     template_name = "core/heures_manuelles_list.html"
     context_object_name = "heures_manuelles"
 
+    def get_queryset(self):
+        date_str = self.request.GET.get("date")
+        if date_str:
+            try:
+                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                selected_date = timezone.localdate()
+        else:
+            selected_date = timezone.localdate()
+
+        return (
+            HeuresManuelles.objects.select_related("agent")
+            .filter(date=selected_date)
+            .order_by("agent__nom", "agent__prenom", "heure_debut", "id")
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        date_str = self.request.GET.get("date")
+        if date_str:
+            try:
+                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                selected_date = timezone.localdate()
+        else:
+            selected_date = timezone.localdate()
+        ctx["selected_date"] = selected_date
+        return ctx
+
 
 class HeuresManuellesDetailView(DetailView):
     model = HeuresManuelles

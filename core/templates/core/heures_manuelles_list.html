@@ -12,9 +12,22 @@
         <p class="sub">Saisies manuelles par agent</p>
       </div>
 
-      <a href="{% url 'core:heures_manuelles_create' %}" class="btn btn--primary">
-        + Nouvelle saisie
-      </a>
+      <div class="actions">
+        <form method="get" class="form" id="hm-filter">
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+          </div>
+        </form>
+        <div class="actions">
+          <button class="btn btn--sm btn--ghost" type="button" id="date-prev">Jour precedent</button>
+          <button class="btn btn--sm btn--ghost" type="button" id="date-today">Aujourd'hui</button>
+          <button class="btn btn--sm btn--ghost" type="button" id="date-next">Jour suivant</button>
+        </div>
+        <a href="{% url 'core:heures_manuelles_create' %}" class="btn btn--primary">
+          + Nouvelle saisie
+        </a>
+      </div>
     </div>
 
     <div class="table-wrap">
@@ -57,4 +70,43 @@
 
   </div>
 </div>
+<script>
+  const dateInput = document.getElementById("date");
+  const filterForm = document.getElementById("hm-filter");
+
+  function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  if (dateInput && filterForm) {
+    dateInput.addEventListener("change", () => {
+      filterForm.submit();
+    });
+  }
+
+  function shiftDate(days) {
+    if (!dateInput || !filterForm) return;
+    const base = dateInput.value ? new Date(dateInput.value) : new Date();
+    base.setDate(base.getDate() + days);
+    dateInput.value = formatLocalDate(base);
+    filterForm.submit();
+  }
+
+  const btnPrev = document.getElementById("date-prev");
+  const btnNext = document.getElementById("date-next");
+  const btnToday = document.getElementById("date-today");
+
+  if (btnPrev) btnPrev.addEventListener("click", () => shiftDate(-1));
+  if (btnNext) btnNext.addEventListener("click", () => shiftDate(1));
+  if (btnToday) {
+    btnToday.addEventListener("click", () => {
+      if (!dateInput || !filterForm) return;
+      dateInput.value = formatLocalDate(new Date());
+      filterForm.submit();
+    });
+  }
+</script>
 {% endblock %}
