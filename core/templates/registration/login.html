@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<section class="card card__pad" style="max-width: 480px; margin: 40px auto;">
+  <header class="header" style="margin-bottom: 8px;">
+    <div>
+      <h1 class="h2">Connexion</h1>
+      <p class="sub">Connectez-vous pour acceder a l'application.</p>
+    </div>
+  </header>
+
+  <form method="post" class="form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="sub" style="color:#991b1b;">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div>
+      <label for="id_username">Nom d'utilisateur</label>
+      <input id="id_username" type="text" name="username" class="input" autofocus required />
+    </div>
+
+    <div>
+      <label for="id_password">Mot de passe</label>
+      <input id="id_password" type="password" name="password" class="input" required />
+    </div>
+
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}" />
+    {% endif %}
+
+    <button type="submit" class="btn btn--primary">Se connecter</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 from . import views, views_api
 from .views import (
@@ -19,61 +20,61 @@ app_name = "core"
 
 urlpatterns = [
     # Home
-    path("", views.home, name="home"),
-    path("planning/", PlanningView.as_view(), name="planning"),
-    path("planning2/", planning2, name="planning2"),
-    path("planning3/", planning3, name="planning3"),
-    path("agents/", AgentListView.as_view(), name="agent_list"),
+    path("", login_required(views.home), name="home"),
+    path("planning/", login_required(PlanningView.as_view()), name="planning"),
+    path("planning2/", login_required(planning2), name="planning2"),
+    path("planning3/", login_required(planning3), name="planning3"),
+    path("agents/", login_required(AgentListView.as_view()), name="agent_list"),
 
     # Agents
-    path("agents/nouveau/", AgentCreateView.as_view(), name="agent_create"),
-    path("agents/<int:pk>/", AgentDetailView.as_view(), name="agent_detail"),
-    path("agents/<int:pk>/modifier/", AgentUpdateView.as_view(), name="agent_update"),
-    path("agents/<int:pk>/supprimer/", AgentDeleteView.as_view(), name="agent_delete"),
+    path("agents/nouveau/", login_required(AgentCreateView.as_view()), name="agent_create"),
+    path("agents/<int:pk>/", login_required(AgentDetailView.as_view()), name="agent_detail"),
+    path("agents/<int:pk>/modifier/", login_required(AgentUpdateView.as_view()), name="agent_update"),
+    path("agents/<int:pk>/supprimer/", login_required(AgentDeleteView.as_view()), name="agent_delete"),
 
     # Vehicules
-    path("vehicules/", VehiculeListView.as_view(), name="vehicule_list"),
-    path("vehicules/nouveau/", VehiculeCreateView.as_view(), name="vehicule_create"),
-    path("vehicules/<int:pk>/", VehiculeDetailView.as_view(), name="vehicule_detail"),
-    path("vehicules/<int:pk>/modifier/", VehiculeUpdateView.as_view(), name="vehicule_update"),
-    path("vehicules/<int:pk>/supprimer/", VehiculeDeleteView.as_view(), name="vehicule_delete"),
+    path("vehicules/", login_required(VehiculeListView.as_view()), name="vehicule_list"),
+    path("vehicules/nouveau/", login_required(VehiculeCreateView.as_view()), name="vehicule_create"),
+    path("vehicules/<int:pk>/", login_required(VehiculeDetailView.as_view()), name="vehicule_detail"),
+    path("vehicules/<int:pk>/modifier/", login_required(VehiculeUpdateView.as_view()), name="vehicule_update"),
+    path("vehicules/<int:pk>/supprimer/", login_required(VehiculeDeleteView.as_view()), name="vehicule_delete"),
 
     # Collectes
-    path("collectes/", CollecteListView.as_view(), name="collecte_list"),
-    path("collectes/nouveau/", CollecteCreateView.as_view(), name="collecte_create"),
-    path("collectes/<int:pk>/", CollecteDetailView.as_view(), name="collecte_detail"),
-    path("collectes/<int:pk>/modifier/", CollecteUpdateView.as_view(), name="collecte_update"),
-    path("collectes/<int:pk>/supprimer/", CollecteDeleteView.as_view(), name="collecte_delete"),
+    path("collectes/", login_required(CollecteListView.as_view()), name="collecte_list"),
+    path("collectes/nouveau/", login_required(CollecteCreateView.as_view()), name="collecte_create"),
+    path("collectes/<int:pk>/", login_required(CollecteDetailView.as_view()), name="collecte_detail"),
+    path("collectes/<int:pk>/modifier/", login_required(CollecteUpdateView.as_view()), name="collecte_update"),
+    path("collectes/<int:pk>/supprimer/", login_required(CollecteDeleteView.as_view()), name="collecte_delete"),
 
     # Heures manuelles
-    path("heures-manuelles/", HeuresManuellesListView.as_view(), name="heures_manuelles_list"),
-    path("heures-manuelles/nouveau/", HeuresManuellesCreateView.as_view(), name="heures_manuelles_create"),
-    path("heures-manuelles/<int:pk>/", HeuresManuellesDetailView.as_view(), name="heures_manuelles_detail"),
-    path("heures-manuelles/<int:pk>/modifier/", HeuresManuellesUpdateView.as_view(), name="heures_manuelles_update"),
-    path("heures-manuelles/<int:pk>/supprimer/", HeuresManuellesDeleteView.as_view(), name="heures_manuelles_delete"),
+    path("heures-manuelles/", login_required(HeuresManuellesListView.as_view()), name="heures_manuelles_list"),
+    path("heures-manuelles/nouveau/", login_required(HeuresManuellesCreateView.as_view()), name="heures_manuelles_create"),
+    path("heures-manuelles/<int:pk>/", login_required(HeuresManuellesDetailView.as_view()), name="heures_manuelles_detail"),
+    path("heures-manuelles/<int:pk>/modifier/", login_required(HeuresManuellesUpdateView.as_view()), name="heures_manuelles_update"),
+    path("heures-manuelles/<int:pk>/supprimer/", login_required(HeuresManuellesDeleteView.as_view()), name="heures_manuelles_delete"),
 
     # Flux
-    path("flux/", FluxListView.as_view(), name="flux_list"),
-    path("flux/nouveau/", FluxCreateView.as_view(), name="flux_create"),
-    path("flux/<int:pk>/", FluxDetailView.as_view(), name="flux_detail"),
-    path("flux/<int:pk>/modifier/", FluxUpdateView.as_view(), name="flux_update"),
-    path("flux/<int:pk>/supprimer/", FluxDeleteView.as_view(), name="flux_delete"),
+    path("flux/", login_required(FluxListView.as_view()), name="flux_list"),
+    path("flux/nouveau/", login_required(FluxCreateView.as_view()), name="flux_create"),
+    path("flux/<int:pk>/", login_required(FluxDetailView.as_view()), name="flux_detail"),
+    path("flux/<int:pk>/modifier/", login_required(FluxUpdateView.as_view()), name="flux_update"),
+    path("flux/<int:pk>/supprimer/", login_required(FluxDeleteView.as_view()), name="flux_delete"),
 
     # Energies
-    path("energies/", EnergieListView.as_view(), name="energie_list"),
-    path("energies/nouveau/", EnergieCreateView.as_view(), name="energie_create"),
-    path("energies/<int:pk>/", EnergieDetailView.as_view(), name="energie_detail"),
-    path("energies/<int:pk>/modifier/", EnergieUpdateView.as_view(), name="energie_update"),
-    path("energies/<int:pk>/supprimer/", EnergieDeleteView.as_view(), name="energie_delete"),
+    path("energies/", login_required(EnergieListView.as_view()), name="energie_list"),
+    path("energies/nouveau/", login_required(EnergieCreateView.as_view()), name="energie_create"),
+    path("energies/<int:pk>/", login_required(EnergieDetailView.as_view()), name="energie_detail"),
+    path("energies/<int:pk>/modifier/", login_required(EnergieUpdateView.as_view()), name="energie_update"),
+    path("energies/<int:pk>/supprimer/", login_required(EnergieDeleteView.as_view()), name="energie_delete"),
 
     # Presence motifs
-    path("presence-motifs/", PresenceMotifListView.as_view(), name="presence_motif_list"),
-    path("presence-motifs/nouveau/", PresenceMotifCreateView.as_view(), name="presence_motif_create"),
-    path("presence-motifs/<int:pk>/", PresenceMotifDetailView.as_view(), name="presence_motif_detail"),
-    path("presence-motifs/<int:pk>/modifier/", PresenceMotifUpdateView.as_view(), name="presence_motif_update"),
-    path("presence-motifs/<int:pk>/supprimer/", PresenceMotifDeleteView.as_view(), name="presence_motif_delete"),
+    path("presence-motifs/", login_required(PresenceMotifListView.as_view()), name="presence_motif_list"),
+    path("presence-motifs/nouveau/", login_required(PresenceMotifCreateView.as_view()), name="presence_motif_create"),
+    path("presence-motifs/<int:pk>/", login_required(PresenceMotifDetailView.as_view()), name="presence_motif_detail"),
+    path("presence-motifs/<int:pk>/modifier/", login_required(PresenceMotifUpdateView.as_view()), name="presence_motif_update"),
+    path("presence-motifs/<int:pk>/supprimer/", login_required(PresenceMotifDeleteView.as_view()), name="presence_motif_delete"),
 
     # API
-    path("api/tonnages_json/", views_api.tonnages_json, name="tonnages_json"),
+    path("api/tonnages_json/", login_required(views_api.tonnages_json), name="tonnages_json"),
 
 ]
