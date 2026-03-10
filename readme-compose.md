@@ -4,9 +4,7 @@
 
 ### Installer DockerDesktop sur windows (Si besoin) :
 
-PS:  
-
-    winget install -e --id Docker.DockerDesktop
+```PS    winget install -e --id Docker.DockerDesktop
 
 ### Mettre à jour émulateur WSL (Si besoin) :
 
@@ -18,9 +16,9 @@ CMD:
 
 ### Cloner le projet :
 
-PS: 
 
-git clone https://github.com/dojo360-git/gestom_django.git  app2_regie
+
+```PS git clone https://github.com/dojo360-git/gestom_django.git  app2_regie
 
 cd app2_regie
 
