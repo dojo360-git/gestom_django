@@ -4,11 +4,12 @@
 
 ### Installer DockerDesktop sur windows (Si besoin) :
 
-`Bash winget install -e --id Docker.DockerDesktop
+```bash 
+winget install -e --id Docker.DockerDesktop ```
 
 ### Mettre à jour émulateur WSL (Si besoin) :
 
-```Bash
+```bash
 wsl.exe --update
 ```
 ### Installation : 
