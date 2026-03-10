@@ -27,9 +27,9 @@ cd app2_regie
 
 PS: 
 
-docker compose -f docker-compose__dev__.yml up -d --build
+`docker compose -f docker-compose__dev__.yml up -d --build
 
-docker compose -f docker-compose__dev__.yml up -d
+`docker compose -f docker-compose__dev__.yml up -d
 
 ## Lancer l'appli : 
 
