@@ -38,15 +38,22 @@ http://127.0.0.1:8000/
 
 http://127.0.0.1:8000/admin
 
-user : `superadmin
-
-mdp : `SuperMotDePassePour2026!*
+user : 
+```
+superadmin
+```
+mdp : 
+```
+SuperMotDePassePour2026!*
+```
 
 ### Lister mes containers : 
 
-`docker ps -a --filter "name=^app2"
-
+```
+docker ps -a --filter "name=^app2"
+```
 ### Lister les reseaux : 
 
-`docker network ls
-
+```
+docker network ls
+```
