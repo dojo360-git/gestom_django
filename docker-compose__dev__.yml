@@ -1,13 +1,16 @@
+name: app2_regie
+
+
 services:
   db:
     image: postgres:17
-    container_name: postgres17
+    container_name: app2_postgres
     environment:
       POSTGRES_DB: bdd_regie
       POSTGRES_USER: super_user
       POSTGRES_PASSWORD: D@ta1sFeun!2026!
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -15,13 +18,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - app2_regie_nw
 
 
   django:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: django6
+      dockerfile: Dockerfile__dev__
+    container_name: app2_django
     command: >
       sh -c "python manage.py migrate &&
       python manage.py shell -c \"import os; from django.contrib.auth import get_user_model; U=get_user_model(); u,created=U.objects.get_or_create(username=os.environ['DJANGO_SUPERUSER_USERNAME'], defaults={'is_staff':True,'is_superuser':True,'email':os.environ.get('DJANGO_SUPERUSER_EMAIL','')}); u.is_staff=True; u.is_superuser=True; u.set_password(os.environ['DJANGO_SUPERUSER_PASSWORD']); u.save(); print('superuser ready:', u.username, 'created=', created)\" &&
@@ -30,6 +35,8 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    expose: 
+      - "8000"
     environment:
       SECRET_KEY: django-insecure-9=*+^pc%4$$*=z_w_#79@ukj=&o*rnu31-7*-=m-ezwwwzyu8v
       DEBUG: "True"
@@ -41,8 +48,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - common_net
+      - app2_regie_nw
 
 
 volumes:
   postgres_data:
 
+
+networks:
+  common_net:
+    driver: bridge
+
+  app2_regie_nw:
+    driver: bridge

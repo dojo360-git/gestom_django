@@ -29,7 +29,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "10.153.32.149"
+    "91.134.255.131",
+    ".app-coeuressonne.fr/"
 ]
 
 
