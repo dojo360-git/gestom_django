@@ -13,15 +13,17 @@ winget install -e --id Docker.DockerDesktop
 ```bash
 wsl.exe --update
 ```
-### Installation : 
+## Installation : 
+
+### Installer VS code, lancer VS Code et ouvrir un terminal PS :
 
 ### Cloner le projet :
 
-
-
-```PS git clone https://github.com/dojo360-git/gestom_django.git  app2_regie
+``` 
+git clone https://github.com/dojo360-git/gestom_django.git  app2_regie
 
 cd app2_regie
+
 ```
 ### Lancer docker compose __dev__
 
