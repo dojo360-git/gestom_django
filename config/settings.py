@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "91.134.255.131",
-    ".app-coeuressonne.fr/"
+    ".app-coeuressonne.fr"
 ]
 
 
@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 #SQLITE
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
 
 #Postgre 17 sur docker en local
 DATABASES = {
