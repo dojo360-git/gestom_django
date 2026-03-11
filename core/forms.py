@@ -43,7 +43,13 @@ class FluxForm(forms.ModelForm):
         model = Flux
         fields = ["flux", "flux_long", "couleur_flux", "archive"]
         widgets = {
-            "couleur_flux": forms.TextInput(attrs={"type": "color"}),
+            "couleur_flux": forms.TextInput(
+                attrs={
+                    "type": "color",
+                    "class": "flux-color-input",
+                    "aria-label": "Choisir une couleur",
+                }
+            ),
         }
 
 

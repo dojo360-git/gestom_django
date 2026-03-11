@@ -9,8 +9,6 @@ services:
       POSTGRES_DB: bdd_regie
       POSTGRES_USER: super_user
       POSTGRES_PASSWORD: D@ta1sFeun!2026!
-#    ports:
-#      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -64,9 +62,7 @@ volumes:
 
 networks:
   common_net:
-    driver: bridge
     name: common_net
 
   app2_regie_nw:
-    driver: bridge
     name: app2_regie_nw

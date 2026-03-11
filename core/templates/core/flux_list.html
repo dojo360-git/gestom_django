@@ -12,9 +12,10 @@
         <p class="sub">Gestion des flux enregistres</p>
       </div>
 
-      <a href="{% url 'core:flux_create' %}" class="btn btn--primary">
-        + Nouveau flux
-      </a>
+      <div class="actions">
+        <a href="{% url 'core:flux2' %}" class="btn btn--ghost">Edition rapide</a>
+        <a href="{% url 'core:flux_create' %}" class="btn btn--primary">+ Nouveau flux</a>
+      </div>
     </div>
 
     <div class="table-wrap">

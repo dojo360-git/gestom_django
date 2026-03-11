@@ -20,13 +20,16 @@
       <div class="field">
         {{ field.label_tag }}
         {% if field.name == "couleur_flux" %}
-          <div style="display: flex; gap: 10px; align-items: center;">
+          <div class="flux-color-row">
             {{ field }}
             <input
               type="text"
               id="couleur_flux_text"
               placeholder="#RRGGBB"
-              style="max-width: 120px;"
+              maxlength="7"
+              autocomplete="off"
+              spellcheck="false"
+              class="flux-color-hex"
             >
           </div>
         {% else %}
@@ -49,12 +52,13 @@
   const hexInput = document.getElementById("couleur_flux_text");
   if (colorInput && hexInput) {
     const syncFromColor = () => {
-      hexInput.value = colorInput.value || "";
+      hexInput.value = (colorInput.value || "").toUpperCase();
     };
     const syncFromHex = () => {
       const v = hexInput.value.trim();
       if (/^#([0-9a-fA-F]{6})$/.test(v)) {
         colorInput.value = v;
+        hexInput.value = v.toUpperCase();
       }
     };
     syncFromColor();

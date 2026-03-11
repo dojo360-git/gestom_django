@@ -1,0 +1,196 @@
+{% extends "core/base.html" %}
+
+{% block title %}Flux2{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Flux (edition rapide)</h1>
+        <p class="sub">Ajout, modification et suppression directement dans le tableau</p>
+      </div>
+      <a href="{% url 'core:flux_list' %}" class="btn btn--ghost">Vue classique</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Flux</th>
+            <th>Flux long</th>
+            <th>Couleur</th>
+            <th>Archive</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="create-flux"
+                value="{{ create_form.flux.value|default_if_none:'' }}"
+                form="create-flux-form"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="create-flux_long"
+                value="{{ create_form.flux_long.value|default_if_none:'' }}"
+                form="create-flux-form"
+                maxlength="255"
+                required
+              >
+            </td>
+            <td>
+              <div class="flux-color-row">
+                <input
+                  type="color"
+                  name="create-couleur_flux"
+                  value="{{ create_form.couleur_flux.value|default:'#000000' }}"
+                  form="create-flux-form"
+                  class="flux-color-input"
+                >
+                <span class="sub js-color-value">{{ create_form.couleur_flux.value|default:'#000000' }}</span>
+              </div>
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="create-archive"
+                form="create-flux-form"
+                {% if create_form.archive.value %}checked{% endif %}
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="create-flux-form" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="create">
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% if create_form.errors %}
+          <tr>
+            <td colspan="5">
+              <ul class="errorlist">
+                {% for field in create_form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in create_form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          {% endif %}
+
+          {% for row in row_forms %}
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="row-{{ row.flux.pk }}-flux"
+                value="{{ row.form.flux.value|default_if_none:'' }}"
+                form="update-flux-{{ row.flux.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="row-{{ row.flux.pk }}-flux_long"
+                value="{{ row.form.flux_long.value|default_if_none:'' }}"
+                form="update-flux-{{ row.flux.pk }}"
+                maxlength="255"
+                required
+              >
+            </td>
+            <td>
+              <div class="flux-color-row">
+                <input
+                  type="color"
+                  name="row-{{ row.flux.pk }}-couleur_flux"
+                  value="{{ row.form.couleur_flux.value|default:'#000000' }}"
+                  form="update-flux-{{ row.flux.pk }}"
+                  class="flux-color-input"
+                >
+                <span class="sub js-color-value">{{ row.form.couleur_flux.value|default:'#000000' }}</span>
+              </div>
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="row-{{ row.flux.pk }}-archive"
+                form="update-flux-{{ row.flux.pk }}"
+                {% if row.form.archive.value %}checked{% endif %}
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="update-flux-{{ row.flux.pk }}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="update">
+                  <input type="hidden" name="id_flux" value="{{ row.flux.pk }}">
+                  <button class="btn btn--sm btn--ghost" type="submit">Modifier</button>
+                </form>
+                <form method="post" onsubmit="return confirm('Supprimer ce flux ?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="id_flux" value="{{ row.flux.pk }}">
+                  <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% if row.form.errors %}
+          <tr>
+            <td colspan="5">
+              <ul class="errorlist">
+                {% for field in row.form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in row.form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          {% endif %}
+          {% empty %}
+          <tr>
+            <td colspan="5" class="sub">Aucun flux enregistre</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".flux-color-row").forEach((row) => {
+    const colorInput = row.querySelector('input[type="color"]');
+    const txt = row.querySelector(".js-color-value");
+    if (!colorInput || !txt) return;
+    const sync = () => {
+      txt.textContent = (colorInput.value || "").toUpperCase();
+    };
+    sync();
+    colorInput.addEventListener("input", sync);
+  });
+</script>
+{% endblock %}

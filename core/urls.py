@@ -55,6 +55,7 @@ urlpatterns = [
 
     # Flux
     path("flux/", login_required(FluxListView.as_view()), name="flux_list"),
+    path("flux2/", login_required(views.flux2), name="flux2"),
     path("flux/nouveau/", login_required(FluxCreateView.as_view()), name="flux_create"),
     path("flux/<int:pk>/", login_required(FluxDetailView.as_view()), name="flux_detail"),
     path("flux/<int:pk>/modifier/", login_required(FluxUpdateView.as_view()), name="flux_update"),

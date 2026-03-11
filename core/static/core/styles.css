@@ -312,6 +312,42 @@ input:focus, select:focus, textarea:focus{
   outline: 3px solid var(--focus);
   border-color: var(--primary);
 }
+input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  accent-color: var(--primary);
+}
+.flux-color-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 320px;
+}
+.flux-color-input{
+  width: 58px;
+  min-width: 58px;
+  height: 46px;
+  padding: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.flux-color-input::-webkit-color-swatch-wrapper{
+  padding: 0;
+}
+.flux-color-input::-webkit-color-swatch{
+  border: 0;
+  border-radius: 8px;
+}
+.flux-color-input::-moz-color-swatch{
+  border: 0;
+  border-radius: 8px;
+}
+.flux-color-hex{
+  max-width: 122px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-transform: uppercase;
+}
 .help, .errorlist{
   margin: 8px 0 0;
   color: #991b1b;

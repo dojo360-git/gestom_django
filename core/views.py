@@ -1,6 +1,6 @@
 from django.db import connection
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse_lazy
@@ -101,6 +101,54 @@ def home(request):
             "date_debut": date_debut,
             "date_fin": date_fin,
             "stats": stats,
+        },
+    )
+
+
+def flux2(request):
+    fluxes = Flux.objects.all().order_by("flux")
+    create_form = FluxForm(prefix="create")
+    invalid_update_id = None
+    invalid_update_form = None
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "create":
+            create_form = FluxForm(request.POST, prefix="create")
+            if create_form.is_valid():
+                create_form.save()
+                return redirect("core:flux2")
+
+        elif action == "update":
+            flux_id = request.POST.get("id_flux")
+            flux_obj = get_object_or_404(Flux, pk=flux_id)
+            update_form = FluxForm(request.POST, instance=flux_obj, prefix=f"row-{flux_obj.pk}")
+            if update_form.is_valid():
+                update_form.save()
+                return redirect("core:flux2")
+            invalid_update_id = flux_obj.pk
+            invalid_update_form = update_form
+
+        elif action == "delete":
+            flux_id = request.POST.get("id_flux")
+            flux_obj = get_object_or_404(Flux, pk=flux_id)
+            flux_obj.delete()
+            return redirect("core:flux2")
+
+    row_forms = []
+    for flux in fluxes:
+        if invalid_update_id == flux.pk and invalid_update_form is not None:
+            row_forms.append({"flux": flux, "form": invalid_update_form})
+        else:
+            row_forms.append({"flux": flux, "form": FluxForm(instance=flux, prefix=f"row-{flux.pk}")})
+
+    return render(
+        request,
+        "core/flux2_list.html",
+        {
+            "row_forms": row_forms,
+            "create_form": create_form,
         },
     )
 
