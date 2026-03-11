@@ -33,6 +33,12 @@ services:
       python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.app3.rule=Host(`regie.app-coeuressonne.fr`)"
+#      - "traefik.http.routers.app3.entrypoints=websecure"
+#      - "traefik.http.routers.app3.tls.certresolver=myresolver"
+#      - "traefik.http.services.app1.loadbalancer.server.port=8000"  # <- port interne exposé dans Dockerfile
     ports:
       - "8000:8000"
     expose: 
@@ -56,10 +62,11 @@ services:
 volumes:
   postgres_data:
 
-
 networks:
   common_net:
     driver: bridge
+    name: common_net
 
   app2_regie_nw:
     driver: bridge
+    name: app2_regie_nw
