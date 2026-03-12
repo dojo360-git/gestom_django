@@ -2,7 +2,7 @@ name: app2_regie
 
 
 services:
-  db:
+  db_app2:
     image: postgres:17
     container_name: app2_postgres
     environment:
@@ -47,10 +47,10 @@ services:
       DB_NAME: bdd_regie
       DB_USER: super_user
       DB_PASSWORD: D@ta1sFeun!2026!
-      DB_HOST: db
+      DB_HOST: db_app2
       DB_PORT: "5432"
     depends_on:
-      db:
+      db_app2:
         condition: service_healthy
     networks:
       - common_net
