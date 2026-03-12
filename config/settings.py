@@ -30,11 +30,13 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "91.134.255.131",
-    ".app-coeuressonne.fr"
+    ".app-coeuressonne.fr",
+    "regie.app-coeuressonne.fr"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://.app-coeuressonne.fr"
+    "https://.app-coeuressonne.fr",
+    "https://regie.app-coeuressonne.fr"
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
