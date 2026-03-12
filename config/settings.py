@@ -30,7 +30,11 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "91.134.255.131",
-    ".app-coeuressonne.fr"
+    "regie.app-coeuressonne.fr"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://regie.app-coeuressonne.fr"
 ]
 
 
