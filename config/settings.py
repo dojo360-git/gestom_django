@@ -37,6 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://.app-coeuressonne.fr"
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
