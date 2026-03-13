@@ -1,0 +1,221 @@
+{% extends "core/base.html" %}
+
+{% block title %}Agents2{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Agents (edition rapide)</h1>
+        <p class="sub">Ajout, modification et suppression avec tous les champs</p>
+      </div>
+      <a href="{% url 'core:agent_list' %}" class="btn btn--ghost">Vue classique</a>
+    </div>
+
+    <datalist id="employeur-options">
+      <option value="CDEA"></option>
+      <option value="HERCULE"></option>
+    </datalist>
+
+    <datalist id="service-options">
+      <option value="Collecte"></option>
+      <option value="Precollecte"></option>
+      <option value="Proprete PAV"></option>
+      <option value="Encadrement"></option>
+    </datalist>
+
+    <datalist id="qualification-options">
+      <option value="Agent precollecte"></option>
+      <option value="Agent Proprete PAV"></option>
+      <option value="Chauffeur"></option>
+      <option value="Encadrement"></option>
+      <option value="Ripeur"></option>
+    </datalist>
+
+    <form method="get" class="actions" style="margin-bottom: 14px; justify-content: flex-start;">
+      <label for="date" class="sub" style="align-self: center;">Date</label>
+      <input id="date" name="date" type="date" class="input" value="{{ selected_date|date:'Y-m-d' }}" style="max-width: 220px;">
+      <button type="submit" class="btn btn--ghost">Filtrer</button>
+      {% if show_all %}
+        <a href="{% url 'core:agents2' %}?date={{ selected_date|date:'Y-m-d' }}" class="btn btn--ghost">Masquer les inactifs</a>
+      {% else %}
+        <a href="{% url 'core:agents2' %}?all=1&date={{ selected_date|date:'Y-m-d' }}" class="btn btn--ghost">Afficher tous les agents</a>
+      {% endif %}
+    </form>
+
+    <div class="table-wrap agents2-wrap">
+      <table class="table agents2-table">
+        <thead>
+          <tr>
+            <th colspan="2">Identite</th>
+            <th colspan="3">Organisation</th>
+            <th colspan="2">Horaires</th>
+            <th colspan="2">Echeances</th>
+            <th colspan="2">Contrat</th>
+            <th rowspan="2">Tel</th>
+            <th rowspan="2" class="right agents2-actions-col">Actions</th>
+          </tr>
+          <tr>
+            <th class="agents2-sticky-left">Nom</th>
+            <th>Prenom</th>
+            <th>Qualification</th>
+            <th>Service</th>
+            <th>Employeur</th>
+            <th>HDS</th>
+            <th>HFS</th>
+            <th>Permis</th>
+            <th>FCO</th>
+            <th>Arrivee</th>
+            <th>Depart</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="agents2-create-row">
+            <td>
+              <input type="text" name="create-nom" value="{{ create_form.nom.value|default_if_none:'' }}" form="create-agent-form" maxlength="100" required>
+            </td>
+            <td>
+              <input type="text" name="create-prenom" value="{{ create_form.prenom.value|default_if_none:'' }}" form="create-agent-form" maxlength="100" required>
+            </td>
+            <td>
+              <input type="text" name="create-qualification" value="{{ create_form.qualification.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="qualification-options">
+            </td>
+            <td>
+              <input type="text" name="create-service" value="{{ create_form.service.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="service-options">
+            </td>
+            <td>
+              <input type="text" name="create-employeur" value="{{ create_form.employeur.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="employeur-options">
+            </td>
+            <td>
+              <input type="time" name="create-hds_defaut" value="{{ create_form.hds_defaut.value|default_if_none:'' }}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="time" name="create-hfs_defaut" value="{{ create_form.hfs_defaut.value|default_if_none:'' }}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="date" name="create-echeance_permis" value="{% with v=create_form.echeance_permis.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="date" name="create-echeance_fco" value="{% with v=create_form.echeance_fco.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="date" name="create-arrivee" value="{% with v=create_form.arrivee.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="date" name="create-depart" value="{% with v=create_form.depart.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="create-agent-form">
+            </td>
+            <td>
+              <input type="text" name="create-tel" value="{{ create_form.tel.value|default_if_none:'' }}" form="create-agent-form" maxlength="30">
+            </td>
+            <td class="right agents2-actions-col">
+              <div class="actions">
+                <form id="create-agent-form" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="create">
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% if create_form.errors %}
+          <tr>
+            <td colspan="13">
+              <ul class="errorlist">
+                {% for field in create_form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in create_form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          {% endif %}
+
+          {% for row in row_forms %}
+          <tr>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-nom" value="{{ row.form.nom.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="100" required>
+            </td>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-prenom" value="{{ row.form.prenom.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="100" required>
+            </td>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-qualification" value="{{ row.form.qualification.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="qualification-options">
+            </td>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-service" value="{{ row.form.service.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="service-options">
+            </td>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-employeur" value="{{ row.form.employeur.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="employeur-options">
+            </td>
+            <td>
+              <input type="time" name="row-{{ row.agent.pk }}-hds_defaut" value="{{ row.form.hds_defaut.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="time" name="row-{{ row.agent.pk }}-hfs_defaut" value="{{ row.form.hfs_defaut.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="date" name="row-{{ row.agent.pk }}-echeance_permis" value="{% with v=row.form.echeance_permis.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="date" name="row-{{ row.agent.pk }}-echeance_fco" value="{% with v=row.form.echeance_fco.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="date" name="row-{{ row.agent.pk }}-arrivee" value="{% with v=row.form.arrivee.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="date" name="row-{{ row.agent.pk }}-depart" value="{% with v=row.form.depart.value %}{% if v %}{{ v|date:'Y-m-d'|default:v }}{% endif %}{% endwith %}" form="update-agent-{{ row.agent.pk }}">
+            </td>
+            <td>
+              <input type="text" name="row-{{ row.agent.pk }}-tel" value="{{ row.form.tel.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="30">
+            </td>
+            <td class="right agents2-actions-col">
+              <div class="actions">
+                <form id="update-agent-{{ row.agent.pk }}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="update">
+                  <input type="hidden" name="id_agent" value="{{ row.agent.pk }}">
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">✏️</button>
+                </form>
+                <form method="post" onsubmit="return confirm('Supprimer cet agent ?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="id_agent" value="{{ row.agent.pk }}">
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% if row.form.errors %}
+          <tr>
+            <td colspan="13">
+              <ul class="errorlist">
+                {% for field in row.form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in row.form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          {% endif %}
+          {% empty %}
+          <tr>
+            <td colspan="13" class="sub">Aucun agent enregistre</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

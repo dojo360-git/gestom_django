@@ -153,6 +153,78 @@ def flux2(request):
     )
 
 
+def agents2(request):
+    def _show_all() -> bool:
+        return request.GET.get("all") in {"1", "true", "True"}
+
+    def _selected_date():
+        date_str = request.GET.get("date")
+        if date_str:
+            try:
+                return timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                return timezone.localdate()
+        return timezone.localdate()
+
+    selected_date = _selected_date()
+    show_all = _show_all()
+
+    if show_all:
+        agents = Agent.objects.all().order_by("nom", "prenom")
+    else:
+        agents = Agent.objects.filter(
+            (Q(arrivee__isnull=True) | Q(arrivee__lte=selected_date))
+            & (Q(depart__isnull=True) | Q(depart__gte=selected_date))
+        ).order_by("nom", "prenom")
+
+    create_form = AgentForm(prefix="create")
+    invalid_update_id = None
+    invalid_update_form = None
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "create":
+            create_form = AgentForm(request.POST, prefix="create")
+            if create_form.is_valid():
+                create_form.save()
+                return redirect("core:agents2")
+
+        elif action == "update":
+            agent_id = request.POST.get("id_agent")
+            agent_obj = get_object_or_404(Agent, pk=agent_id)
+            update_form = AgentForm(request.POST, instance=agent_obj, prefix=f"row-{agent_obj.pk}")
+            if update_form.is_valid():
+                update_form.save()
+                return redirect("core:agents2")
+            invalid_update_id = agent_obj.pk
+            invalid_update_form = update_form
+
+        elif action == "delete":
+            agent_id = request.POST.get("id_agent")
+            agent_obj = get_object_or_404(Agent, pk=agent_id)
+            agent_obj.delete()
+            return redirect("core:agents2")
+
+    row_forms = []
+    for agent in agents:
+        if invalid_update_id == agent.pk and invalid_update_form is not None:
+            row_forms.append({"agent": agent, "form": invalid_update_form})
+        else:
+            row_forms.append({"agent": agent, "form": AgentForm(instance=agent, prefix=f"row-{agent.pk}")})
+
+    return render(
+        request,
+        "core/agents2_list.html",
+        {
+            "row_forms": row_forms,
+            "create_form": create_form,
+            "selected_date": selected_date,
+            "show_all": show_all,
+        },
+    )
+
+
 class AgentListView(ListView):
     model = Agent
     template_name = "core/agent_list.html"
