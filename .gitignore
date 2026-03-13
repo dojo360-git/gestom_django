@@ -6,3 +6,7 @@
 # Python
 __pycache__/
 *.py[cod]
+
+
+exports_csv_appli_access/
+seeds/
