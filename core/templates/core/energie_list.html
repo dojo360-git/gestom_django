@@ -35,8 +35,8 @@
             <td>{{ e.date_modification }}</td>
             <td class="right">
               <div class="actions">
-                <a href="{% url 'core:energie_update' e.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
-                <a href="{% url 'core:energie_delete' e.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+                <a href="{% url 'core:energie_update' e.pk %}" class="btn btn--sm btn--ghost" title="Modifier" aria-label="Modifier">✏️</a>
+                <a href="{% url 'core:energie_delete' e.pk %}" class="btn btn--sm btn--danger" title="Supprimer" aria-label="Supprimer">🗑️</a>
               </div>
             </td>
           </tr>

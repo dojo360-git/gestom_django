@@ -7,19 +7,6 @@
 {% block content %}
 
 
-<div class="card">
-  <div class="card__pad header">
-    <div>
-      <h1 class="h1">Bienvenue</h1>
-      <p class="sub">Gerez vos agents, vehicules, flux et energies.</p>
-    </div>
-    <div class="nav__actions">
-      <a class="btn btn--primary" href="{% url 'core:agent_list' %}">Voir les agents</a>
-      <a class="btn" href="{% url 'core:vehicule_list' %}">Voir les vehicules</a>
-    </div>
-  </div>
-</div>
-
 <div class="card" style="margin-top: 16px;">
   <div class="card__pad">
     <form class="form" method="get">

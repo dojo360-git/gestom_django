@@ -1,16 +1,14 @@
 {% extends "core/base.html" %}
 
-{% block title %}Agents2{% endblock %}
+{% block title %}Agents{% endblock %}
 
 {% block content %}
 <div class="card">
   <div class="card__pad">
     <div class="header">
       <div>
-        <h1 class="h1">Agents (edition rapide)</h1>
-        <p class="sub">Ajout, modification et suppression avec tous les champs</p>
+        <h1 class="h1">Agents</h1>
       </div>
-      <a href="{% url 'core:agent_list' %}" class="btn btn--ghost">Vue classique</a>
     </div>
 
     <datalist id="employeur-options">

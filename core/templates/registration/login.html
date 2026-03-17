@@ -3,7 +3,29 @@
 {% block title %}Connexion{% endblock %}
 
 {% block content %}
-<section class="card card__pad" style="max-width: 480px; margin: 40px auto;">
+<style>
+  body{
+    position: relative;
+    background-image: url("https://storage.googleapis.com/dojo360-public/cdea/gestom/camions_1800.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .main{
+    position: relative;
+    z-index: 1;
+  }
+</style>
+
+<section class="card card__pad" style="max-width: 480px; margin: 40px auto; background:#ffffff;">
   <header class="header" style="margin-bottom: 8px;">
     <div>
       <h1 class="h2">Connexion</h1>

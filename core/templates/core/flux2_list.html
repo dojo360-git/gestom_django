@@ -1,16 +1,14 @@
 {% extends "core/base.html" %}
 
-{% block title %}Flux2{% endblock %}
+{% block title %}Flux{% endblock %}
 
 {% block content %}
 <div class="card">
   <div class="card__pad">
     <div class="header">
       <div>
-        <h1 class="h1">Flux (edition rapide)</h1>
-        <p class="sub">Ajout, modification et suppression directement dans le tableau</p>
+        <h1 class="h1">Flux</h1>
       </div>
-      <a href="{% url 'core:flux_list' %}" class="btn btn--ghost">Vue classique</a>
     </div>
 
     <div class="table-wrap">
@@ -142,13 +140,13 @@
                   {% csrf_token %}
                   <input type="hidden" name="action" value="update">
                   <input type="hidden" name="id_flux" value="{{ row.flux.pk }}">
-                  <button class="btn btn--sm btn--ghost" type="submit">Modifier</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">✏️</button>
                 </form>
                 <form method="post" onsubmit="return confirm('Supprimer ce flux ?');">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="delete">
                   <input type="hidden" name="id_flux" value="{{ row.flux.pk }}">
-                  <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
                 </form>
               </div>
             </td>

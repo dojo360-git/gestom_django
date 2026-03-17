@@ -9,13 +9,11 @@
     <div class="header">
       <div>
         <h1 class="h1">Collectes</h1>
-        <p class="sub">Liste des collectes enregistrees</p>
       </div>
 
       <div class="actions">
         <form method="get" class="form" id="collecte-filter">
           <div class="field">
-            <label for="date">Date</label>
             <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
           </div>
         </form>

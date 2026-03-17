@@ -42,8 +42,8 @@
             <td class="right">
               <div class="actions">
                 <a href="{% url 'core:vehicule_detail' v.pk %}" class="btn btn--sm btn--ghost">Voir</a>
-                <a href="{% url 'core:vehicule_update' v.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
-                <a href="{% url 'core:vehicule_delete' v.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
+                <a href="{% url 'core:vehicule_update' v.pk %}" class="btn btn--sm btn--ghost" title="Modifier" aria-label="Modifier">✏️</a>
+                <a href="{% url 'core:vehicule_delete' v.pk %}" class="btn btn--sm btn--danger" title="Supprimer" aria-label="Supprimer">🗑️</a>
               </div>
             </td>
           </tr>

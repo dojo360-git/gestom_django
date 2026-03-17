@@ -19,33 +19,31 @@
         src="https://storage.googleapis.com/dojo360-public/cdea/gestom/Logo_coeuressone.png"
         alt="Logo Gestom"
       >
-      <span>Régie de collecte</span>
+      <span>REGIE DE COLLECTE</span>
     </a>
 
     <div class="nav__actions">
       {% if user.is_authenticated %}
-        <a class="btn btn--ghost" href="{% url 'core:home' %}">Accueil</a>
-        <a class="btn btn--ghost" href="{% url 'core:collecte_list' %}">Collectes</a>
+        <a class="btn btn--ghost" href="{% url 'core:home' %}">📊 Accueil</a>
+        <a class="btn btn--ghost" href="{% url 'core:collecte_list' %}">🚛Collectes</a>
         <details class="nav__dropdown">
-          <summary class="btn btn--ghost nav__dropdown-toggle">Parametres</summary>
+          <summary class="btn btn--ghost nav__dropdown-toggle">⚙️ Paramètres</summary>
           <div class="nav__dropdown-menu">
-            <a class="nav__dropdown-item" href="{% url 'core:agent_list' %}">Agents</a>
-            <a class="nav__dropdown-item" href="{% url 'core:agents2' %}">Agents (edition rapide)</a>
-            <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">Vehicules</a>
-            <a class="nav__dropdown-item" href="{% url 'core:flux_list' %}">Flux</a>
-            <a class="nav__dropdown-item" href="{% url 'core:flux2' %}">Flux (edition rapide)</a>
-            <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">Energies</a>
-            <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">Presences</a>
-            <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">Heures manuelles</a>
+              <a class="nav__dropdown-item" href="{% url 'core:agents2' %}">👷 Agents</a>
+              <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">🚛 Véhicules</a>
+              <a class="nav__dropdown-item" href="{% url 'core:flux2' %}">♻️ Flux</a>
+              <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">⛽ Energies</a>
+              <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">📅 Présences</a>
+              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
           </div>
         </details>
-        <a class="btn btn--primary" href="{% url 'core:planning3' %}">Planning</a>
+        <a class="btn btn--primary" href="{% url 'core:planning3' %}">📅 Planning</a>
         <form method="post" action="{% url 'logout' %}" style="margin:0;">
           {% csrf_token %}
           <button type="submit" class="btn btn--ghost">Deconnexion</button>
         </form>
       {% else %}
-        <a class="btn btn--primary" href="{% url 'login' %}">Connexion</a>
+
       {% endif %}
     </div>
   </div>

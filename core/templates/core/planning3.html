@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}Planning 3{% endblock %}
+{% block title %}Planning{% endblock %}
 
 {% block content %}
 <div class="planning">
@@ -9,13 +9,11 @@
     <div class="card__pad">
       <div class="header">
         <div>
-          <h1 class="h1">Planning 3</h1>
-          <p class="sub">Vue mensuelle des heures par agent et par type</p>
+          <h1 class="h1">Planning</h1>
         </div>
 
         <form class="planning__controls" id="planning3Form" method="get">
           <label class="planning__control">
-            <span class="planning__label">Date</span>
             <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
           </label>
 
