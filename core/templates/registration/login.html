@@ -15,7 +15,7 @@
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.5);
     pointer-events: none;
     z-index: 0;
   }
@@ -26,12 +26,7 @@
 </style>
 
 <section class="card card__pad" style="max-width: 480px; margin: 40px auto; background:#ffffff;">
-  <header class="header" style="margin-bottom: 8px;">
-    <div>
-      <h1 class="h2">Connexion</h1>
-      <p class="sub">Connectez-vous pour acceder a l'application.</p>
-    </div>
-  </header>
+
 
   <form method="post" class="form">
     {% csrf_token %}
@@ -41,7 +36,7 @@
     {% endif %}
 
     <div>
-      <label for="id_username">Nom d'utilisateur</label>
+      <label for="id_username">Utilisateur</label>
       <input id="id_username" type="text" name="username" class="input" autofocus required />
     </div>
 
