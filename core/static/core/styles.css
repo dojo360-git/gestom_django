@@ -118,6 +118,10 @@ a{ color: inherit; text-decoration: none; }
 .nav__dropdown-item:hover{
   background: #f0fdf4;
 }
+.page-planning3 .nav .container{
+  width: 100%;
+  max-width: none;
+}
 
 /* =========================
    Layout
@@ -137,7 +141,7 @@ a{ color: inherit; text-decoration: none; }
   align-items:flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 0px;
 }
 .h1{ font-size: 32px; margin: 0 0 6px; }
 .h2{ font-size: 22px; margin: 0; }
@@ -192,6 +196,11 @@ a{ color: inherit; text-decoration: none; }
   border-collapse: collapse;
   min-width: 620px;
 }
+.table--home-compact{
+  width: auto;
+  min-width: 0;
+  margin: 12px;
+}
 .table th, .table td{
   padding: 8px 8px;
   border-bottom: 1px solid var(--border);
@@ -200,7 +209,7 @@ a{ color: inherit; text-decoration: none; }
 .table th{
   color: var(--muted);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 11px;
   letter-spacing: .5px;
   text-transform: uppercase;
   background: #f8fafc;
@@ -466,13 +475,17 @@ input[type="checkbox"]{
     min-width: 0;
     width: 100%;
   }
-  .h1{ font-size: 28px; }
+  .h1{ font-size: 18px; }
 }
 
 /* =========================
    Planning (scopé)
 ========================= */
 .planning{ display: grid; gap: 16px; }
+
+.header--controls-left{
+  justify-content: flex-start;
+}
 
 .planning__controls{
   display:flex;
@@ -484,7 +497,7 @@ input[type="checkbox"]{
 .planning__label{
   color: var(--muted);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: .3px;
   text-transform: uppercase;
 }
@@ -570,10 +583,11 @@ input[type="checkbox"]{
   background: #ffffff;
   z-index: 4;
   white-space: nowrap;
+  font-size:10px;
 }
 .planning .planning__sticky--qualif{
   left: 0;
-  min-width: 160px;
+  min-width: 800px;
   font-weight: 800;
 }
 .planning .planning__sticky--nom{
@@ -624,10 +638,20 @@ input[type="checkbox"]{
 }
 .planning3-modal__body{
   width: 100%;
-  min-height: 72vh;
+  min-height: 0;
   max-height: 72vh;
   overflow: auto;
   border-radius: var(--radius);
+}
+.hm-form-row{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 760px){
+  .hm-form-row{
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================
@@ -650,17 +674,17 @@ input[type="checkbox"]{
 }
 .planning .planning3__sticky--service{
   left: 0;
-  min-width: 150px;
+  min-width: 100px;
   font-weight: 700;
 }
 .planning .planning3__sticky--qualif{
-  left: 150px;
-  min-width: 170px;
+  left: 100px;
+  min-width: 120px;
   font-weight: 700;
 }
 .planning .planning3__sticky--nom{
-  left: 320px;
-  min-width: 210px;
+  left: 220px;
+  min-width: 160px;
   font-weight: 700;
 }
 .planning3__entry{

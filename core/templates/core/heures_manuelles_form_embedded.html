@@ -7,22 +7,51 @@
   <input type="hidden" name="embedded" value="1">
   {% endif %}
 
-  {% for field in form %}
-  <div class="field">
-    {{ field.label_tag }}
-    {{ field }}
-    {% if field.name == "motif_heures_sup" %}
-    <datalist id="motif-heures-sup-options">
-      <option value="Renfort"></option>
-      <option value="Remplacement"></option>
-      <option value="Rattrapage"></option>
-      <option value="Manifestation"></option>
-      <option value="GDV"></option>
-    </datalist>
-    {% endif %}
-    {{ field.errors }}
+  <div class="hm-form-row">
+    <div class="field">
+      {{ form.date.label_tag }}
+      {{ form.date }}
+      {{ form.date.errors }}
+    </div>
+    <div class="field">
+      {{ form.agent.label_tag }}
+      {{ form.agent }}
+      {{ form.agent.errors }}
+    </div>
   </div>
-  {% endfor %}
+
+  <div class="hm-form-row">
+    <div class="field">
+      {{ form.heure_debut.label_tag }}
+      {{ form.heure_debut }}
+      {{ form.heure_debut.errors }}
+    </div>
+    <div class="field">
+      {{ form.heure_fin.label_tag }}
+      {{ form.heure_fin }}
+      {{ form.heure_fin.errors }}
+    </div>
+  </div>
+
+  <div class="hm-form-row">
+    <div class="field">
+      {{ form.presence.label_tag }}
+      {{ form.presence }}
+      {{ form.presence.errors }}
+    </div>
+    <div class="field">
+      {{ form.motif_heures_sup.label_tag }}
+      {{ form.motif_heures_sup }}
+      <datalist id="motif-heures-sup-options">
+        <option value="Renfort"></option>
+        <option value="Remplacement"></option>
+        <option value="Rattrapage"></option>
+        <option value="Manifestation"></option>
+        <option value="GDV"></option>
+      </datalist>
+      {{ form.motif_heures_sup.errors }}
+    </div>
+  </div>
 
   <div class="actions">
     <button class="btn btn--primary" type="submit">Enregistrer</button>
