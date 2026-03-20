@@ -1,5 +1,5 @@
 
-# docker exec -it django6 python test_req_sql6_pg2.py
+#docker exec -it app2_django python test_req_sql6_pg2.py
 
 import json
 import os
@@ -32,6 +32,7 @@ cursor.execute("""
 
     hr_manuelles as (
         SELECT 
+        
             'Manuelles' type,
             id id_stat,
             agent_id AS id_agent,

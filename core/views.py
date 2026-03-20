@@ -105,6 +105,202 @@ def home(request):
     )
 
 
+def donnee_collectes(request):
+    today = timezone.localdate()
+    first_day_of_year = today.replace(month=1, day=1)
+    last_day_of_year = today.replace(month=12, day=31)
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    date_debut = parse_date(request.GET.get("date_debut"), first_day_of_year)
+    date_fin = parse_date(request.GET.get("date_fin"), last_day_of_year)
+
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    requete_collectes = """
+        WITH cflux AS (
+            SELECT *
+            FROM core_flux
+        ),
+        tournees AS (
+            SELECT
+                id_collecte,
+                COALESCE(km_retour - km_depart, 0) AS km_tournee,
+                COALESCE(tonnage1, 0) + COALESCE(tonnage2, 0) + COALESCE(tonnage3, 0) AS tonnage_tournee,
+                id_energie_1_id AS id_energie_1,
+                id_energie_2_id AS id_energie_2,
+                id_energie_3_id AS id_energie_3,
+                energie_qte_1 AS energie_qte_1_tournee,
+                energie_qte_2 AS energie_qte_2_tournee,
+                energie_qte_3 AS energie_qte_3_tournee
+            FROM core_collecte
+        ),
+        vidages AS (
+            SELECT
+                t.id_collecte,
+                t.date_collecte,
+                t.id_flux,
+                t.tonnage
+            FROM (
+                SELECT id_collecte, date_collecte, id_flux1_id AS id_flux, tonnage1 AS tonnage
+                FROM core_collecte
+                WHERE tonnage1 IS NOT NULL
+
+                UNION ALL
+
+                SELECT id_collecte, date_collecte, id_flux2_id AS id_flux, tonnage2 AS tonnage
+                FROM core_collecte
+                WHERE tonnage2 IS NOT NULL
+
+                UNION ALL
+
+                SELECT id_collecte, date_collecte, id_flux3_id AS id_flux, tonnage3 AS tonnage
+                FROM core_collecte
+                WHERE tonnage3 IS NOT NULL
+            ) t
+        ),
+        vidages2 AS (
+            SELECT
+                v.id_collecte,
+                v.date_collecte,
+                v.id_flux,
+                (v.tonnage / 1000)::numeric AS tonnage,
+                tr.km_tournee,
+                tr.tonnage_tournee,
+                tr.id_energie_1,
+                tr.id_energie_2,
+                tr.id_energie_3,
+                tr.energie_qte_1_tournee,
+                tr.energie_qte_2_tournee,
+                tr.energie_qte_3_tournee,
+                CASE
+                    WHEN NULLIF(tr.tonnage_tournee, 0) IS NULL THEN 0
+                    ELSE round((v.tonnage / NULLIF(tr.tonnage_tournee, 0))::numeric, 6)
+                END AS ventil
+            FROM vidages v
+            LEFT JOIN tournees tr ON tr.id_collecte = v.id_collecte
+        )
+        SELECT
+            v2.*,
+            cflux.flux,
+            cflux.couleur_flux,
+            round((v2.km_tournee * v2.ventil)::numeric, 6) AS km,
+            round((v2.energie_qte_1_tournee * v2.ventil)::numeric, 6) AS energie_qte_1,
+            round((v2.energie_qte_2_tournee * v2.ventil)::numeric, 6) AS energie_qte_2,
+            round((v2.energie_qte_3_tournee * v2.ventil)::numeric, 6) AS energie_qte_3
+        FROM vidages2 v2
+        LEFT JOIN cflux ON cflux.id_flux = v2.id_flux
+        WHERE v2.date_collecte BETWEEN %s AND %s
+        ORDER BY v2.date_collecte, cflux.flux, v2.id_collecte
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(requete_collectes, [date_debut, date_fin])
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    nb_tournees = len({row.get("id_collecte") for row in rows if row.get("id_collecte") is not None})
+
+    total_tonnage = 0.0
+    total_km = 0.0
+    tonnage_by_month_flux = defaultdict(lambda: defaultdict(float))
+    colors_by_flux = {}
+    fallback_palette = [
+        "#16a34a",
+        "#2563eb",
+        "#f59e0b",
+        "#dc2626",
+        "#0ea5e9",
+        "#9333ea",
+        "#f97316",
+        "#14b8a6",
+    ]
+
+    for row in rows:
+        tonnage = float(row.get("tonnage") or 0)
+        km = float(row.get("km") or 0)
+        total_tonnage += tonnage
+        total_km += km
+
+        date_collecte = row.get("date_collecte")
+        mois = date_collecte.strftime("%Y-%m") if date_collecte else "Sans date"
+        flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "Flux non renseigne"
+
+        tonnage_by_month_flux[mois][flux_label] += tonnage
+
+        couleur_flux = (row.get("couleur_flux") or "").strip()
+        if flux_label not in colors_by_flux and couleur_flux:
+            colors_by_flux[flux_label] = couleur_flux
+
+    labels = sorted(tonnage_by_month_flux.keys())
+    flux_labels = sorted({flux for month_data in tonnage_by_month_flux.values() for flux in month_data.keys()})
+
+    pivot_rows = []
+    flux_totals = [0.0 for _ in flux_labels]
+    grand_total = 0.0
+    for month_label in labels:
+        row_cells = []
+        row_total = 0.0
+        for index, flux_label in enumerate(flux_labels):
+            cell_value = tonnage_by_month_flux[month_label].get(flux_label, 0.0)
+            row_cells.append(cell_value)
+            row_total += cell_value
+            flux_totals[index] += cell_value
+        pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": row_total,
+            }
+        )
+        grand_total += row_total
+
+    datasets = []
+    for index, flux_label in enumerate(flux_labels):
+        raw_color = colors_by_flux.get(flux_label, "")
+        if raw_color.startswith("#") and len(raw_color) in {4, 7}:
+            color = raw_color
+        else:
+            color = fallback_palette[index % len(fallback_palette)]
+
+        datasets.append(
+            {
+                "label": flux_label,
+                "data": [round(tonnage_by_month_flux[label].get(flux_label, 0.0), 3) for label in labels],
+                "backgroundColor": color,
+            }
+        )
+
+    chart_payload = {
+        "labels": labels,
+        "datasets": datasets,
+    }
+
+    return render(
+        request,
+        "core/donnee_collectes.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "total_tonnage": round(total_tonnage, 0),
+            "total_km": round(total_km, 0),
+            "nb_tournees": nb_tournees,
+            "chart_payload": chart_payload,
+            "flux_labels": flux_labels,
+            "pivot_rows": pivot_rows,
+            "flux_totals": flux_totals,
+            "grand_total": grand_total,
+            "rows": rows[:200],
+        },
+    )
+
+
 def flux2(request):
     fluxes = Flux.objects.all().order_by("flux")
     create_form = FluxForm(prefix="create")

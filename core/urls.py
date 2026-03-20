@@ -21,6 +21,7 @@ app_name = "core"
 urlpatterns = [
     # Home
     path("", login_required(views.home), name="home"),
+    path("donnee-collectes/", login_required(views.donnee_collectes), name="donnee_collectes"),
     path("planning/", login_required(PlanningView.as_view()), name="planning"),
     path("planning2/", login_required(planning2), name="planning2"),
     path("planning3/", login_required(planning3), name="planning3"),

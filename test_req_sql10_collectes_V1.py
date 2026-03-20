@@ -120,3 +120,6 @@ print(json_data)
 
 cursor.close()
 conn.close()
+
+
+

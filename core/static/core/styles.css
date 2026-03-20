@@ -483,6 +483,22 @@ input[type="checkbox"]{
 ========================= */
 .planning{ display: grid; gap: 16px; }
 
+.dashboard{
+  display: grid;
+  gap: 16px;
+}
+.dashboard__kpis{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.dashboard__chart-wrap{
+  position: relative;
+  width: 100%;
+  min-height: 360px;
+  padding: 0 16px 16px;
+}
+
 .header--controls-left{
   justify-content: flex-start;
 }
