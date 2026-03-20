@@ -1,0 +1,139 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Dashboard</h1>
+          <p class="sub">Visualisation de la requete SQL (collecte + heures manuelles)</p>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="dashboard__kpis">
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Total entrees</div>
+        <div class="h2">{{ total_entries }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Agents concernes</div>
+        <div class="h2">{{ total_agents }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Periode</div>
+        <div class="h2">{{ date_debut|date:"d/m/Y" }} - {{ date_fin|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard__charts">
+    <div class="card">
+      <div class="card__pad">
+        <h2 class="h2">Repartition par type</h2>
+      </div>
+      <div class="dashboard__chart-wrap">
+        <canvas id="chartByType" aria-label="Repartition par type"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <h2 class="h2">Volume par date</h2>
+      </div>
+      <div class="dashboard__chart-wrap">
+        <canvas id="chartByDate" aria-label="Volume par date"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <h2 class="h2">Top 10 agents</h2>
+      </div>
+      <div class="dashboard__chart-wrap">
+        <canvas id="chartByAgent" aria-label="Top agents"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <h2 class="h2">Top 10 statuts</h2>
+      </div>
+      <div class="dashboard__chart-wrap">
+        <canvas id="chartByStat" aria-label="Top statuts"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <h2 class="h2">Extrait (200 lignes max)</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>ID stat</th>
+            <th>Stat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in entries %}
+            <tr>
+              <td>{{ row.agent_label }}</td>
+              <td>{{ row.date }}</td>
+              <td>{{ row.type }}</td>
+              <td>{{ row.id_stat }}</td>
+              <td>{{ row.stat|default:"-" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">Aucune donnee pour la periode.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{{ chart_payload|json_script:"dashboard-data" }}
+<script src="{% static 'core/chart.js' %}"></script>
+<script src="{% static 'core/dashboard.js' %}"></script>
+{% endblock %}
