@@ -72,16 +72,16 @@
 
   <div class="card" style="margin-top: 16px;">
     <div class="card__pad">
-      <h2 class="h2">Tonnage par flux par annee-mois</h2>
+      <h2 class="h2">Tonnage /flux /mois</h2>
     </div>
     <div class="dashboard__chart-wrap">
-      <canvas id="chartCollectes" aria-label="Tonnage par flux par annee-mois"></canvas>
+      <canvas id="chartCollectes" aria-label="Tonnage /flux /mois"></canvas>
     </div>
   </div>
 
   <div class="card" style="margin-top: 16px;">
     <div class="card__pad">
-      <h2 class="h2">Tableau tonnage (flux x annee-mois)</h2>
+      <h2 class="h2">Tonnage /flux /mois </h2>
     </div>
     <div class="table-wrap">
       <table class="table">
@@ -126,37 +126,94 @@
 
   <div class="card" style="margin-top: 16px;">
     <div class="card__pad">
-      <h2 class="h2">Extrait (200 lignes max)</h2>
+      <h2 class="h2">Nb tournees /flux /mois </h2>
     </div>
     <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
-            <th>Date collecte</th>
-            <th>Flux</th>
-            <th>Tonnage</th>
-            <th>Km</th>
-            <th>ID collecte</th>
+            <th>Annee-mois</th>
+            {% for flux_label in flux_labels %}
+              <th>{{ flux_label }}</th>
+            {% endfor %}
+            <th>Total</th>
           </tr>
         </thead>
         <tbody>
-          {% for row in rows %}
+          {% for pivot_row in tournees_pivot_rows %}
             <tr>
-              <td>{{ row.date_collecte|date:"d/m/Y" }}</td>
-              <td>{{ row.flux|default:"-" }}</td>
-              <td>{{ row.tonnage|floatformat:3 }}</td>
-              <td>{{ row.km|floatformat:2 }}</td>
-              <td>{{ row.id_collecte }}</td>
+              <td>{{ pivot_row.month }}</td>
+              {% for cell in pivot_row.cells %}
+                <td>{{ cell }}</td>
+              {% endfor %}
+              <td>{{ pivot_row.total }}</td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5">Aucune donnee pour la periode.</td>
+              <td colspan="{{ flux_labels|length|add:'2' }}">Aucune donnee pour la periode.</td>
             </tr>
           {% endfor %}
         </tbody>
+        {% if tournees_pivot_rows %}
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              {% for flux_total in tournees_flux_totals %}
+                <th>{{ flux_total }}</th>
+              {% endfor %}
+              <th>{{ tournees_grand_total }}</th>
+            </tr>
+          </tfoot>
+        {% endif %}
       </table>
     </div>
   </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <h2 class="h2">Km /flux /mois </h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Annee-mois</th>
+            {% for flux_label in flux_labels %}
+              <th>{{ flux_label }}</th>
+            {% endfor %}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pivot_row in km_pivot_rows %}
+            <tr>
+              <td>{{ pivot_row.month }}</td>
+              {% for cell in pivot_row.cells %}
+                <td>{{ cell|floatformat:0 }}</td>
+              {% endfor %}
+              <td>{{ pivot_row.total|floatformat:0 }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ flux_labels|length|add:'2' }}">Aucune donnee pour la periode.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        {% if km_pivot_rows %}
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              {% for flux_total in km_flux_totals %}
+                <th>{{ flux_total|floatformat:0 }}</th>
+              {% endfor %}
+              <th>{{ km_grand_total|floatformat:0 }}</th>
+            </tr>
+          </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+
 </div>
 
 {{ chart_payload|json_script:"collectes-chart-data" }}

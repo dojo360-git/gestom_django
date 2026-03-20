@@ -210,6 +210,11 @@ def donnee_collectes(request):
     total_tonnage = 0.0
     total_km = 0.0
     tonnage_by_month_flux = defaultdict(lambda: defaultdict(float))
+    km_by_month_flux = defaultdict(lambda: defaultdict(float))
+    tournees_ids_by_month_flux = defaultdict(lambda: defaultdict(set))
+    tournees_ids_by_month = defaultdict(set)
+    tournees_ids_by_flux = defaultdict(set)
+    tournees_ids_all = set()
     colors_by_flux = {}
     fallback_palette = [
         "#16a34a",
@@ -233,6 +238,13 @@ def donnee_collectes(request):
         flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "Flux non renseigne"
 
         tonnage_by_month_flux[mois][flux_label] += tonnage
+        km_by_month_flux[mois][flux_label] += km
+        id_collecte = row.get("id_collecte")
+        if id_collecte is not None:
+            tournees_ids_by_month_flux[mois][flux_label].add(id_collecte)
+            tournees_ids_by_month[mois].add(id_collecte)
+            tournees_ids_by_flux[flux_label].add(id_collecte)
+            tournees_ids_all.add(id_collecte)
 
         couleur_flux = (row.get("couleur_flux") or "").strip()
         if flux_label not in colors_by_flux and couleur_flux:
@@ -260,6 +272,42 @@ def donnee_collectes(request):
             }
         )
         grand_total += row_total
+
+    tournees_pivot_rows = []
+    tournees_flux_totals = [len(tournees_ids_by_flux.get(flux_label, set())) for flux_label in flux_labels]
+    tournees_grand_total = len(tournees_ids_all)
+    for month_label in labels:
+        row_cells = []
+        for index, flux_label in enumerate(flux_labels):
+            cell_value = len(tournees_ids_by_month_flux[month_label].get(flux_label, set()))
+            row_cells.append(cell_value)
+        tournees_pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": len(tournees_ids_by_month.get(month_label, set())),
+            }
+        )
+
+    km_pivot_rows = []
+    km_flux_totals = [0.0 for _ in flux_labels]
+    km_grand_total = 0.0
+    for month_label in labels:
+        row_cells = []
+        row_total = 0.0
+        for index, flux_label in enumerate(flux_labels):
+            cell_value = km_by_month_flux[month_label].get(flux_label, 0.0)
+            row_cells.append(cell_value)
+            row_total += cell_value
+            km_flux_totals[index] += cell_value
+        km_pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": row_total,
+            }
+        )
+        km_grand_total += row_total
 
     datasets = []
     for index, flux_label in enumerate(flux_labels):
@@ -296,6 +344,12 @@ def donnee_collectes(request):
             "pivot_rows": pivot_rows,
             "flux_totals": flux_totals,
             "grand_total": grand_total,
+            "tournees_pivot_rows": tournees_pivot_rows,
+            "tournees_flux_totals": tournees_flux_totals,
+            "tournees_grand_total": tournees_grand_total,
+            "km_pivot_rows": km_pivot_rows,
+            "km_flux_totals": km_flux_totals,
+            "km_grand_total": km_grand_total,
             "rows": rows[:200],
         },
     )
