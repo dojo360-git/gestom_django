@@ -62,3 +62,12 @@ docker network ls
 ```
 docker network ls
 ```
+
+
+
+
+# Gerer les migrations : 
+
+docker exec -it app2_django python manage.py migrate
+
+docker exec -it app2_django python manage.py makemigrations

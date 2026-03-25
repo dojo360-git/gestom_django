@@ -58,7 +58,7 @@ class Energie(models.Model):
 class PresenceMotif(models.Model):
     pres = models.CharField(max_length=150)
     presence = models.CharField(max_length=150)
-    jour_travail = models.FloatField()
+    jour_travail = models.BooleanField(default=False)
     couleur_hex_motif_presence = models.CharField(max_length=7, blank=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
@@ -73,6 +73,7 @@ class PresenceMotif(models.Model):
 class Vehicule(models.Model):
     nom_vehicule = models.CharField(max_length=150)
     type = models.CharField(max_length=150)
+    energie = models.CharField(max_length=150, blank=True, default="")
     archive = models.BooleanField(default=False)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
@@ -157,23 +158,7 @@ class Collecte(models.Model):
         on_delete=models.SET_NULL,
         related_name="collectes_energie1",
     )
-    id_energie_2 = models.ForeignKey(
-        Energie,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="collectes_energie2",
-    )
-    id_energie_3 = models.ForeignKey(
-        Energie,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="collectes_energie3",
-    )
     energie_qte_1 = models.FloatField(null=True, blank=True)
-    energie_qte_2 = models.FloatField(null=True, blank=True)
-    energie_qte_3 = models.FloatField(null=True, blank=True)
 
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

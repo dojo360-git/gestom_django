@@ -15,6 +15,7 @@
     <ul class="list">
       <li>Nom : {{ vehicule.nom_vehicule }}</li>
       <li>Type : {{ vehicule.type }}</li>
+      <li>Energie : {{ vehicule.energie|default:"-" }}</li>
       <li>Archive : {{ vehicule.archive }}</li>
       <li>Creation : {{ vehicule.date_creation }}</li>
       <li>Modification : {{ vehicule.date_modification }}</li>

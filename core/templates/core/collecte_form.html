@@ -244,30 +244,6 @@
             {{ form.energie_qte_1.errors }}
           </div>
           <div class="field"></div>
-
-          <div class="field">
-            {{ form.id_energie_2.label_tag }}
-            {{ form.id_energie_2 }}
-            {{ form.id_energie_2.errors }}
-          </div>
-          <div class="field">
-            {{ form.energie_qte_2.label_tag }}
-            {{ form.energie_qte_2 }}
-            {{ form.energie_qte_2.errors }}
-          </div>
-          <div class="field"></div>
-
-          <div class="field">
-            {{ form.id_energie_3.label_tag }}
-            {{ form.id_energie_3 }}
-            {{ form.id_energie_3.errors }}
-          </div>
-          <div class="field">
-            {{ form.energie_qte_3.label_tag }}
-            {{ form.energie_qte_3 }}
-            {{ form.energie_qte_3.errors }}
-          </div>
-          <div class="field"></div>
         </div>
       </div>
 
@@ -298,8 +274,6 @@
       "id_tonnage2",
       "id_tonnage3",
       "id_energie_qte_1",
-      "id_energie_qte_2",
-      "id_energie_qte_3",
     ];
     const inputs = numericIds
       .map((id) => document.getElementById(id))

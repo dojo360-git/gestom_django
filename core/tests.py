@@ -167,6 +167,7 @@ class VehiculeTests(TestCase):
         self.vehicule = Vehicule.objects.create(
             nom_vehicule="Camion 1",
             type="Camion",
+            energie="Diesel",
             archive=False,
         )
 
@@ -183,12 +184,13 @@ class VehiculeTests(TestCase):
         response = self.client.get(reverse("core:vehicule_detail", args=[self.vehicule.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Camion 1")
+        self.assertContains(response, "Diesel")
         self.assertTemplateUsed(response, "core/vehicule_detail.html")
 
     def test_vehicule_create_view(self):
         response = self.client.post(
             reverse("core:vehicule_create"),
-            data={"nom_vehicule": "Fourgon 2", "type": "Fourgon", "archive": True},
+            data={"nom_vehicule": "Fourgon 2", "type": "Fourgon", "energie": "Electrique", "archive": True},
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Vehicule.objects.filter(nom_vehicule="Fourgon 2").exists())
@@ -196,11 +198,12 @@ class VehiculeTests(TestCase):
     def test_vehicule_update_view(self):
         response = self.client.post(
             reverse("core:vehicule_update", args=[self.vehicule.pk]),
-            data={"nom_vehicule": "Camion X", "type": "Camion", "archive": True},
+            data={"nom_vehicule": "Camion X", "type": "Camion", "energie": "GNV", "archive": True},
         )
         self.assertEqual(response.status_code, 302)
         self.vehicule.refresh_from_db()
         self.assertEqual(self.vehicule.nom_vehicule, "Camion X")
+        self.assertEqual(self.vehicule.energie, "GNV")
         self.assertTrue(self.vehicule.archive)
 
     def test_vehicule_delete_view(self):

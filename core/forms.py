@@ -76,7 +76,7 @@ class PresenceMotifForm(forms.ModelForm):
 class VehiculeForm(forms.ModelForm):
     class Meta:
         model = Vehicule
-        fields = ["nom_vehicule", "type", "archive"]
+        fields = ["nom_vehicule", "type", "energie", "archive"]
 
 
 class CollecteForm(forms.ModelForm):
@@ -92,8 +92,6 @@ class CollecteForm(forms.ModelForm):
             "id_flux2", "tonnage2",
             "id_flux3", "tonnage3",
             "id_energie_1", "energie_qte_1",
-            "id_energie_2", "energie_qte_2",
-            "id_energie_3", "energie_qte_3",
         ]
         widgets = {
             "date_collecte": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -109,8 +107,6 @@ class CollecteForm(forms.ModelForm):
             "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "energie_qte_2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "energie_qte_3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -126,8 +122,6 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_flux3"].queryset = flux_qs
         energie_qs = Energie.objects.order_by("energie")
         self.fields["id_energie_1"].queryset = energie_qs
-        self.fields["id_energie_2"].queryset = energie_qs
-        self.fields["id_energie_3"].queryset = energie_qs
 
         if not self.instance.pk:
             self.fields["date_collecte"].initial = timezone.localdate()

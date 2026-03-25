@@ -5,16 +5,10 @@
 {% block content %}
 <div class="card">
   <div class="card__pad">
-
     <div class="header">
       <div>
         <h1 class="h1">Energies</h1>
-        <p class="sub">Gestion des energies enregistrees</p>
       </div>
-
-      <a href="{% url 'core:energie_create' %}" class="btn btn--primary">
-        + Nouvelle energie
-      </a>
     </div>
 
     <div class="table-wrap">
@@ -22,33 +16,64 @@
         <thead>
           <tr>
             <th>Energie</th>
-            <th>Creation</th>
-            <th>Modification</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for e in object_list %}
           <tr>
-            <td>{{ e.energie }}</td>
-            <td>{{ e.date_creation }}</td>
-            <td>{{ e.date_modification }}</td>
+            <td>
+              <input
+                type="text"
+                name="energie"
+                form="create-energie-form"
+                maxlength="150"
+                required
+              >
+            </td>
             <td class="right">
               <div class="actions">
-                <a href="{% url 'core:energie_update' e.pk %}" class="btn btn--sm btn--ghost" title="Modifier" aria-label="Modifier">✏️</a>
-                <a href="{% url 'core:energie_delete' e.pk %}" class="btn btn--sm btn--danger" title="Supprimer" aria-label="Supprimer">🗑️</a>
+                <form id="create-energie-form" method="post" action="{% url 'core:energie_create' %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% for e in object_list %}
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="energie"
+                value="{{ e.energie|default_if_none:'' }}"
+                form="update-energie-{{ e.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="update-energie-{{ e.pk }}" method="post" action="{% url 'core:energie_update' e.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                </form>
+                <a href="{% url 'core:energie_detail' e.pk %}" class="btn btn--sm btn--ghost">Voir</a>
+                <form method="post" action="{% url 'core:energie_delete' e.pk %}" onsubmit="return confirm('Supprimer cette energie ?');">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                </form>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="sub">Aucune energie enregistree</td>
+            <td colspan="2" class="sub">Aucune energie enregistree</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
   </div>
 </div>
 {% endblock %}

@@ -5,16 +5,10 @@
 {% block content %}
 <div class="card">
   <div class="card__pad">
-
     <div class="header">
       <div>
         <h1 class="h1">Vehicules</h1>
-        <p class="sub">Gestion des vehicules enregistres</p>
       </div>
-
-      <a href="{% url 'core:vehicule_create' %}" class="btn btn--primary">
-        + Nouveau vehicule
-      </a>
     </div>
 
     <div class="table-wrap">
@@ -23,39 +17,117 @@
           <tr>
             <th>Nom</th>
             <th>Type</th>
-            <th>Statut</th>
+            <th>Energie</th>
+            <th>Archive</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for v in object_list %}
           <tr>
-            <td>{{ v.nom_vehicule }}</td>
-            <td>{{ v.type }}</td>
             <td>
-              {% if v.archive %}
-                <span class="badge badge--low">Archive</span>
-              {% else %}
-                <span class="badge badge--ok">Actif</span>
-              {% endif %}
+              <input
+                type="text"
+                name="nom_vehicule"
+                form="create-vehicule-form"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="type"
+                form="create-vehicule-form"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="energie"
+                form="create-vehicule-form"
+                maxlength="150"
+              >
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="archive"
+                form="create-vehicule-form"
+              >
             </td>
             <td class="right">
               <div class="actions">
+                <form id="create-vehicule-form" method="post" action="{% url 'core:vehicule_create' %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% for v in object_list %}
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="nom_vehicule"
+                value="{{ v.nom_vehicule|default_if_none:'' }}"
+                form="update-vehicule-{{ v.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="type"
+                value="{{ v.type|default_if_none:'' }}"
+                form="update-vehicule-{{ v.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="energie"
+                value="{{ v.energie|default_if_none:'' }}"
+                form="update-vehicule-{{ v.pk }}"
+                maxlength="150"
+              >
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="archive"
+                form="update-vehicule-{{ v.pk }}"
+                {% if v.archive %}checked{% endif %}
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="update-vehicule-{{ v.pk }}" method="post" action="{% url 'core:vehicule_update' v.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                </form>
                 <a href="{% url 'core:vehicule_detail' v.pk %}" class="btn btn--sm btn--ghost">Voir</a>
-                <a href="{% url 'core:vehicule_update' v.pk %}" class="btn btn--sm btn--ghost" title="Modifier" aria-label="Modifier">✏️</a>
-                <a href="{% url 'core:vehicule_delete' v.pk %}" class="btn btn--sm btn--danger" title="Supprimer" aria-label="Supprimer">🗑️</a>
+                <form method="post" action="{% url 'core:vehicule_delete' v.pk %}" onsubmit="return confirm('Supprimer ce vehicule ?');">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                </form>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="sub">Aucun vehicule enregistre</td>
+            <td colspan="5" class="sub">Aucun vehicule enregistre</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
   </div>
 </div>
 {% endblock %}

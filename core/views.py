@@ -135,11 +135,7 @@ def donnee_collectes(request):
                 COALESCE(km_retour - km_depart, 0) AS km_tournee,
                 COALESCE(tonnage1, 0) + COALESCE(tonnage2, 0) + COALESCE(tonnage3, 0) AS tonnage_tournee,
                 id_energie_1_id AS id_energie_1,
-                id_energie_2_id AS id_energie_2,
-                id_energie_3_id AS id_energie_3,
-                energie_qte_1 AS energie_qte_1_tournee,
-                energie_qte_2 AS energie_qte_2_tournee,
-                energie_qte_3 AS energie_qte_3_tournee
+                energie_qte_1 AS energie_qte_1_tournee
             FROM core_collecte
         ),
         vidages AS (
@@ -175,11 +171,7 @@ def donnee_collectes(request):
                 tr.km_tournee,
                 tr.tonnage_tournee,
                 tr.id_energie_1,
-                tr.id_energie_2,
-                tr.id_energie_3,
                 tr.energie_qte_1_tournee,
-                tr.energie_qte_2_tournee,
-                tr.energie_qte_3_tournee,
                 CASE
                     WHEN NULLIF(tr.tonnage_tournee, 0) IS NULL THEN 0
                     ELSE round((v.tonnage / NULLIF(tr.tonnage_tournee, 0))::numeric, 6)
@@ -192,9 +184,7 @@ def donnee_collectes(request):
             cflux.flux,
             cflux.couleur_flux,
             round((v2.km_tournee * v2.ventil)::numeric, 6) AS km,
-            round((v2.energie_qte_1_tournee * v2.ventil)::numeric, 6) AS energie_qte_1,
-            round((v2.energie_qte_2_tournee * v2.ventil)::numeric, 6) AS energie_qte_2,
-            round((v2.energie_qte_3_tournee * v2.ventil)::numeric, 6) AS energie_qte_3
+            round((v2.energie_qte_1_tournee * v2.ventil)::numeric, 6) AS energie_qte_1
         FROM vidages2 v2
         LEFT JOIN cflux ON cflux.id_flux = v2.id_flux
         WHERE v2.date_collecte BETWEEN %s AND %s
@@ -728,8 +718,6 @@ class CollecteListView(ListView):
                 "id_flux2",
                 "id_flux3",
                 "id_energie_1",
-                "id_energie_2",
-                "id_energie_3",
             )
             .filter(date_collecte=selected_date)
         )

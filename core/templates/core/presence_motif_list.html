@@ -5,16 +5,10 @@
 {% block content %}
 <div class="card">
   <div class="card__pad">
-
     <div class="header">
       <div>
         <h1 class="h1">Presences</h1>
-        <p class="sub">Gestion des motifs de presence</p>
       </div>
-
-      <a href="{% url 'core:presence_motif_create' %}" class="btn btn--primary">
-        + Nouveau motif
-      </a>
     </div>
 
     <div class="table-wrap">
@@ -25,45 +19,135 @@
             <th>Presence</th>
             <th>Jour travail</th>
             <th>Couleur</th>
-            <th>Creation</th>
-            <th>Modification</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for m in presence_motifs %}
           <tr>
-            <td>{{ m.pres }}</td>
-            <td>{{ m.presence }}</td>
-            <td>{{ m.jour_travail }}</td>
             <td>
-              {% if m.couleur_hex_motif_presence %}
-                <span style="display:inline-flex;align-items:center;gap:8px;">
-                  <span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #cbd7c8;background:{{ m.couleur_hex_motif_presence }};"></span>
-                  <span>{{ m.couleur_hex_motif_presence }}</span>
-                </span>
-              {% else %}
-                <span class="sub">-</span>
-              {% endif %}
+              <input
+                type="text"
+                name="pres"
+                form="create-presence-motif-form"
+                maxlength="150"
+                required
+              >
             </td>
-            <td>{{ m.date_creation }}</td>
-            <td>{{ m.date_modification }}</td>
+            <td>
+              <input
+                type="text"
+                name="presence"
+                form="create-presence-motif-form"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="jour_travail"
+                form="create-presence-motif-form"
+              >
+            </td>
+            <td>
+              <div class="flux-color-row">
+                <input
+                  type="color"
+                  name="couleur_hex_motif_presence"
+                  value="#000000"
+                  form="create-presence-motif-form"
+                  class="flux-color-input"
+                >
+                <span class="sub js-color-value">#000000</span>
+              </div>
+            </td>
             <td class="right">
               <div class="actions">
-                <a href="{% url 'core:presence_motif_update' m.pk %}" class="btn btn--sm btn--ghost" title="Modifier" aria-label="Modifier">✏️</a>
-                <a href="{% url 'core:presence_motif_delete' m.pk %}" class="btn btn--sm btn--danger" title="Supprimer" aria-label="Supprimer">🗑️</a>
+                <form id="create-presence-motif-form" method="post" action="{% url 'core:presence_motif_create' %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% for m in presence_motifs %}
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="pres"
+                value="{{ m.pres|default_if_none:'' }}"
+                form="update-presence-motif-{{ m.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="text"
+                name="presence"
+                value="{{ m.presence|default_if_none:'' }}"
+                form="update-presence-motif-{{ m.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="jour_travail"
+                form="update-presence-motif-{{ m.pk }}"
+                {% if m.jour_travail %}checked{% endif %}
+              >
+            </td>
+            <td>
+              <div class="flux-color-row">
+                <input
+                  type="color"
+                  name="couleur_hex_motif_presence"
+                  value="{{ m.couleur_hex_motif_presence|default:'#000000' }}"
+                  form="update-presence-motif-{{ m.pk }}"
+                  class="flux-color-input"
+                >
+                <span class="sub js-color-value">{{ m.couleur_hex_motif_presence|default:'#000000' }}</span>
+              </div>
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="update-presence-motif-{{ m.pk }}" method="post" action="{% url 'core:presence_motif_update' m.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                </form>
+                <a href="{% url 'core:presence_motif_detail' m.pk %}" class="btn btn--sm btn--ghost">Voir</a>
+                <form method="post" action="{% url 'core:presence_motif_delete' m.pk %}" onsubmit="return confirm('Supprimer ce motif ?');">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                </form>
               </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="7" class="sub">Aucun motif enregistre</td>
+            <td colspan="5" class="sub">Aucun motif enregistre</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
   </div>
 </div>
+
+<script>
+  document.querySelectorAll(".flux-color-row").forEach((row) => {
+    const colorInput = row.querySelector('input[type="color"]');
+    const txt = row.querySelector(".js-color-value");
+    if (!colorInput || !txt) return;
+    const sync = () => {
+      txt.textContent = (colorInput.value || "").toUpperCase();
+    };
+    sync();
+    colorInput.addEventListener("input", sync);
+  });
+</script>
 {% endblock %}
