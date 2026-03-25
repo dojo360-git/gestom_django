@@ -107,14 +107,19 @@ class CollecteForm(forms.ModelForm):
         model = Collecte
         fields = [
             "date_collecte",
+            "id_itineraire",
             "id_agent_1", "a1_hr_debut", "a1_hr_fin",
             "id_agent_2", "a2_hr_debut", "a2_hr_fin",
             "id_agent_3", "a3_hr_debut", "a3_hr_fin",
+            "motif_heures_sup", "hr_sup_debut", "hr_sup_fin",
             "id_vehicule", "km_depart", "km_retour",
             "id_flux1", "tonnage1",
             "id_flux2", "tonnage2",
             "id_flux3", "tonnage3",
             "energie_qte_1",
+            "consignes",
+            "info_vehicule",
+            "info_collecte",
         ]
         widgets = {
             "date_collecte": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -124,12 +129,36 @@ class CollecteForm(forms.ModelForm):
             "a2_hr_fin": forms.TimeInput(attrs={"type": "time"}),
             "a3_hr_debut": forms.TimeInput(attrs={"type": "time"}),
             "a3_hr_fin": forms.TimeInput(attrs={"type": "time"}),
+            "hr_sup_debut": forms.TimeInput(attrs={"type": "time"}),
+            "hr_sup_fin": forms.TimeInput(attrs={"type": "time"}),
+            "motif_heures_sup": forms.TextInput(attrs={"autocomplete": "off"}),
             "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "km_retour": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "tonnage1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "consignes": forms.Textarea(
+                attrs={
+                    "autocomplete": "off",
+                    "rows": 3,
+                    "style": "resize: vertical;",
+                }
+            ),
+            "info_vehicule": forms.Textarea(
+                attrs={
+                    "autocomplete": "off",
+                    "rows": 3,
+                    "style": "resize: vertical;",
+                }
+            ),
+            "info_collecte": forms.Textarea(
+                attrs={
+                    "autocomplete": "off",
+                    "rows": 3,
+                    "style": "resize: vertical;",
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -138,6 +167,7 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_agent_1"].queryset = agent_qs
         self.fields["id_agent_2"].queryset = agent_qs
         self.fields["id_agent_3"].queryset = agent_qs
+        self.fields["id_itineraire"].queryset = Itineraire.objects.order_by("itineraire")
         self.fields["id_vehicule"].queryset = Vehicule.objects.filter(archive=False).order_by("nom_vehicule")
         flux_qs = Flux.objects.filter(archive=False).order_by("flux")
         self.fields["id_flux1"].queryset = flux_qs

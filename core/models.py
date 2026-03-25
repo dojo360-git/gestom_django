@@ -97,6 +97,13 @@ class Vehicule(models.Model):
 class Collecte(models.Model):
     id_collecte = models.BigAutoField(primary_key=True)
     date_collecte = models.DateField(default=timezone.localdate)
+    id_itineraire = models.ForeignKey(
+        Itineraire,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collectes",
+    )
 
     id_agent_1 = models.ForeignKey(
         Agent,
@@ -127,6 +134,9 @@ class Collecte(models.Model):
     )
     a3_hr_debut = models.TimeField(null=True, blank=True)
     a3_hr_fin = models.TimeField(null=True, blank=True)
+    motif_heures_sup = models.CharField(max_length=255, blank=True, default="")
+    hr_sup_debut = models.TimeField(null=True, blank=True)
+    hr_sup_fin = models.TimeField(null=True, blank=True)
 
     id_vehicule = models.ForeignKey(
         Vehicule,
@@ -164,6 +174,9 @@ class Collecte(models.Model):
     tonnage3 = models.FloatField(null=True, blank=True)
 
     energie_qte_1 = models.FloatField(null=True, blank=True)
+    consignes = models.CharField(max_length=255, blank=True, default="")
+    info_vehicule = models.CharField(max_length=255, blank=True, default="")
+    info_collecte = models.CharField(max_length=255, blank=True, default="")
 
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

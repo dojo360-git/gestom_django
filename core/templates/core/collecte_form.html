@@ -43,6 +43,11 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px 16px;
       }
+      .collecte-form .grid-1 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px 16px;
+      }
       .collecte-form .grid-4 {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -82,7 +87,8 @@
           grid-template-columns: 1fr;
         }
         .collecte-form .grid-3,
-        .collecte-form .grid-2 {
+        .collecte-form .grid-2,
+        .collecte-form .grid-1 {
           grid-template-columns: 1fr;
         }
       }
@@ -99,6 +105,11 @@
             {{ form.date_collecte.label_tag }}
             {{ form.date_collecte }}
             {{ form.date_collecte.errors }}
+          </div>
+          <div class="field">
+            {{ form.id_itineraire.label_tag }}
+            {{ form.id_itineraire }}
+            {{ form.id_itineraire.errors }}
           </div>
         </div>
       </div>
@@ -157,6 +168,23 @@
               {{ form.a3_hr_fin.label_tag }}
               {{ form.a3_hr_fin }}
               {{ form.a3_hr_fin.errors }}
+            </div>
+            <div></div>
+
+            <div class="field">
+              {{ form.motif_heures_sup.label_tag }}
+              {{ form.motif_heures_sup }}
+              {{ form.motif_heures_sup.errors }}
+            </div>
+            <div class="field">
+              {{ form.hr_sup_debut.label_tag }}
+              {{ form.hr_sup_debut }}
+              {{ form.hr_sup_debut.errors }}
+            </div>
+            <div class="field">
+              {{ form.hr_sup_fin.label_tag }}
+              {{ form.hr_sup_fin }}
+              {{ form.hr_sup_fin.errors }}
             </div>
             <div></div>
           </div>
@@ -227,6 +255,27 @@
             {{ form.tonnage3.errors }}
           </div>
           <div class="field"></div>
+        </div>
+      </div>
+
+      <div class="collecte-section">
+        <div class="section-title">Commentaires</div>
+        <div class="section-body grid-1">
+          <div class="field">
+            {{ form.consignes.label_tag }}
+            {{ form.consignes }}
+            {{ form.consignes.errors }}
+          </div>
+          <div class="field">
+            {{ form.info_vehicule.label_tag }}
+            {{ form.info_vehicule }}
+            {{ form.info_vehicule.errors }}
+          </div>
+          <div class="field">
+            {{ form.info_collecte.label_tag }}
+            {{ form.info_collecte }}
+            {{ form.info_collecte.errors }}
+          </div>
         </div>
       </div>
 

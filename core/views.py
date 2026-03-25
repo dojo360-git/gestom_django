@@ -663,6 +663,9 @@ class ItineraireListView(ListView):
     template_name = "core/itineraire_list.html"
     context_object_name = "itineraires"
 
+    def get_queryset(self):
+        return Itineraire.objects.order_by("itineraire")
+
 
 class ItineraireDetailView(DetailView):
     model = Itineraire
@@ -773,6 +776,7 @@ class CollecteListView(ListView):
 
         qs = (
             Collecte.objects.select_related(
+                "id_itineraire",
                 "id_agent_1",
                 "id_agent_2",
                 "id_agent_3",
