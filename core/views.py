@@ -8,8 +8,17 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 import calendar
 from collections import defaultdict
 
-from .forms import AgentForm, FluxForm, EnergieForm, PresenceMotifForm, VehiculeForm, CollecteForm, HeuresManuellesForm
-from .models import Agent, Flux, Energie, PresenceMotif, Vehicule, Collecte, HeuresManuelles
+from .forms import (
+    AgentForm,
+    FluxForm,
+    EnergieForm,
+    PresenceMotifForm,
+    ItineraireForm,
+    VehiculeForm,
+    CollecteForm,
+    HeuresManuellesForm,
+)
+from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, HeuresManuelles
 
 
 def home(request):
@@ -647,6 +656,48 @@ class PresenceMotifDeleteView(DeleteView):
     model = PresenceMotif
     template_name = "core/presence_motif_confirm_delete.html"
     success_url = reverse_lazy("core:presence_motif_list")
+
+
+class ItineraireListView(ListView):
+    model = Itineraire
+    template_name = "core/itineraire_list.html"
+    context_object_name = "itineraires"
+
+
+class ItineraireDetailView(DetailView):
+    model = Itineraire
+    template_name = "core/itineraire_detail.html"
+    context_object_name = "itineraire"
+
+
+class ItineraireCreateView(CreateView):
+    model = Itineraire
+    form_class = ItineraireForm
+    template_name = "core/itineraire_form.html"
+    success_url = reverse_lazy("core:itineraire_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Nouvel itineraire"
+        return ctx
+
+
+class ItineraireUpdateView(UpdateView):
+    model = Itineraire
+    form_class = ItineraireForm
+    template_name = "core/itineraire_form.html"
+    success_url = reverse_lazy("core:itineraire_list")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Modifier itineraire"
+        return ctx
+
+
+class ItineraireDeleteView(DeleteView):
+    model = Itineraire
+    template_name = "core/itineraire_confirm_delete.html"
+    success_url = reverse_lazy("core:itineraire_list")
 
 
 class VehiculeListView(ListView):

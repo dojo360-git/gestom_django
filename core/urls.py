@@ -7,6 +7,7 @@ from .views import (
     FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
     PresenceMotifListView, PresenceMotifDetailView, PresenceMotifCreateView, PresenceMotifUpdateView, PresenceMotifDeleteView,
+    ItineraireListView, ItineraireDetailView, ItineraireCreateView, ItineraireUpdateView, ItineraireDeleteView,
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     HeuresManuellesListView, HeuresManuellesDetailView, HeuresManuellesCreateView, HeuresManuellesUpdateView, HeuresManuellesDeleteView,
@@ -76,6 +77,13 @@ urlpatterns = [
     path("presence-motifs/<int:pk>/", login_required(PresenceMotifDetailView.as_view()), name="presence_motif_detail"),
     path("presence-motifs/<int:pk>/modifier/", login_required(PresenceMotifUpdateView.as_view()), name="presence_motif_update"),
     path("presence-motifs/<int:pk>/supprimer/", login_required(PresenceMotifDeleteView.as_view()), name="presence_motif_delete"),
+
+    # Itineraires
+    path("itineraires/", login_required(ItineraireListView.as_view()), name="itineraire_list"),
+    path("itineraires/nouveau/", login_required(ItineraireCreateView.as_view()), name="itineraire_create"),
+    path("itineraires/<int:pk>/", login_required(ItineraireDetailView.as_view()), name="itineraire_detail"),
+    path("itineraires/<int:pk>/modifier/", login_required(ItineraireUpdateView.as_view()), name="itineraire_update"),
+    path("itineraires/<int:pk>/supprimer/", login_required(ItineraireDeleteView.as_view()), name="itineraire_delete"),
 
     # API
     path("api/tonnages_json/", login_required(views_api.tonnages_json), name="tonnages_json"),

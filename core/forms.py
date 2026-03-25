@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
-from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, HeuresManuelles
+from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, Itineraire, HeuresManuelles
 
 
 class AgentForm(forms.ModelForm):
@@ -71,6 +71,12 @@ class PresenceMotifForm(forms.ModelForm):
         widgets = {
             "couleur_hex_motif_presence": forms.TextInput(attrs={"type": "color"}),
         }
+
+
+class ItineraireForm(forms.ModelForm):
+    class Meta:
+        model = Itineraire
+        fields = ["itineraire"]
 
 
 class VehiculeForm(forms.ModelForm):

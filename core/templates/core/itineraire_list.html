@@ -1,0 +1,79 @@
+{% extends "core/base.html" %}
+
+{% block title %}Itineraires{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Itineraires</h1>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Itineraire</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="itineraire"
+                form="create-itineraire-form"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="create-itineraire-form" method="post" action="{% url 'core:itineraire_create' %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--primary" type="submit">Ajouter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+
+          {% for i in itineraires %}
+          <tr>
+            <td>
+              <input
+                type="text"
+                name="itineraire"
+                value="{{ i.itineraire|default_if_none:'' }}"
+                form="update-itineraire-{{ i.pk }}"
+                maxlength="150"
+                required
+              >
+            </td>
+            <td class="right">
+              <div class="actions">
+                <form id="update-itineraire-{{ i.pk }}" method="post" action="{% url 'core:itineraire_update' i.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                </form>
+                <a href="{% url 'core:itineraire_detail' i.pk %}" class="btn btn--sm btn--ghost">Voir</a>
+                <form method="post" action="{% url 'core:itineraire_delete' i.pk %}" onsubmit="return confirm('Supprimer cet itineraire ?');">
+                  {% csrf_token %}
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="sub">Aucun itineraire enregistre</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

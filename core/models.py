@@ -70,6 +70,18 @@ class PresenceMotif(models.Model):
         return self.pres
 
 
+class Itineraire(models.Model):
+    itineraire = models.CharField(max_length=150)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["itineraire"]
+
+    def __str__(self):
+        return self.itineraire
+
+
 class Vehicule(models.Model):
     nom_vehicule = models.CharField(max_length=150)
     type = models.CharField(max_length=150)
