@@ -74,6 +74,23 @@ class PresenceMotifForm(forms.ModelForm):
 
 
 class VehiculeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        energie_values = list(
+            Energie.objects.exclude(energie__isnull=True)
+            .exclude(energie__exact="")
+            .values_list("energie", flat=True)
+            .distinct()
+            .order_by("energie")
+        )
+        choices = [("", "---------")] + [(value, value) for value in energie_values]
+
+        current_value = (self.instance.energie or "").strip()
+        if current_value and current_value not in energie_values:
+            choices.append((current_value, current_value))
+
+        self.fields["energie"].widget = forms.Select(choices=choices)
+
     class Meta:
         model = Vehicule
         fields = ["nom_vehicule", "type", "energie", "archive"]
@@ -91,7 +108,7 @@ class CollecteForm(forms.ModelForm):
             "id_flux1", "tonnage1",
             "id_flux2", "tonnage2",
             "id_flux3", "tonnage3",
-            "id_energie_1", "energie_qte_1",
+            "energie_qte_1",
         ]
         widgets = {
             "date_collecte": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -120,9 +137,6 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_flux1"].queryset = flux_qs
         self.fields["id_flux2"].queryset = flux_qs
         self.fields["id_flux3"].queryset = flux_qs
-        energie_qs = Energie.objects.order_by("energie")
-        self.fields["id_energie_1"].queryset = energie_qs
-
         if not self.instance.pk:
             self.fields["date_collecte"].initial = timezone.localdate()
             self.fields["a1_hr_debut"].initial = "05:00"

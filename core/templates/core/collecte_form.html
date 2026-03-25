@@ -106,12 +106,7 @@
       <div class="collecte-section">
         <div class="section-title">Equipage</div>
         <div class="section-body">
-          <div class="row-labels">
-            <div>Agent</div>
-            <div>Debut</div>
-            <div>Fin</div>
-            <div></div>
-          </div>
+
 
           <div class="grid-4">
             <div class="field">
@@ -170,7 +165,7 @@
 
       <div class="collecte-section">
         <div class="section-title">Vehicule</div>
-        <div class="section-body grid-3">
+        <div class="section-body grid-4">
           <div class="field">
             {{ form.id_vehicule.label_tag }}
             {{ form.id_vehicule }}
@@ -185,6 +180,11 @@
             {{ form.km_retour.label_tag }}
             {{ form.km_retour }}
             {{ form.km_retour.errors }}
+          </div>
+          <div class="field">
+            {{ form.energie_qte_1.label_tag }}
+            {{ form.energie_qte_1 }}
+            {{ form.energie_qte_1.errors }}
           </div>
         </div>
       </div>
@@ -230,22 +230,6 @@
         </div>
       </div>
 
-      <div class="collecte-section">
-        <div class="section-title">Energie</div>
-        <div class="section-body grid-3">
-          <div class="field">
-            {{ form.id_energie_1.label_tag }}
-            {{ form.id_energie_1 }}
-            {{ form.id_energie_1.errors }}
-          </div>
-          <div class="field">
-            {{ form.energie_qte_1.label_tag }}
-            {{ form.energie_qte_1 }}
-            {{ form.energie_qte_1.errors }}
-          </div>
-          <div class="field"></div>
-        </div>
-      </div>
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>

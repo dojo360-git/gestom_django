@@ -134,7 +134,6 @@ def donnee_collectes(request):
                 id_collecte,
                 COALESCE(km_retour - km_depart, 0) AS km_tournee,
                 COALESCE(tonnage1, 0) + COALESCE(tonnage2, 0) + COALESCE(tonnage3, 0) AS tonnage_tournee,
-                id_energie_1_id AS id_energie_1,
                 energie_qte_1 AS energie_qte_1_tournee
             FROM core_collecte
         ),
@@ -170,7 +169,6 @@ def donnee_collectes(request):
                 (v.tonnage / 1000)::numeric AS tonnage,
                 tr.km_tournee,
                 tr.tonnage_tournee,
-                tr.id_energie_1,
                 tr.energie_qte_1_tournee,
                 CASE
                     WHEN NULLIF(tr.tonnage_tournee, 0) IS NULL THEN 0
@@ -656,6 +654,20 @@ class VehiculeListView(ListView):
     template_name = "core/vehicule_list.html"
     context_object_name = "vehicules"
 
+    def get_queryset(self):
+        return Vehicule.objects.order_by("-nom_vehicule")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["energie_options"] = list(
+            Energie.objects.exclude(energie__isnull=True)
+            .exclude(energie__exact="")
+            .values_list("energie", flat=True)
+            .distinct()
+            .order_by("energie")
+        )
+        return ctx
+
 
 class VehiculeDetailView(DetailView):
     model = Vehicule
@@ -717,7 +729,6 @@ class CollecteListView(ListView):
                 "id_flux1",
                 "id_flux2",
                 "id_flux3",
-                "id_energie_1",
             )
             .filter(date_collecte=selected_date)
         )

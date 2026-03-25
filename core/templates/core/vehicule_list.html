@@ -43,12 +43,12 @@
               >
             </td>
             <td>
-              <input
-                type="text"
-                name="energie"
-                form="create-vehicule-form"
-                maxlength="150"
-              >
+              <select name="energie" form="create-vehicule-form">
+                <option value="">---------</option>
+                {% for energie_value in energie_options %}
+                <option value="{{ energie_value }}">{{ energie_value }}</option>
+                {% endfor %}
+              </select>
             </td>
             <td>
               <input
@@ -72,9 +72,8 @@
             <td>
               <input
                 type="text"
-                name="nom_vehicule"
+                id="vehicule-{{ v.pk }}-nom_vehicule"
                 value="{{ v.nom_vehicule|default_if_none:'' }}"
-                form="update-vehicule-{{ v.pk }}"
                 maxlength="150"
                 required
               >
@@ -82,27 +81,29 @@
             <td>
               <input
                 type="text"
-                name="type"
-                value="{{ v.type|default_if_none:'' }}"
-                form="update-vehicule-{{ v.pk }}"
+                id="vehicule-{{ v.pk }}-type"
+                value="{% if v.type == 'Non renseigne' %}{% else %}{{ v.type|default_if_none:'' }}{% endif %}"
                 maxlength="150"
                 required
               >
             </td>
             <td>
-              <input
-                type="text"
-                name="energie"
-                value="{{ v.energie|default_if_none:'' }}"
-                form="update-vehicule-{{ v.pk }}"
-                maxlength="150"
-              >
+              <select id="vehicule-{{ v.pk }}-energie">
+                <option value="">---------</option>
+                {% for energie_value in energie_options %}
+                <option value="{{ energie_value }}" {% if v.energie == energie_value %}selected{% endif %}>
+                  {{ energie_value }}
+                </option>
+                {% endfor %}
+                {% if v.energie and v.energie not in energie_options %}
+                <option value="{{ v.energie }}" selected>{{ v.energie }}</option>
+                {% endif %}
+              </select>
             </td>
             <td>
               <input
                 type="checkbox"
-                name="archive"
-                form="update-vehicule-{{ v.pk }}"
+                id="vehicule-{{ v.pk }}-archive"
                 {% if v.archive %}checked{% endif %}
               >
             </td>
@@ -110,6 +111,10 @@
               <div class="actions">
                 <form id="update-vehicule-{{ v.pk }}" method="post" action="{% url 'core:vehicule_update' v.pk %}">
                   {% csrf_token %}
+                  <input type="hidden" name="nom_vehicule" value="{{ v.nom_vehicule|default_if_none:'' }}">
+                  <input type="hidden" name="type" value="{{ v.type|default_if_none:'' }}">
+                  <input type="hidden" name="energie" value="{{ v.energie|default_if_none:'' }}">
+                  <input type="hidden" name="archive" value="{% if v.archive %}on{% endif %}">
                   <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
                 </form>
                 <a href="{% url 'core:vehicule_detail' v.pk %}" class="btn btn--sm btn--ghost">Voir</a>
@@ -130,4 +135,29 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const updateForms = document.querySelectorAll('form[id^="update-vehicule-"]');
+  updateForms.forEach(function (form) {
+    form.addEventListener("submit", function () {
+      const rowId = form.id.replace("update-vehicule-", "");
+      const nomInput = document.getElementById("vehicule-" + rowId + "-nom_vehicule");
+      const typeInput = document.getElementById("vehicule-" + rowId + "-type");
+      const energieInput = document.getElementById("vehicule-" + rowId + "-energie");
+      const archiveInput = document.getElementById("vehicule-" + rowId + "-archive");
+
+      const hiddenNom = form.querySelector('input[name="nom_vehicule"]');
+      const hiddenType = form.querySelector('input[name="type"]');
+      const hiddenEnergie = form.querySelector('input[name="energie"]');
+      const hiddenArchive = form.querySelector('input[name="archive"]');
+
+      if (hiddenNom && nomInput) hiddenNom.value = nomInput.value;
+      if (hiddenType && typeInput) hiddenType.value = typeInput.value;
+      if (hiddenEnergie && energieInput) hiddenEnergie.value = energieInput.value;
+      if (hiddenArchive && archiveInput) hiddenArchive.value = archiveInput.checked ? "on" : "";
+    });
+  });
+});
+</script>
 {% endblock %}

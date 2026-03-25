@@ -151,13 +151,6 @@ class Collecte(models.Model):
     tonnage2 = models.FloatField(null=True, blank=True)
     tonnage3 = models.FloatField(null=True, blank=True)
 
-    id_energie_1 = models.ForeignKey(
-        Energie,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="collectes_energie1",
-    )
     energie_qte_1 = models.FloatField(null=True, blank=True)
 
     date_creation = models.DateTimeField(auto_now_add=True)
