@@ -4,6 +4,8 @@ name: app2_regie
 services:
   db_app2:
     image: postgres:17
+    ports:
+      - "5432:5432"
     container_name: app2_postgres
     environment:
       POSTGRES_DB: bdd_regie

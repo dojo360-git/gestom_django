@@ -1,0 +1,90 @@
+ --       CREATE OR REPLACE VIEW stat_collectes AS 
+        WITH   cflux AS (
+            SELECT *
+            FROM core_flux),
+        tournees AS (
+            SELECT
+                co.id_collecte,
+                co.id_vehicule_id,
+                ve.nom_vehicule,
+                co.id_itineraire_id, 
+                it.itineraire,
+                COALESCE(co.km_retour - co.km_depart, 0) AS km_tournee,
+                COALESCE(co.tonnage1, 0) + COALESCE(co.tonnage2, 0) + COALESCE(co.tonnage3, 0) AS tonnage_tournee,
+               	ve.energie,
+                co.energie_qte_1 AS energie_qte_tournee
+            FROM core_collecte co
+            LEFT JOIN core_vehicule ve on co.id_vehicule_id = ve.id
+            left join core_itineraire it on it.id =co.id_itineraire_id  
+        ),
+        vidages AS (
+            SELECT
+                t.id_collecte,
+                t.date_collecte,
+                t.id_flux,
+                t.tonnage
+            FROM (
+                SELECT 
+	                id_collecte, 
+	                date_collecte, 
+	                id_flux1_id AS id_flux, 
+	                tonnage1 AS tonnage
+                FROM core_collecte
+                WHERE tonnage1 IS NOT null
+                UNION ALL
+                SELECT 
+	                id_collecte, 
+	                date_collecte, 
+	                id_flux2_id AS id_flux, 
+	                tonnage2 AS tonnage
+                FROM core_collecte
+                WHERE tonnage2 IS NOT null
+                UNION ALL
+                SELECT 
+	                id_collecte, 
+	                date_collecte, 
+	                id_flux3_id AS id_flux, 
+	                tonnage3 AS tonnage
+                FROM core_collecte
+                WHERE tonnage3 IS NOT null
+            ) t
+        ),
+        vidages2 AS (
+            SELECT
+                vi.id_collecte,
+                vi.date_collecte,
+                vi.id_flux,
+                (vi.tonnage / 1000)::numeric AS tonnage,
+                tr.km_tournee,
+                tr.tonnage_tournee,
+                tr.energie,
+                tr.energie_qte_tournee,
+                tr.id_vehicule_id,
+                tr.nom_vehicule,
+                tr.id_itineraire_id,
+                tr.itineraire,
+                CASE
+                    WHEN NULLIF(tr.tonnage_tournee, 0) IS NULL THEN 0
+                    ELSE round((vi.tonnage / NULLIF(tr.tonnage_tournee, 0))::numeric, 6)
+                END AS ventil
+            FROM vidages vi
+            LEFT JOIN tournees tr ON tr.id_collecte = vi.id_collecte
+        )
+        SELECT
+            vi2.id_collecte,
+            vi2.date_collecte,
+            vi2.id_vehicule_id,
+            vi2.nom_vehicule,
+            vi2.id_itineraire_id,
+            vi2.itineraire,
+            vi2.id_flux,
+            fl.flux,
+            fl.couleur_flux,
+            vi2.tonnage,
+            round((vi2.km_tournee * vi2.ventil)::numeric, 6) AS km,
+            vi2.energie,
+            round((vi2.energie_qte_tournee * vi2.ventil)::numeric, 6) AS energie_qte
+        FROM vidages2 vi2
+        LEFT JOIN cflux fl ON fl.id_flux = vi2.id_flux
+  --      WHERE v2.date_collecte BETWEEN %s AND %s
+        ORDER BY vi2.date_collecte, fl.flux, vi2.id_collecte
