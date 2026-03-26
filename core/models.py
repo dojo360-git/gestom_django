@@ -199,7 +199,13 @@ class HeuresManuelles(models.Model):
     )
     heure_debut = models.TimeField(null=True, blank=True)
     heure_fin = models.TimeField(null=True, blank=True)
-    presence = models.CharField(max_length=150, blank=True)
+    presence = models.ForeignKey(
+        PresenceMotif,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="heures_manuelles",
+    )
     motif_heures_sup = models.CharField(max_length=150, blank=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

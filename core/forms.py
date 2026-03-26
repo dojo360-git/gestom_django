@@ -231,16 +231,7 @@ class HeuresManuellesForm(forms.ModelForm):
         ).order_by("nom", "prenom")
         self.fields["agent"].queryset = agent_qs
 
-        pres_values = (
-            PresenceMotif.objects.exclude(pres__isnull=True)
-            .exclude(pres__exact="")
-            .values_list("pres", flat=True)
-            .distinct()
-            .order_by("pres")
-        )
-        self.fields["presence"].widget = forms.Select(
-            choices=[("", "---------")] + [(v, v) for v in pres_values]
-        )
+        self.fields["presence"].queryset = PresenceMotif.objects.order_by("pres", "presence")
 
         if not self.instance.pk and not self.is_bound:
             self.fields["date"].initial = selected_date

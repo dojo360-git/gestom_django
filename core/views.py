@@ -1032,13 +1032,14 @@ def planning3(request):
                     WHEN COALESCE(NULLIF(BTRIM(motif_heures_sup), ''), '') <> '' THEN 'Heures Sup'
                     ELSE 'Manuelles'
                 END AS type,
-                id AS id_stat,
-                agent_id AS id_agent,
-                date,
-                heure_debut AS hr_debut,
-                heure_fin AS hr_fin,
-                presence
-            FROM core_heuresmanuelles
+                hm.id AS id_stat,
+                hm.agent_id AS id_agent,
+                hm.date,
+                hm.heure_debut AS hr_debut,
+                hm.heure_fin AS hr_fin,
+                COALESCE(pm.pres, '') AS presence
+            FROM core_heuresmanuelles hm
+            LEFT JOIN core_presencemotif pm ON pm.id = hm.presence_id
         ),
         hr_collecte AS (
             SELECT
