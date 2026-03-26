@@ -147,6 +147,8 @@ class Collecte(models.Model):
     )
     km_depart = models.FloatField(null=True, blank=True)
     km_retour = models.FloatField(null=True, blank=True)
+    hr_depot_depart = models.TimeField(null=True, blank=True)
+    hr_depot_retour = models.TimeField(null=True, blank=True)
 
     id_flux1 = models.ForeignKey(
         Flux,

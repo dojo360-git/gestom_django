@@ -193,7 +193,7 @@
 
       <div class="collecte-section">
         <div class="section-title">Vehicule</div>
-        <div class="section-body grid-4">
+        <div class="section-body grid-3">
           <div class="field">
             {{ form.id_vehicule.label_tag }}
             {{ form.id_vehicule }}
@@ -213,6 +213,16 @@
             {{ form.energie_qte_1.label_tag }}
             {{ form.energie_qte_1 }}
             {{ form.energie_qte_1.errors }}
+          </div>
+          <div class="field">
+            {{ form.hr_depot_depart.label_tag }}
+            {{ form.hr_depot_depart }}
+            {{ form.hr_depot_depart.errors }}
+          </div>
+          <div class="field">
+            {{ form.hr_depot_retour.label_tag }}
+            {{ form.hr_depot_retour }}
+            {{ form.hr_depot_retour.errors }}
           </div>
         </div>
       </div>

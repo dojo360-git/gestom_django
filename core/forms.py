@@ -112,7 +112,7 @@ class CollecteForm(forms.ModelForm):
             "id_agent_2", "a2_hr_debut", "a2_hr_fin",
             "id_agent_3", "a3_hr_debut", "a3_hr_fin",
             "motif_heures_sup", "hr_sup_debut", "hr_sup_fin",
-            "id_vehicule", "km_depart", "km_retour",
+            "id_vehicule", "km_depart", "km_retour", "hr_depot_depart", "hr_depot_retour",
             "id_flux1", "tonnage1",
             "id_flux2", "tonnage2",
             "id_flux3", "tonnage3",
@@ -131,6 +131,8 @@ class CollecteForm(forms.ModelForm):
             "a3_hr_fin": forms.TimeInput(attrs={"type": "time"}),
             "hr_sup_debut": forms.TimeInput(attrs={"type": "time"}),
             "hr_sup_fin": forms.TimeInput(attrs={"type": "time"}),
+            "hr_depot_depart": forms.TimeInput(attrs={"type": "time"}),
+            "hr_depot_retour": forms.TimeInput(attrs={"type": "time"}),
             "motif_heures_sup": forms.TextInput(attrs={"autocomplete": "off"}),
             "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
             "km_retour": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
@@ -181,6 +183,8 @@ class CollecteForm(forms.ModelForm):
             self.fields["a1_hr_fin"].initial = "12:00"
             self.fields["a2_hr_fin"].initial = "12:00"
             self.fields["a3_hr_fin"].initial = "12:00"
+            self.fields["hr_depot_depart"].initial = "05:00"
+            self.fields["hr_depot_retour"].initial = "12:00"
 
         self.fields["date_collecte"].input_formats = ["%Y-%m-%d"]
         self.fields["date_collecte"].localize = False
