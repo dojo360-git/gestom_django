@@ -82,7 +82,7 @@
               <input
                 type="text"
                 id="vehicule-{{ v.pk }}-type"
-                value="{% if v.type == 'Non renseigne' %}{% else %}{{ v.type|default_if_none:'' }}{% endif %}"
+                value="{% if v.type == '' %}{% else %}{{ v.type|default_if_none:'' }}{% endif %}"
                 maxlength="150"
                 required
               >
