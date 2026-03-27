@@ -6,6 +6,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 import calendar
+import re
 from collections import defaultdict
 
 from .forms import (
@@ -1128,6 +1129,100 @@ def planning3(request):
     return render(
         request,
         "core/planning3.html",
+        {
+            "selected_date": selected_date,
+            "days": days,
+            "rows": table_rows,
+        },
+    )
+
+
+def planning4(request):
+    today = timezone.localdate()
+    date_str = request.GET.get("date")
+    if date_str:
+        try:
+            selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+    else:
+        selected_date = today
+
+    month_start = selected_date.replace(day=1)
+    last_day = calendar.monthrange(selected_date.year, selected_date.month)[1]
+    month_end = selected_date.replace(day=last_day)
+    days = [month_start + timezone.timedelta(days=offset) for offset in range(last_day)]
+
+    agents = list(
+        Agent.objects.filter(
+            (Q(arrivee__isnull=True) | Q(arrivee__lte=month_end))
+            & (Q(depart__isnull=True) | Q(depart__gte=month_start))
+        ).order_by("service", "qualification", "nom", "prenom")
+    )
+
+    def _safe_hex_color(raw_value, fallback):
+        value = (raw_value or "").strip()
+        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
+            return value
+        return fallback
+
+    sql = """
+        SELECT
+            id_agent,
+            date,
+            id_stat,
+            type,
+            id_flux,
+            id_itineraire,
+            is_heures_sup,
+            hr_debut,
+            hr_fin,
+            motif_hs,
+            presence_id,
+            stat_planning,
+            nom,
+            employeur,
+            qualification,
+            service,
+            background_color,
+            border_color
+        FROM stat_heures
+        WHERE date BETWEEN %s AND %s
+        ORDER BY id_agent, date, stat_planning;
+    """
+
+    entries_map = defaultdict(list)
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [month_start, month_end])
+        columns = [col[0] for col in cursor.description]
+        for row in cursor.fetchall():
+            item = dict(zip(columns, row))
+            stat_label = item.get("stat_planning") or ""
+            entries_map[(item["id_agent"], item["date"])].append(
+                {
+                    "id_stat": item["id_stat"],
+                    "type": item.get("type") or "",
+                    "stat_label": stat_label,
+                    "background_color": _safe_hex_color(item.get("background_color"), "#F1F1F1"),
+                    "border_color": _safe_hex_color(item.get("border_color"), "#666666"),
+                    "width_px": max(26, min(180, 10 + (len(str(stat_label)) * 9))),
+                }
+            )
+
+    table_rows = []
+    for agent in agents:
+        day_cells = [
+            {
+                "day": day,
+                "entries": entries_map.get((agent.id, day), []),
+            }
+            for day in days
+        ]
+        table_rows.append({"agent": agent, "day_cells": day_cells})
+
+    return render(
+        request,
+        "core/planning4.html",
         {
             "selected_date": selected_date,
             "days": days,

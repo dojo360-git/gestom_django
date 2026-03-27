@@ -14,6 +14,7 @@ from .views import (
     PlanningView,
     planning2,
     planning3,
+    planning4,
 )
 
 app_name = "core"
@@ -26,6 +27,7 @@ urlpatterns = [
     path("planning/", login_required(PlanningView.as_view()), name="planning"),
     path("planning2/", login_required(planning2), name="planning2"),
     path("planning3/", login_required(planning3), name="planning3"),
+    path("planning4/", login_required(planning4), name="planning4"),
     path("agents/", login_required(AgentListView.as_view()), name="agent_list"),
     path("agents2/", login_required(views.agents2), name="agents2"),
 

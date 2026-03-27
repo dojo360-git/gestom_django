@@ -552,4 +552,4 @@ Quand je clique sur une cellule cell_jour :
 - ouvre un modal formulaire de nouveau heures manuelles 
 - par defaut agent = agent de ligne du tableau 
 - date = date de tableau 
-raffraichis la page planning si le formulaire 
+raffraichis la page planning si le formulaire est validé

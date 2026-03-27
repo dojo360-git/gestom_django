@@ -1,0 +1,334 @@
+{% extends "core/base.html" %}
+
+{% block title %}Planning 4{% endblock %}
+{% block body_class %}page-planning3{% endblock %}
+
+{% block content %}
+<div class="planning">
+  <div class="card">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Planning 4</h1>
+        </div>
+
+        <form class="planning__controls" id="planning4Form" method="get">
+          <label class="planning__control">
+            <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+          </label>
+
+          <button id="thisMonthBtn" class="btn btn--ghost" type="button">Ce mois ci</button>
+          <button id="prevMonthBtn" class="btn btn--ghost" type="button">Mois precedent</button>
+          <button id="nextMonthBtn" class="btn btn--ghost" type="button">Mois suivant</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="table-wrap planning__wrap">
+        <table class="table planning__table planning3__table">
+          <thead>
+            <tr>
+              <th class="planning__sticky planning3__sticky--service">Service</th>
+              <th class="planning__sticky planning3__sticky--qualif">Qualification</th>
+              <th class="planning__sticky planning3__sticky--nom">Nom agent</th>
+              {% for day in days %}
+                <th class="planning__cell">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td class="planning__sticky planning3__sticky--service">{{ row.agent.service|default:"-" }}</td>
+                <td class="planning__sticky planning3__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
+                <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
+                {% for cell in row.day_cells %}
+                  <td
+                    class="planning__cell planning3__cell cell_jour {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}"
+                    data-agent-id="{{ row.agent.id }}"
+                    data-date="{{ cell.day|date:'Y-m-d' }}"
+                  >
+                    {% for e in cell.entries %}
+                      <div
+                        class="planning3__entry planning3__entry--editable hr"
+                        data-id-stat="{{ e.id_stat }}"
+                        data-type="{{ e.type }}"
+                        title="{{ e.type }} #{{ e.id_stat }}"
+                        style="background-color: {{ e.background_color }}; border: 1px solid {{ e.border_color }}; width: {{ e.width_px }}px;"
+                      >
+                        {{ e.stat_label }}
+                      </div>
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{{ days|length|add:'3' }}" class="sub">Aucun agent sur la periode</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="planning-modal" id="planning4HmModal" aria-hidden="true">
+  <div class="planning-modal__backdrop" data-close="1"></div>
+  <div class="planning-modal__panel planning-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="planning4HmModalTitle">
+    <div class="planning-modal__head">
+      <div>
+        <h2 class="h2" id="planning4HmModalTitle" style="margin:0;">Heures manuelles</h2>
+        <p class="sub" style="margin:6px 0 0;">Edition depuis le planning</p>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button" data-close="1">Fermer</button>
+    </div>
+    <div id="planning4HmContent" class="planning3-modal__body"></div>
+  </div>
+</div>
+
+<div class="planning-modal" id="planning4CollecteModal" aria-hidden="true">
+  <div class="planning-modal__backdrop" data-close-collecte="1"></div>
+  <div class="planning-modal__panel" role="dialog" aria-modal="true" aria-labelledby="planning4CollecteModalTitle">
+    <div class="planning-modal__head">
+      <div>
+        <h2 class="h2" id="planning4CollecteModalTitle" style="margin:0;">Collecte</h2>
+        <p class="sub" id="planning4CollecteModalSubtitle" style="margin:6px 0 0;"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button" data-close-collecte="1">Fermer</button>
+    </div>
+    <div class="actions" style="justify-content:flex-start;">
+      <a id="planning4CollecteLink" href="#" class="btn btn--primary">Ouvrir la collecte</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const dateInput = document.getElementById("dateInput");
+  const prevBtn = document.getElementById("prevMonthBtn");
+  const nextBtn = document.getElementById("nextMonthBtn");
+  const thisMonthBtn = document.getElementById("thisMonthBtn");
+  const form = document.getElementById("planning4Form");
+
+  const hmModal = document.getElementById("planning4HmModal");
+  const hmContent = document.getElementById("planning4HmContent");
+  const hmModalTitle = document.getElementById("planning4HmModalTitle");
+
+  const collecteModal = document.getElementById("planning4CollecteModal");
+  const collecteModalSubtitle = document.getElementById("planning4CollecteModalSubtitle");
+  const collecteLink = document.getElementById("planning4CollecteLink");
+
+  const hmCreateUrl = "{% url 'core:heures_manuelles_create' %}";
+  const hmUpdateUrlTemplate = "{% url 'core:heures_manuelles_update' 0 %}";
+  const collecteDetailUrlTemplate = "{% url 'core:collecte_detail' 0 %}";
+  let hmReturnUrl = "";
+
+  function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function setDateAndSubmit(date) {
+    if (!dateInput || !form) return;
+    dateInput.value = formatLocalDate(date);
+    form.submit();
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener("change", () => {
+      if (!dateInput.value) return;
+      setDateAndSubmit(new Date(dateInput.value));
+    });
+  }
+
+  if (thisMonthBtn) {
+    thisMonthBtn.addEventListener("click", () => setDateAndSubmit(new Date()));
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      setDateAndSubmit(new Date(base.getFullYear(), base.getMonth() + 1, 1));
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      const base = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+      setDateAndSubmit(new Date(base.getFullYear(), base.getMonth() - 1, 1));
+    });
+  }
+
+  function isManuelleType(typeValue) {
+    const value = (typeValue || "").toLowerCase();
+    return value.startsWith("manuelle");
+  }
+
+  function isCollecteType(typeValue) {
+    const value = (typeValue || "").toLowerCase();
+    return value.startsWith("collecte");
+  }
+
+  function buildHeuresManuellesUpdateUrl(id) {
+    return hmUpdateUrlTemplate.replace("/0/", `/${id}/`);
+  }
+
+  function buildCollecteDetailUrl(id) {
+    return collecteDetailUrlTemplate.replace("/0/", `/${id}/`);
+  }
+
+  function closeHeuresManuellesModal() {
+    if (!hmModal) return;
+    hmModal.setAttribute("aria-hidden", "true");
+    if (hmContent) hmContent.innerHTML = "";
+  }
+
+  function closeCollecteModal() {
+    if (!collecteModal) return;
+    collecteModal.setAttribute("aria-hidden", "true");
+  }
+
+  function bindEmbeddedHeuresForm() {
+    if (!hmContent) return;
+    const embeddedForm = hmContent.querySelector("form");
+    if (!embeddedForm) return;
+    const csrfInput = embeddedForm.querySelector('input[name="csrfmiddlewaretoken"]');
+
+    embeddedForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const action = embeddedForm.getAttribute("action") || window.location.href;
+      const body = new FormData(embeddedForm);
+      const response = await fetch(action, {
+        method: "POST",
+        body,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+
+      if (response.redirected || response.url.includes("/planning4/")) {
+        window.location.href = hmReturnUrl || response.url;
+        return;
+      }
+
+      hmContent.innerHTML = await response.text();
+      bindEmbeddedHeuresForm();
+    });
+
+    const deleteBtn = embeddedForm.querySelector("[data-delete-url]");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        if (!window.confirm("Confirmer la suppression de cette heure manuelle ?")) return;
+        const deleteUrl = deleteBtn.getAttribute("data-delete-url");
+        if (!deleteUrl || !csrfInput?.value) return;
+
+        const payload = new URLSearchParams();
+        payload.set("csrfmiddlewaretoken", csrfInput.value);
+        payload.set("next", hmReturnUrl || window.location.href);
+
+        const response = await fetch(deleteUrl, {
+          method: "POST",
+          body: payload,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+
+        if (response.redirected || response.url.includes("/planning4/")) {
+          window.location.href = hmReturnUrl || response.url;
+          return;
+        }
+
+        hmContent.innerHTML = await response.text();
+        bindEmbeddedHeuresForm();
+      });
+    }
+  }
+
+  async function loadHeuresManuellesForm(url) {
+    if (!hmModal || !hmContent) return;
+    hmContent.innerHTML = '<p class="sub">Chargement du formulaire...</p>';
+    hmModal.setAttribute("aria-hidden", "false");
+    const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+    hmContent.innerHTML = await response.text();
+    bindEmbeddedHeuresForm();
+  }
+
+  async function openHeuresManuellesModal(id) {
+    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
+    if (hmModalTitle) hmModalTitle.textContent = "Heures manuelles";
+    const editUrl = buildHeuresManuellesUpdateUrl(id);
+    await loadHeuresManuellesForm(`${editUrl}?next=${encodeURIComponent(hmReturnUrl)}&embedded=1`);
+  }
+
+  async function openHeuresManuellesCreateModal(agentId, date) {
+    hmReturnUrl = `${window.location.pathname}${window.location.search}`;
+    if (hmModalTitle) hmModalTitle.textContent = "Nouvelle heure manuelle";
+    const params = new URLSearchParams({
+      agent: agentId,
+      date,
+      next: hmReturnUrl,
+      embedded: "1",
+    });
+    await loadHeuresManuellesForm(`${hmCreateUrl}?${params.toString()}`);
+  }
+
+  function openCollecteModal(id, typeValue) {
+    if (!collecteModal || !collecteLink) return;
+    const detailUrl = buildCollecteDetailUrl(id);
+    collecteLink.setAttribute("href", detailUrl);
+    if (collecteModalSubtitle) {
+      collecteModalSubtitle.textContent = `Collecte #${id} (${typeValue || "collecte"})`;
+    }
+    collecteModal.setAttribute("aria-hidden", "false");
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (hmModal && hmModal.getAttribute("aria-hidden") === "false") closeHeuresManuellesModal();
+      if (collecteModal && collecteModal.getAttribute("aria-hidden") === "false") closeCollecteModal();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target?.dataset?.close) {
+      closeHeuresManuellesModal();
+      return;
+    }
+
+    if (event.target?.dataset?.closeCollecte) {
+      closeCollecteModal();
+      return;
+    }
+
+    const entry = event.target.closest(".hr");
+    if (entry) {
+      const id = entry.dataset.idStat || "";
+      const typeValue = entry.dataset.type || "";
+      if (!id) return;
+
+      if (isCollecteType(typeValue)) {
+        openCollecteModal(id, typeValue);
+        return;
+      }
+
+      if (isManuelleType(typeValue)) {
+        openHeuresManuellesModal(id);
+      }
+      return;
+    }
+
+    const cell = event.target.closest("td.cell_jour");
+    if (!cell) return;
+    const agentId = cell.dataset.agentId || "";
+    const date = cell.dataset.date || "";
+    if (!agentId || !date) return;
+    openHeuresManuellesCreateModal(agentId, date);
+  });
+</script>
+{% endblock %}
