@@ -993,16 +993,6 @@ class HeuresManuellesDeleteView(DeleteView):
         return self._get_next_url() or str(self.success_url)
 
 
-class PlanningView(TemplateView):
-    template_name = "core/planning.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        agents_qs = Agent.objects.all().order_by("nom")
-        ctx["agents"] = list(agents_qs.values("id", "nom", "qualification"))
-        return ctx
-
-
 def planning4(request):
     today = timezone.localdate()
     date_str = request.GET.get("date")

@@ -11,7 +11,6 @@ from .views import (
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     HeuresManuellesListView, HeuresManuellesDetailView, HeuresManuellesCreateView, HeuresManuellesUpdateView, HeuresManuellesDeleteView,
-    PlanningView,
     planning4,
 )
 
@@ -22,7 +21,6 @@ urlpatterns = [
     # Home
     path("", login_required(views.home), name="home"),
     path("donnee-collectes/", login_required(views.donnee_collectes), name="donnee_collectes"),
-    path("planning/", login_required(PlanningView.as_view()), name="planning"),
     path("planning4/", login_required(planning4), name="planning4"),
     path("agents/", login_required(AgentListView.as_view()), name="agent_list"),
     path("agents2/", login_required(views.agents2), name="agents2"),
