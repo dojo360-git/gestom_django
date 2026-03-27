@@ -76,7 +76,7 @@ class PresenceMotifForm(forms.ModelForm):
 class ItineraireForm(forms.ModelForm):
     class Meta:
         model = Itineraire
-        fields = ["itineraire"]
+        fields = ["itineraire", "regie"]
 
 
 class VehiculeForm(forms.ModelForm):
@@ -169,7 +169,7 @@ class CollecteForm(forms.ModelForm):
         self.fields["id_agent_1"].queryset = agent_qs
         self.fields["id_agent_2"].queryset = agent_qs
         self.fields["id_agent_3"].queryset = agent_qs
-        self.fields["id_itineraire"].queryset = Itineraire.objects.order_by("itineraire")
+        self.fields["id_itineraire"].queryset = Itineraire.objects.order_by("regie", "itineraire")
         self.fields["id_vehicule"].queryset = Vehicule.objects.filter(archive=False).order_by("nom_vehicule")
         flux_qs = Flux.objects.filter(archive=False).order_by("flux")
         self.fields["id_flux1"].queryset = flux_qs

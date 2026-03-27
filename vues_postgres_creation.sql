@@ -5,7 +5,10 @@
  * Contact : https://www.linkedin.com/in/julienbesombes/
  * contact [chez] dojo360 fr
  */
-CREATE OR REPLACE VIEW stat_tournees AS (
+DROP VIEW IF EXISTS stat_heures;
+DROP VIEW IF EXISTS stat_vidages;
+DROP VIEW IF EXISTS stat_tournees;
+CREATE VIEW stat_tournees AS (
 	SELECT
                 co.id_collecte,
                 co.id_vehicule_id,
@@ -22,9 +25,7 @@ CREATE OR REPLACE VIEW stat_tournees AS (
             LEFT JOIN core_vehicule ve on co.id_vehicule_id = ve.id
             left join core_itineraire it on it.id =co.id_itineraire_id  
 );
-
-
-CREATE OR REPLACE VIEW stat_vidages AS 
+CREATE VIEW stat_vidages AS 
         WITH   
         tournees AS (
             select * from stat_tournees
@@ -109,13 +110,8 @@ CREATE OR REPLACE VIEW stat_vidages AS
         FROM vidages2 vi2
         LEFT JOIN core_flux fl ON fl.id_flux = vi2.id_flux
   --      WHERE v2.date_collecte BETWEEN %s AND %s
-        ORDER BY vi2.date_collecte, fl.flux, vi2.id_collecte
-
-        ;
-        
-        
-        
-  
+        ORDER BY vi2.date_collecte, fl.flux, vi2.id_collecte;
+CREATE VIEW stat_heures AS 
 WITH 
 	collecte AS (
 	    select
@@ -124,7 +120,8 @@ WITH
 	        co.id_collecte as id_stat,
 			'collecte' type,
 			co.id_flux1_id as id_flux, 
-			 false is_heures_sup,
+			co.id_itineraire_id as id_itineraire,
+			false is_heures_sup,
 	        v.hr_debut,
 	        v.hr_fin,
 	        '' motif_hs,
@@ -144,6 +141,7 @@ WITH
 	        co.id_collecte as id_stat,
 			'collecte_hs' as type,
 			co.id_flux1_id as id_flux,
+			co.id_itineraire_id as id_itineraire,
 			true is_heures_sup,
 	        v.hr_debut,
 	        v.hr_fin,
@@ -169,6 +167,7 @@ WITH
 				else 'manuelles_err'
 			end as type,
 			null::int4 as id_flux,
+			null::int8 as id_itineraire,
 			case 
 				when presence_id is null and motif_heures_sup is null then false
 				when presence_id is null and motif_heures_sup is not null then true
@@ -182,7 +181,6 @@ WITH
         FROM core_heuresmanuelles
     ),
 	 heures as (
-	 
 		 select 
 		 	hr.*,
 			case type
@@ -193,9 +191,12 @@ WITH
 				when 'manuelles_hs' then ROUND(EXTRACT(EPOCH FROM (hr_fin - hr_debut)) / 3600) || 'h'
 				else '⚠️'
 			end as stat_planning,
+			ag.nom,
 			ag.employeur,
-			pm.couleur_hex_motif_presence as background_color,
-			fl.couleur_flux as border_color
+			ag.qualification,
+			ag.service,
+			coalesce(pm.couleur_hex_motif_presence,'#F1F1F1F1') as background_color,
+			coalesce(fl.couleur_flux,'#666666') as border_color
 	 	from (
 		 	select * from collecte
 			union all 
@@ -205,96 +206,20 @@ WITH
 		left join core_presencemotif pm on pm.id = hr.presence_id
 		left join core_flux fl on fl.id_flux = hr.id_flux
 		left join core_agent ag on ag.id = hr.id_agent
-		
 			)
 SELECT 
 	*
 from heures hr
 WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
-
-
-
-
-
 ;
-        
+        select 
+        	*
+		from stat_heures
+		ORDER BY id_agent, date, stat_planning
  --        WHERE date BETWEEN %s AND %s
  --       ORDER BY id_agent, date, stat;
         
-        
-   --CREATE OR REPLACE VIEW stat_heures AS 
-   /*   WITH hr_manuelles AS (
-            SELECT
-                CASE
-                    WHEN COALESCE(NULLIF(BTRIM(motif_heures_sup), ''), '') <> '' THEN 'Heures Sup'
-                    ELSE 'Manuelles'
-                END AS type,
-                id AS id_stat,
-                agent_id AS id_agent,
-                date,
-                heure_debut AS hr_debut,
-                heure_fin AS hr_fin,
-                presence
-            FROM core_heuresmanuelles
-        ),
-        hr_collecte AS (
-            SELECT
-                'collecte' AS type,
-                id_collecte AS id_stat,
-                id_agent_1_id AS id_agent,
-                date_collecte AS date,
-                a1_hr_debut AS hr_debut,
-                a1_hr_fin AS hr_fin,
-                '' AS presence
-            FROM core_collecte
-            WHERE id_agent_1_id IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                'collecte' AS type,
-                id_collecte AS id_stat,
-                id_agent_2_id AS id_agent,
-                date_collecte AS date,
-                a2_hr_debut AS hr_debut,
-                a2_hr_fin AS hr_fin,
-                '' AS presence
-            FROM core_collecte
-            WHERE id_agent_2_id IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                'collecte' AS type,
-                id_collecte AS id_stat,
-                id_agent_3_id AS id_agent,
-                date_collecte AS date,
-                a3_hr_debut AS hr_debut,
-                a3_hr_fin AS hr_fin,
-                '' AS presence
-            FROM core_collecte
-            WHERE id_agent_3_id IS NOT NULL
-        ),
-        entries AS (
-            SELECT * FROM hr_collecte
-            UNION ALL
-            SELECT * FROM hr_manuelles
-        )
-        SELECT
-            id_agent,
-            date,
-            type,
-            id_stat,
-            CASE
-                WHEN COALESCE(NULLIF(BTRIM(presence), ''), '') <> '' THEN presence
-                WHEN hr_fin IS NOT NULL THEN TO_CHAR(hr_fin, 'HH24:MI')
-                ELSE ''
-            END AS stat
-        FROM entries
---        WHERE date BETWEEN %s AND %s
-        ORDER BY id_agent, date, stat;
-        
- */
+ 
     
         
         

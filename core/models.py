@@ -71,12 +71,23 @@ class PresenceMotif(models.Model):
 
 
 class Itineraire(models.Model):
+    class RegieChoices(models.TextChoices):
+        COLLECTE = "Collecte", "Collecte"
+        PRECOLLECTE = "Precollecte", "Précollecte"
+        PAV = "PAV", "PAV"
+        LAVAGE = "Lavage", "Lavage"
+
     itineraire = models.CharField(max_length=150)
+    regie = models.CharField(
+        max_length=20,
+        choices=RegieChoices.choices,
+        default=RegieChoices.COLLECTE,
+    )
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["itineraire"]
+        ordering = ["regie", "itineraire"]
 
     def __str__(self):
         return self.itineraire

@@ -664,7 +664,7 @@ class ItineraireListView(ListView):
     context_object_name = "itineraires"
 
     def get_queryset(self):
-        return Itineraire.objects.order_by("itineraire")
+        return Itineraire.objects.order_by("regie", "itineraire")
 
 
 class ItineraireDetailView(DetailView):

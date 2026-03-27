@@ -16,6 +16,7 @@
         <thead>
           <tr>
             <th>Itineraire</th>
+            <th>Regie</th>
             <th class="right">Actions</th>
           </tr>
         </thead>
@@ -29,6 +30,14 @@
                 maxlength="150"
                 required
               >
+            </td>
+            <td>
+              <select name="regie" form="create-itineraire-form" required>
+                <option value="Collecte">Collecte</option>
+                <option value="Precollecte">Précollecte</option>
+                <option value="PAV">PAV</option>
+                <option value="Lavage">Lavage</option>
+              </select>
             </td>
             <td class="right">
               <div class="actions">
@@ -52,6 +61,14 @@
                 required
               >
             </td>
+            <td>
+              <select name="regie" form="update-itineraire-{{ i.pk }}" required>
+                <option value="Collecte" {% if i.regie == "Collecte" %}selected{% endif %}>Collecte</option>
+                <option value="Precollecte" {% if i.regie == "Precollecte" %}selected{% endif %}>Précollecte</option>
+                <option value="PAV" {% if i.regie == "PAV" %}selected{% endif %}>PAV</option>
+                <option value="Lavage" {% if i.regie == "Lavage" %}selected{% endif %}>Lavage</option>
+              </select>
+            </td>
             <td class="right">
               <div class="actions">
                 <form id="update-itineraire-{{ i.pk }}" method="post" action="{% url 'core:itineraire_update' i.pk %}">
@@ -68,7 +85,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="2" class="sub">Aucun itineraire enregistre</td>
+            <td colspan="3" class="sub">Aucun itineraire enregistre</td>
           </tr>
           {% endfor %}
         </tbody>
