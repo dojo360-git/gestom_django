@@ -705,7 +705,6 @@ input[type="checkbox"]{
 }
 .planning3__entry{
   display: block;
-  min-width: 10px;
   border-radius: 8px;
   padding: 2px 2px;
   font-weight: 700;

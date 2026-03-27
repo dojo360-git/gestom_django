@@ -993,7 +993,7 @@ class HeuresManuellesDeleteView(DeleteView):
         return self._get_next_url() or str(self.success_url)
 
 
-def planning4(request):
+def planning(request):
     today = timezone.localdate()
     date_str = request.GET.get("date")
     if date_str:
@@ -1078,7 +1078,7 @@ def planning4(request):
 
     return render(
         request,
-        "core/planning4.html",
+        "core/planning.html",
         {
             "selected_date": selected_date,
             "days": days,

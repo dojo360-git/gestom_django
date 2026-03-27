@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}Planning 4{% endblock %}
+{% block title %}Planning{% endblock %}
 {% block body_class %}page-planning3{% endblock %}
 
 {% block content %}
@@ -9,10 +9,10 @@
     <div class="card__pad">
       <div class="header header--controls-left">
         <div>
-          <h1 class="h1">Planning 4</h1>
+          <h1 class="h1">Planning</h1>
         </div>
 
-        <form class="planning__controls" id="planning4Form" method="get">
+        <form class="planning__controls" id="planningForm" method="get">
           <label class="planning__control">
             <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
           </label>
@@ -57,7 +57,7 @@
                         data-id-stat="{{ e.id_stat }}"
                         data-type="{{ e.type }}"
                         title="{{ e.type }} #{{ e.id_stat }}"
-                        style="background-color: {{ e.background_color }}; border: 1px solid {{ e.border_color }}; width: {{ e.width_px }}px;"
+                        style="background-color: {{ e.background_color }}; border: 1px solid {{ e.border_color }};"
                       >
                         {{ e.stat_label }}
                       </div>
@@ -77,32 +77,32 @@
   </div>
 </div>
 
-<div class="planning-modal" id="planning4HmModal" aria-hidden="true">
+<div class="planning-modal" id="planningHmModal" aria-hidden="true">
   <div class="planning-modal__backdrop" data-close="1"></div>
-  <div class="planning-modal__panel planning-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="planning4HmModalTitle">
+  <div class="planning-modal__panel planning-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="planningHmModalTitle">
     <div class="planning-modal__head">
       <div>
-        <h2 class="h2" id="planning4HmModalTitle" style="margin:0;">Heures manuelles</h2>
+        <h2 class="h2" id="planningHmModalTitle" style="margin:0;">Heures manuelles</h2>
         <p class="sub" style="margin:6px 0 0;">Edition depuis le planning</p>
       </div>
       <button class="btn btn--ghost btn--sm" type="button" data-close="1">Fermer</button>
     </div>
-    <div id="planning4HmContent" class="planning3-modal__body"></div>
+    <div id="planningHmContent" class="planning3-modal__body"></div>
   </div>
 </div>
 
-<div class="planning-modal" id="planning4CollecteModal" aria-hidden="true">
+<div class="planning-modal" id="planningCollecteModal" aria-hidden="true">
   <div class="planning-modal__backdrop" data-close-collecte="1"></div>
-  <div class="planning-modal__panel" role="dialog" aria-modal="true" aria-labelledby="planning4CollecteModalTitle">
+  <div class="planning-modal__panel" role="dialog" aria-modal="true" aria-labelledby="planningCollecteModalTitle">
     <div class="planning-modal__head">
       <div>
-        <h2 class="h2" id="planning4CollecteModalTitle" style="margin:0;">Collecte</h2>
-        <p class="sub" id="planning4CollecteModalSubtitle" style="margin:6px 0 0;"></p>
+        <h2 class="h2" id="planningCollecteModalTitle" style="margin:0;">Collecte</h2>
+        <p class="sub" id="planningCollecteModalSubtitle" style="margin:6px 0 0;"></p>
       </div>
       <button class="btn btn--ghost btn--sm" type="button" data-close-collecte="1">Fermer</button>
     </div>
     <div class="actions" style="justify-content:flex-start;">
-      <a id="planning4CollecteLink" href="#" class="btn btn--primary">Ouvrir la collecte</a>
+      <a id="planningCollecteLink" href="#" class="btn btn--primary">Ouvrir la collecte</a>
     </div>
   </div>
 </div>
@@ -112,15 +112,15 @@
   const prevBtn = document.getElementById("prevMonthBtn");
   const nextBtn = document.getElementById("nextMonthBtn");
   const thisMonthBtn = document.getElementById("thisMonthBtn");
-  const form = document.getElementById("planning4Form");
+  const form = document.getElementById("planningForm");
 
-  const hmModal = document.getElementById("planning4HmModal");
-  const hmContent = document.getElementById("planning4HmContent");
-  const hmModalTitle = document.getElementById("planning4HmModalTitle");
+  const hmModal = document.getElementById("planningHmModal");
+  const hmContent = document.getElementById("planningHmContent");
+  const hmModalTitle = document.getElementById("planningHmModalTitle");
 
-  const collecteModal = document.getElementById("planning4CollecteModal");
-  const collecteModalSubtitle = document.getElementById("planning4CollecteModalSubtitle");
-  const collecteLink = document.getElementById("planning4CollecteLink");
+  const collecteModal = document.getElementById("planningCollecteModal");
+  const collecteModalSubtitle = document.getElementById("planningCollecteModalSubtitle");
+  const collecteLink = document.getElementById("planningCollecteLink");
 
   const hmCreateUrl = "{% url 'core:heures_manuelles_create' %}";
   const hmUpdateUrlTemplate = "{% url 'core:heures_manuelles_update' 0 %}";
@@ -210,7 +210,7 @@
         headers: { "X-Requested-With": "XMLHttpRequest" },
       });
 
-      if (response.redirected || response.url.includes("/planning4/")) {
+      if (response.redirected || response.url.includes("/planning/")) {
         window.location.href = hmReturnUrl || response.url;
         return;
       }
@@ -239,7 +239,7 @@
           },
         });
 
-        if (response.redirected || response.url.includes("/planning4/")) {
+        if (response.redirected || response.url.includes("/planning/")) {
           window.location.href = hmReturnUrl || response.url;
           return;
         }
