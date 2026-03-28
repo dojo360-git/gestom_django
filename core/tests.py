@@ -83,11 +83,11 @@ class AgentTests(TestCase):
         names = list(Agent.objects.values_list("nom", "prenom"))
         self.assertEqual(names, sorted(names))
 
-    def test_agent_list_view(self):
-        response = self.client.get(reverse("core:agent_list"))
+    def test_agents2_view(self):
+        response = self.client.get(reverse("core:agents2"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Durand")
-        self.assertTemplateUsed(response, "core/agent_list.html")
+        self.assertTemplateUsed(response, "core/agents2_list.html")
 
     def test_agent_detail_view(self):
         response = self.client.get(reverse("core:agent_detail", args=[self.agent.pk]))
@@ -150,21 +150,21 @@ class AgentTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Agent.objects.filter(pk=self.agent.pk).exists())
 
-    def test_agent_list_view_filters_by_selected_date(self):
+    def test_agents2_view_filters_by_selected_date(self):
         Agent.objects.create(nom="Present", prenom="Agent", arrivee=date(2026, 1, 1), depart=date(2026, 12, 31))
         Agent.objects.create(nom="Absent", prenom="Agent", arrivee=date(2030, 1, 1), depart=date(2030, 12, 31))
 
-        response = self.client.get(reverse("core:agent_list"), {"date": "2026-06-01"})
+        response = self.client.get(reverse("core:agents2"), {"date": "2026-06-01"})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Present")
         self.assertNotContains(response, "Absent")
 
-    def test_agent_list_view_uses_today_by_default(self):
+    def test_agents2_view_uses_today_by_default(self):
         today = timezone.localdate()
         Agent.objects.create(nom="ActiveToday", prenom="Agent", arrivee=today - timedelta(days=1), depart=today + timedelta(days=1))
         Agent.objects.create(nom="InactiveToday", prenom="Agent", arrivee=today + timedelta(days=10), depart=today + timedelta(days=20))
 
-        response = self.client.get(reverse("core:agent_list"))
+        response = self.client.get(reverse("core:agents2"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ActiveToday")
         self.assertNotContains(response, "InactiveToday")

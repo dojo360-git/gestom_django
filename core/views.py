@@ -517,20 +517,20 @@ class AgentCreateView(CreateView):
     model = Agent
     form_class = AgentForm
     template_name = "core/agent_form.html"
-    success_url = reverse_lazy("core:agent_list")
+    success_url = reverse_lazy("core:agents2")
 
 
 class AgentUpdateView(UpdateView):
     model = Agent
     form_class = AgentForm
     template_name = "core/agent_form.html"
-    success_url = reverse_lazy("core:agent_list")
+    success_url = reverse_lazy("core:agents2")
 
 
 class AgentDeleteView(DeleteView):
     model = Agent
     template_name = "core/agent_confirm_delete.html"
-    success_url = reverse_lazy("core:agent_list")
+    success_url = reverse_lazy("core:agents2")
 
 
 class FluxListView(ListView):
