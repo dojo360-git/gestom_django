@@ -23,38 +23,46 @@ class FluxTests(TestCase):
         names = list(Flux.objects.values_list("flux", flat=True))
         self.assertEqual(names, sorted(names))
 
-    def test_flux_list_view(self):
-        response = self.client.get(reverse("core:flux_list"))
+    def test_flux2_view(self):
+        response = self.client.get(reverse("core:flux2"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "A Flux")
-        self.assertTemplateUsed(response, "core/flux_list.html")
+        self.assertTemplateUsed(response, "core/flux2_list.html")
 
-    def test_flux_detail_view(self):
-        response = self.client.get(reverse("core:flux_detail", args=[self.flux.pk]))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Alpha long")
-        self.assertTemplateUsed(response, "core/flux_detail.html")
-
-    def test_flux_create_view(self):
+    def test_flux2_create(self):
         response = self.client.post(
-            reverse("core:flux_create"),
-            data={"flux": "C Flux", "flux_long": "Gamma long", "archive": True},
+            reverse("core:flux2"),
+            data={
+                "action": "create",
+                "create-flux": "C Flux",
+                "create-flux_long": "Gamma long",
+                "create-archive": "on",
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Flux.objects.filter(flux="C Flux").exists())
 
-    def test_flux_update_view(self):
+    def test_flux2_update(self):
         response = self.client.post(
-            reverse("core:flux_update", args=[self.flux.pk]),
-            data={"flux": "A Flux Updated", "flux_long": "Alpha updated", "archive": True},
+            reverse("core:flux2"),
+            data={
+                "action": "update",
+                "id_flux": self.flux.pk,
+                f"row-{self.flux.pk}-flux": "A Flux Updated",
+                f"row-{self.flux.pk}-flux_long": "Alpha updated",
+                f"row-{self.flux.pk}-archive": "on",
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.flux.refresh_from_db()
         self.assertEqual(self.flux.flux, "A Flux Updated")
         self.assertTrue(self.flux.archive)
 
-    def test_flux_delete_view(self):
-        response = self.client.post(reverse("core:flux_delete", args=[self.flux.pk]))
+    def test_flux2_delete(self):
+        response = self.client.post(
+            reverse("core:flux2"),
+            data={"action": "delete", "id_flux": self.flux.pk},
+        )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Flux.objects.filter(pk=self.flux.pk).exists())
 

@@ -25,10 +25,23 @@
     <div class="nav__actions">
       {% if user.is_authenticated %}
         <a class="btn btn--ghost" href="{% url 'core:home' %}">📊 Accueil</a>
-        <a class="btn btn--ghost" href="{% url 'core:collecte_list' %}">🚛Collectes</a>
-        <a class="btn btn--ghost" href="{% url 'core:donnee_collectes' %}">📈 Donnees collectes</a>
         <details class="nav__dropdown">
-          <summary class="btn btn--ghost nav__dropdown-toggle">⚙️ Paramètres</summary>
+          <summary class="btn btn--ghost nav__dropdown-toggle">📊 Stats</summary>
+          <div class="nav__dropdown-menu">
+              <a class="nav__dropdown-item" href="{% url 'core:donnee_collectes' %}">🚛 Collectes</a>
+              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
+        </div>
+        </details>
+        <details class="nav__dropdown">
+          <summary class="btn btn--ghost nav__dropdown-toggle">🖊️ Saisies</summary>
+          <div class="nav__dropdown-menu">
+              <a class="nav__dropdown-item" href="{% url 'core:collecte_list' %}">⏱️ Collectes</a>
+              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
+              <a class="nav__dropdown-item" href="{% url 'core:planning' %}">📅 Planning</a>
+          </div>
+        </details>
+        <details class="nav__dropdown">
+          <summary class="btn btn--ghost nav__dropdown-toggle">📦 Ressources</summary>
           <div class="nav__dropdown-menu">
               <a class="nav__dropdown-item" href="{% url 'core:agents2' %}">👷 Agents</a>
               <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">🚛 Véhicules</a>
@@ -36,7 +49,6 @@
               <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">⛽ Energies</a>
               <a class="nav__dropdown-item" href="{% url 'core:itineraire_list' %}">🛣️ Itineraires</a>
               <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">📅 Présences</a>
-              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
           </div>
         </details>
         <a class="btn btn--primary" href="{% url 'core:planning' %}">📅 Planning</a>

@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from . import views, views_api
 from .views import (
     AgentListView, AgentDetailView, AgentCreateView, AgentUpdateView, AgentDeleteView,
-    FluxListView, FluxDetailView, FluxCreateView, FluxUpdateView, FluxDeleteView,
     EnergieListView, EnergieDetailView, EnergieCreateView, EnergieUpdateView, EnergieDeleteView,
     PresenceMotifListView, PresenceMotifDetailView, PresenceMotifCreateView, PresenceMotifUpdateView, PresenceMotifDeleteView,
     ItineraireListView, ItineraireDetailView, ItineraireCreateView, ItineraireUpdateView, ItineraireDeleteView,
@@ -52,13 +51,8 @@ urlpatterns = [
     path("heures-manuelles/<int:pk>/modifier/", login_required(HeuresManuellesUpdateView.as_view()), name="heures_manuelles_update"),
     path("heures-manuelles/<int:pk>/supprimer/", login_required(HeuresManuellesDeleteView.as_view()), name="heures_manuelles_delete"),
 
-    # Flux
-    path("flux/", login_required(FluxListView.as_view()), name="flux_list"),
+    # Flux (edition rapide uniquement)
     path("flux2/", login_required(views.flux2), name="flux2"),
-    path("flux/nouveau/", login_required(FluxCreateView.as_view()), name="flux_create"),
-    path("flux/<int:pk>/", login_required(FluxDetailView.as_view()), name="flux_detail"),
-    path("flux/<int:pk>/modifier/", login_required(FluxUpdateView.as_view()), name="flux_update"),
-    path("flux/<int:pk>/supprimer/", login_required(FluxDeleteView.as_view()), name="flux_delete"),
 
     # Energies
     path("energies/", login_required(EnergieListView.as_view()), name="energie_list"),
