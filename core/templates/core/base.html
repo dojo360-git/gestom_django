@@ -3,9 +3,13 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="{% block meta_description %}Application de pilotage de la regie de collecte{% endblock %}" />
+  <meta name="theme-color" content="#16a34a" />
+  <meta name="color-scheme" content="light" />
   <title>{% block title %}Gestom{% endblock %}</title>
   <link rel="icon" type="image/png" href="https://storage.googleapis.com/dojo360-public/cdea/gestom/fav_gestom.png">
+  <link rel="apple-touch-icon" href="https://storage.googleapis.com/dojo360-public/cdea/gestom/fav_gestom.png">
 
   <link rel="stylesheet" href="{% static 'core/styles.css' %}">
 </head>
@@ -13,53 +17,78 @@
 
 <header class="nav">
   <div class="container nav__inner">
-    <a class="brand" href="{% url 'core:home' %}">
-      <img
-        class="brand__logo"
-        src="https://storage.googleapis.com/dojo360-public/cdea/gestom/Logo_coeuressone.png"
-        alt="Logo Gestom"
-      >
-      <span>REGIE DE COLLECTE</span>
-    </a>
-
-    <div class="nav__actions">
-      {% if user.is_authenticated %}
-        <a class="btn btn--ghost" href="{% url 'core:home' %}">📊 Accueil</a>
-        <details class="nav__dropdown">
-          <summary class="btn btn--ghost nav__dropdown-toggle">📊 Stats</summary>
-          <div class="nav__dropdown-menu">
-              <a class="nav__dropdown-item" href="{% url 'core:donnee_collectes' %}">🚛 Collectes</a>
-              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
-        </div>
-        </details>
-        <details class="nav__dropdown">
-          <summary class="btn btn--ghost nav__dropdown-toggle">🖊️ Saisies</summary>
-          <div class="nav__dropdown-menu">
-              <a class="nav__dropdown-item" href="{% url 'core:collecte_list' %}">⏱️ Collectes</a>
-              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">⏱️ Heures manuelles</a>
-              <a class="nav__dropdown-item" href="{% url 'core:planning' %}">📅 Planning</a>
-          </div>
-        </details>
-        <details class="nav__dropdown">
-          <summary class="btn btn--ghost nav__dropdown-toggle">📦 Ressources</summary>
-          <div class="nav__dropdown-menu">
-              <a class="nav__dropdown-item" href="{% url 'core:agents2' %}">👷 Agents</a>
-              <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">🚛 Véhicules</a>
-              <a class="nav__dropdown-item" href="{% url 'core:flux2' %}">♻️ Flux</a>
-              <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">⛽ Energies</a>
-              <a class="nav__dropdown-item" href="{% url 'core:itineraire_list' %}">🛣️ Itineraires</a>
-              <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">📅 Présences</a>
-          </div>
-        </details>
-        <a class="btn btn--primary" href="{% url 'core:planning' %}">📅 Planning</a>
-        <form method="post" action="{% url 'logout' %}" style="margin:0;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn--ghost">Deconnexion</button>
-        </form>
-      {% else %}
-
-      {% endif %}
+    <div class="nav__identity">
+      <a class="brand" href="{% url 'core:home' %}">
+        <img
+          class="brand__logo"
+          src="https://storage.googleapis.com/dojo360-public/cdea/gestom/Logo_coeuressone.png"
+          alt="Logo Gestom"
+        >
+        <span class="brand__content">
+          <span class="brand__title">REGIE DE COLLECTE</span>
+          <span class="brand__subtitle">Pilotage operationnel</span>
+        </span>
+      </a>
     </div>
+
+    {% if user.is_authenticated %}
+    <button
+      class="nav__toggle"
+      type="button"
+      aria-label="Ouvrir le menu de navigation"
+      aria-expanded="false"
+      aria-controls="main-nav-menu"
+    >
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+    </button>
+
+    <div class="nav__actions" id="main-nav-menu">
+        <div class="nav__group nav__group--main">
+          <a class="btn btn--ghost" href="{% url 'core:home' %}">Accueil</a>
+           <a class="btn btn--primary" href="{% url 'core:planning' %}">Planning</a>
+          <details class="nav__dropdown">
+            <summary class="btn btn--ghost nav__dropdown-toggle">Pilotage</summary>
+            <div class="nav__dropdown-menu">
+              <a class="nav__dropdown-item" href="{% url 'core:donnee_collectes' %}">Donnees collectes</a>
+              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">Heures manuelles</a>
+            </div>
+          </details>
+
+          <details class="nav__dropdown">
+            <summary class="btn btn--ghost nav__dropdown-toggle">Saisies</summary>
+            <div class="nav__dropdown-menu">
+              <a class="nav__dropdown-item" href="{% url 'core:collecte_list' %}">Collectes</a>
+              <a class="nav__dropdown-item" href="{% url 'core:heures_manuelles_list' %}">Heures manuelles</a>
+              <a class="nav__dropdown-item" href="{% url 'core:planning' %}">Planning</a>
+            </div>
+          </details>
+
+          <details class="nav__dropdown">
+            <summary class="btn btn--ghost nav__dropdown-toggle">Ressources</summary>
+            <div class="nav__dropdown-menu">
+              <a class="nav__dropdown-item" href="{% url 'core:agents2' %}">Agents</a>
+              <a class="nav__dropdown-item" href="{% url 'core:vehicule_list' %}">Vehicules</a>
+              <a class="nav__dropdown-item" href="{% url 'core:flux2' %}">Flux</a>
+              <a class="nav__dropdown-item" href="{% url 'core:energie_list' %}">Energies</a>
+              <a class="nav__dropdown-item" href="{% url 'core:itineraire_list' %}">Itineraires</a>
+              <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">Presences</a>
+            </div>
+          </details>
+         
+        </div>
+
+        <div class="nav__group nav__group--right">
+          <span class="nav__user">{{ user.get_username }}</span>
+          <form method="post" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--ghost">Deconnexion</button>
+          </form>
+        </div>
+    </div>
+    <button class="nav__backdrop" type="button" aria-label="Fermer le menu"></button>
+    {% endif %}
   </div>
 </header>
 
@@ -68,6 +97,55 @@
     {% block content %}{% endblock %}
   </div>
 </main>
+
+<script>
+  (function () {
+    var toggle = document.querySelector(".nav__toggle");
+    var menu = document.querySelector("#main-nav-menu");
+    var backdrop = document.querySelector(".nav__backdrop");
+    if (!toggle || !menu || !backdrop) {
+      return;
+    }
+
+    function setOpenState(isOpen) {
+      menu.classList.toggle("is-open", isOpen);
+      backdrop.classList.toggle("is-open", isOpen);
+      document.body.classList.toggle("nav-open", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.setAttribute(
+        "aria-label",
+        isOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"
+      );
+    }
+
+    toggle.addEventListener("click", function () {
+      var isOpen = toggle.getAttribute("aria-expanded") === "true";
+      setOpenState(!isOpen);
+    });
+
+    menu.addEventListener("click", function (event) {
+      if (event.target.closest("a, button[type='submit']")) {
+        setOpenState(false);
+      }
+    });
+
+    backdrop.addEventListener("click", function () {
+      setOpenState(false);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        setOpenState(false);
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 720) {
+        setOpenState(false);
+      }
+    });
+  })();
+</script>
 
 </body>
 </html>
