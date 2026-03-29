@@ -19,7 +19,6 @@ app_name = "core"
 urlpatterns = [
     # Home
     path("", login_required(views.home), name="home"),
-    path("donnee-collectes/", login_required(views.donnee_collectes), name="donnee_collectes"),
     path("statistiques_collecte/", login_required(views.statistiques_collecte), name="statistiques_collecte"),
     path("planning/", login_required(planning), name="planning"),
     path("agents/", login_required(views.agents2), name="agents2"),
