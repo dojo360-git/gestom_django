@@ -178,7 +178,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="action" value="update">
                   <input type="hidden" name="id_agent" value="{{ row.agent.pk }}">
-                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">✏️</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>
                 <form method="post" onsubmit="return confirm('Supprimer cet agent ?');">
                   {% csrf_token %}

@@ -115,12 +115,12 @@
                   <input type="hidden" name="type" value="{{ v.type|default_if_none:'' }}">
                   <input type="hidden" name="energie" value="{{ v.energie|default_if_none:'' }}">
                   <input type="hidden" name="archive" value="{% if v.archive %}on{% endif %}">
-                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>
                 <a href="{% url 'core:vehicule_detail' v.pk %}" class="btn btn--sm btn--ghost">Voir</a>
                 <form method="post" action="{% url 'core:vehicule_delete' v.pk %}" onsubmit="return confirm('Supprimer ce vehicule ?');">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
                 </form>
               </div>
             </td>

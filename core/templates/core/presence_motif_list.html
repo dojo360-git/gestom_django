@@ -117,12 +117,12 @@
               <div class="actions">
                 <form id="update-presence-motif-{{ m.pk }}" method="post" action="{% url 'core:presence_motif_update' m.pk %}">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>
                 <a href="{% url 'core:presence_motif_detail' m.pk %}" class="btn btn--sm btn--ghost">Voir</a>
                 <form method="post" action="{% url 'core:presence_motif_delete' m.pk %}" onsubmit="return confirm('Supprimer ce motif ?');">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
                 </form>
               </div>
             </td>

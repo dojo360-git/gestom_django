@@ -73,12 +73,12 @@
               <div class="actions">
                 <form id="update-itineraire-{{ i.pk }}" method="post" action="{% url 'core:itineraire_update' i.pk %}">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>
                 <a href="{% url 'core:itineraire_detail' i.pk %}" class="btn btn--sm btn--ghost">Voir</a>
                 <form method="post" action="{% url 'core:itineraire_delete' i.pk %}" onsubmit="return confirm('Supprimer cet itineraire ?');">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
                 </form>
               </div>
             </td>

@@ -56,12 +56,12 @@
               <div class="actions">
                 <form id="update-energie-{{ e.pk }}" method="post" action="{% url 'core:energie_update' e.pk %}">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">Modifier</button>
+                  <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>
                 <a href="{% url 'core:energie_detail' e.pk %}" class="btn btn--sm btn--ghost">Voir</a>
                 <form method="post" action="{% url 'core:energie_delete' e.pk %}" onsubmit="return confirm('Supprimer cette energie ?');">
                   {% csrf_token %}
-                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">Supprimer</button>
+                  <button class="btn btn--sm btn--danger" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
                 </form>
               </div>
             </td>
