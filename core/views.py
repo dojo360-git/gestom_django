@@ -353,6 +353,202 @@ def donnee_collectes(request):
     )
 
 
+def statistiques_collecte(request):
+    today = timezone.localdate()
+    first_day_of_year = today.replace(month=1, day=1)
+    last_day_of_year = today.replace(month=12, day=31)
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    date_debut = parse_date(request.GET.get("date_debut"), first_day_of_year)
+    date_fin = parse_date(request.GET.get("date_fin"), last_day_of_year)
+
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    requete_collectes = """
+        SELECT
+            id_collecte,
+            id_vidage,
+            date_collecte,
+            id_vehicule_id,
+            nom_vehicule,
+            type_vehicule,
+            id_itineraire_id,
+            itineraire,
+            duree_tournee,
+            id_flux,
+            flux,
+            couleur_flux,
+            tonnage,
+            km,
+            energie,
+            energie_qte
+        FROM stat_vidages
+        WHERE date_collecte BETWEEN %s AND %s
+        ORDER BY date_collecte, flux, id_collecte
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(requete_collectes, [date_debut, date_fin])
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    nb_tournees = len({row.get("id_collecte") for row in rows if row.get("id_collecte") is not None})
+
+    total_tonnage = 0.0
+    total_km = 0.0
+    tonnage_by_month_flux = defaultdict(lambda: defaultdict(float))
+    km_by_month_flux = defaultdict(lambda: defaultdict(float))
+    tournees_ids_by_month_flux = defaultdict(lambda: defaultdict(set))
+    tournees_ids_by_month = defaultdict(set)
+    tournees_ids_by_flux = defaultdict(set)
+    tournees_ids_all = set()
+    colors_by_flux = {}
+    fallback_palette = [
+        "#16a34a",
+        "#2563eb",
+        "#f59e0b",
+        "#dc2626",
+        "#0ea5e9",
+        "#9333ea",
+        "#f97316",
+        "#14b8a6",
+    ]
+
+    for row in rows:
+        tonnage = float(row.get("tonnage") or 0)
+        km = float(row.get("km") or 0)
+        total_tonnage += tonnage
+        total_km += km
+
+        date_collecte = row.get("date_collecte")
+        mois = date_collecte.strftime("%Y-%m") if date_collecte else "Sans date"
+        flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "Flux non renseigne"
+
+        tonnage_by_month_flux[mois][flux_label] += tonnage
+        km_by_month_flux[mois][flux_label] += km
+        id_collecte = row.get("id_collecte")
+        if id_collecte is not None:
+            tournees_ids_by_month_flux[mois][flux_label].add(id_collecte)
+            tournees_ids_by_month[mois].add(id_collecte)
+            tournees_ids_by_flux[flux_label].add(id_collecte)
+            tournees_ids_all.add(id_collecte)
+
+        couleur_flux = (row.get("couleur_flux") or "").strip()
+        if flux_label not in colors_by_flux and couleur_flux:
+            colors_by_flux[flux_label] = couleur_flux
+
+    labels = sorted(tonnage_by_month_flux.keys())
+    flux_labels = sorted({flux for month_data in tonnage_by_month_flux.values() for flux in month_data.keys()})
+
+    pivot_rows = []
+    flux_totals = [0.0 for _ in flux_labels]
+    grand_total = 0.0
+    for month_label in labels:
+        row_cells = []
+        row_total = 0.0
+        for index, flux_label in enumerate(flux_labels):
+            cell_value = tonnage_by_month_flux[month_label].get(flux_label, 0.0)
+            row_cells.append(cell_value)
+            row_total += cell_value
+            flux_totals[index] += cell_value
+        pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": row_total,
+            }
+        )
+        grand_total += row_total
+
+    tournees_pivot_rows = []
+    tournees_flux_totals = [len(tournees_ids_by_flux.get(flux_label, set())) for flux_label in flux_labels]
+    tournees_grand_total = len(tournees_ids_all)
+    for month_label in labels:
+        row_cells = []
+        for flux_label in flux_labels:
+            cell_value = len(tournees_ids_by_month_flux[month_label].get(flux_label, set()))
+            row_cells.append(cell_value)
+        tournees_pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": len(tournees_ids_by_month.get(month_label, set())),
+            }
+        )
+
+    km_pivot_rows = []
+    km_flux_totals = [0.0 for _ in flux_labels]
+    km_grand_total = 0.0
+    for month_label in labels:
+        row_cells = []
+        row_total = 0.0
+        for index, flux_label in enumerate(flux_labels):
+            cell_value = km_by_month_flux[month_label].get(flux_label, 0.0)
+            row_cells.append(cell_value)
+            row_total += cell_value
+            km_flux_totals[index] += cell_value
+        km_pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": row_total,
+            }
+        )
+        km_grand_total += row_total
+
+    datasets = []
+    for index, flux_label in enumerate(flux_labels):
+        raw_color = colors_by_flux.get(flux_label, "")
+        if raw_color.startswith("#") and len(raw_color) in {4, 7}:
+            color = raw_color
+        else:
+            color = fallback_palette[index % len(fallback_palette)]
+
+        datasets.append(
+            {
+                "label": flux_label,
+                "data": [round(tonnage_by_month_flux[label].get(flux_label, 0.0), 3) for label in labels],
+                "backgroundColor": color,
+            }
+        )
+
+    chart_payload = {
+        "labels": labels,
+        "datasets": datasets,
+    }
+
+    return render(
+        request,
+        "core/statistiques_collecte.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "total_tonnage": round(total_tonnage, 0),
+            "total_km": round(total_km, 0),
+            "nb_tournees": nb_tournees,
+            "chart_payload": chart_payload,
+            "flux_labels": flux_labels,
+            "pivot_rows": pivot_rows,
+            "flux_totals": flux_totals,
+            "grand_total": grand_total,
+            "tournees_pivot_rows": tournees_pivot_rows,
+            "tournees_flux_totals": tournees_flux_totals,
+            "tournees_grand_total": tournees_grand_total,
+            "km_pivot_rows": km_pivot_rows,
+            "km_flux_totals": km_flux_totals,
+            "km_grand_total": km_grand_total,
+            "rows": rows[:200],
+        },
+    )
+
+
 def flux2(request):
     fluxes = Flux.objects.all().order_by("flux")
     create_form = FluxForm(prefix="create")
