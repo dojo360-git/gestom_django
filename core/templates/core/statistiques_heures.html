@@ -85,11 +85,14 @@
           <tr>
             <th>Pres</th>
             <th>Presence</th>
-            <th>Nb absences</th>
+            {% for month_label in month_labels %}
+              <th style="text-align:center;">{{ month_label }}</th>
+            {% endfor %}
+            <th style="text-align:center;">Total</th>
           </tr>
         </thead>
         <tbody>
-          {% for row in absences_par_pres %}
+          {% for row in absences_pivot_rows %}
             <tr>
               <td>
                 <div style="display:inline-block;padding:4px 8px;border-radius:999px;background:{{ row.background_color|default:'#F1F1F1' }};">
@@ -97,19 +100,25 @@
                 </div>
               </td>
               <td>{{ row.presence }}</td>
-              <td>{{ row.nb_absences }}</td>
+              {% for cell in row.cells %}
+                <td style="text-align:center;">{% if cell %}{{ cell }}{% endif %}</td>
+              {% endfor %}
+              <td style="text-align:center;">{% if row.total %}{{ row.total }}{% endif %}</td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="3">Aucune absence sur la periode.</td>
+              <td colspan="{{ month_labels|length|add:'3' }}">Aucune absence sur la periode.</td>
             </tr>
           {% endfor %}
         </tbody>
-        {% if absences_par_pres %}
+        {% if absences_pivot_rows %}
           <tfoot>
             <tr>
               <th colspan="2">Total</th>
-              <th>{{ total_absences }}</th>
+              {% for month_total in month_totals %}
+                <th style="text-align:center;">{% if month_total %}{{ month_total }}{% endif %}</th>
+              {% endfor %}
+              <th style="text-align:center;">{% if total_absences %}{{ total_absences }}{% endif %}</th>
             </tr>
           </tfoot>
         {% endif %}

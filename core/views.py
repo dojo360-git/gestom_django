@@ -369,18 +369,19 @@ def statistiques_heures(request):
 
     requete_absences_par_pres = """
         SELECT
-            sh.presence_id,
             COALESCE(pm.pres, 'Non renseigne') AS pres,
             COALESCE(pm.presence, '') AS presence,
             COALESCE(pm.couleur_hex_motif_presence, '#F1F1F1') AS background_color,
+            TO_CHAR(sh.date, 'YYYY-Mon') AS annee_mois,
+            DATE_TRUNC('month', sh.date)::date AS mois_date,
             COUNT(*) AS nb_absences
         FROM stat_heures sh
         LEFT JOIN core_presencemotif pm ON pm.id = sh.presence_id
         WHERE sh.presence_id IS NOT NULL
           AND sh.date BETWEEN %s AND %s
           {filtre_employeur_absences}
-        GROUP BY sh.presence_id, pm.pres, pm.presence, pm.couleur_hex_motif_presence
-        ORDER BY nb_absences DESC, pres;
+        GROUP BY pm.pres, pm.presence, pm.couleur_hex_motif_presence, annee_mois, mois_date
+        ORDER BY pres, mois_date;
     """.format(filtre_employeur_absences=filtre_employeur_absences)
 
     requete_employeurs = """
@@ -403,7 +404,63 @@ def statistiques_heures(request):
         cursor.execute(requete_employeurs)
         employeurs = [row[0] for row in cursor.fetchall() if row[0]]
 
-    total_absences = sum(int(row["nb_absences"] or 0) for row in absences_par_pres)
+    mois_fr = {
+        1: "jan",
+        2: "fev",
+        3: "mar",
+        4: "avr",
+        5: "mai",
+        6: "jun",
+        7: "jul",
+        8: "aou",
+        9: "sep",
+        10: "oct",
+        11: "nov",
+        12: "dec",
+    }
+
+    month_dates = set()
+    pivot_by_pres = {}
+    for row in absences_par_pres:
+        month_date = row.get("mois_date")
+        if month_date:
+            month_dates.add(month_date)
+
+        pres_key = row.get("pres") or "Non renseigne"
+        if pres_key not in pivot_by_pres:
+            pivot_by_pres[pres_key] = {
+                "pres": pres_key,
+                "presence": row.get("presence") or "",
+                "background_color": row.get("background_color") or "#F1F1F1",
+                "by_month": {},
+            }
+        pivot_by_pres[pres_key]["by_month"][month_date] = int(row.get("nb_absences") or 0)
+
+    sorted_month_dates = sorted(month_dates)
+    month_labels = [f"{month_date.year}-{mois_fr.get(month_date.month, '')}" for month_date in sorted_month_dates]
+
+    absences_pivot_rows = []
+    month_totals = [0 for _ in month_labels]
+    total_absences = 0
+    for pres_key in sorted(pivot_by_pres.keys()):
+        row = pivot_by_pres[pres_key]
+        cells = []
+        row_total = 0
+        for idx, month_date in enumerate(sorted_month_dates):
+            value = int(row["by_month"].get(month_date, 0))
+            cells.append(value)
+            row_total += value
+            month_totals[idx] += value
+        total_absences += row_total
+        absences_pivot_rows.append(
+            {
+                "pres": row["pres"],
+                "presence": row["presence"],
+                "background_color": row["background_color"],
+                "cells": cells,
+                "total": row_total,
+            }
+        )
 
     return render(
         request,
@@ -414,7 +471,9 @@ def statistiques_heures(request):
             "employeurs": employeurs,
             "employeur_filtre": employeur_filtre,
             "rows_heures_count": len(rows_heures),
-            "absences_par_pres": absences_par_pres,
+            "absences_pivot_rows": absences_pivot_rows,
+            "month_labels": month_labels,
+            "month_totals": month_totals,
             "total_absences": total_absences,
         },
     )
