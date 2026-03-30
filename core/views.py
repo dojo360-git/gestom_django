@@ -167,10 +167,12 @@ def statistiques_collecte(request):
     total_km = 0.0
     tonnage_by_month_flux = defaultdict(lambda: defaultdict(float))
     km_by_month_flux = defaultdict(lambda: defaultdict(float))
+    energie_qte_by_month_flux_energie = defaultdict(lambda: defaultdict(float))
     tournees_ids_by_month_flux = defaultdict(lambda: defaultdict(set))
     tournees_ids_by_month = defaultdict(set)
     tournees_ids_by_flux = defaultdict(set)
     tournees_ids_all = set()
+    month_labels_set = set()
     colors_by_flux = {}
     fallback_palette = [
         "#16a34a",
@@ -191,10 +193,14 @@ def statistiques_collecte(request):
 
         date_collecte = row.get("date_collecte")
         mois = date_collecte.strftime("%Y-%m") if date_collecte else "Sans date"
+        month_labels_set.add(mois)
         flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "Flux non renseigne"
+        energie_label = row.get("energie") or "Energie non renseignee"
 
         tonnage_by_month_flux[mois][flux_label] += tonnage
         km_by_month_flux[mois][flux_label] += km
+        energie_qte = float(row.get("energie_qte") or 0)
+        energie_qte_by_month_flux_energie[mois][(flux_label, energie_label)] += energie_qte
         id_collecte = row.get("id_collecte")
         if id_collecte is not None:
             tournees_ids_by_month_flux[mois][flux_label].add(id_collecte)
@@ -206,8 +212,25 @@ def statistiques_collecte(request):
         if flux_label not in colors_by_flux and couleur_flux:
             colors_by_flux[flux_label] = couleur_flux
 
-    labels = sorted(tonnage_by_month_flux.keys())
+    labels = sorted(month_labels_set)
     flux_labels = sorted({flux for month_data in tonnage_by_month_flux.values() for flux in month_data.keys()})
+    energie_columns = sorted(
+        {
+            (flux_label, energie_label)
+            for month_data in energie_qte_by_month_flux_energie.values()
+            for (flux_label, energie_label) in month_data.keys()
+        },
+        key=lambda value: (value[0], value[1]),
+    )
+
+    energie_flux_groups = []
+    for flux_label in sorted({flux_label for flux_label, _ in energie_columns}):
+        energie_flux_groups.append(
+            {
+                "flux": flux_label,
+                "count": len([1 for column_flux_label, _ in energie_columns if column_flux_label == flux_label]),
+            }
+        )
 
     pivot_rows = []
     flux_totals = [0.0 for _ in flux_labels]
@@ -265,6 +288,26 @@ def statistiques_collecte(request):
         )
         km_grand_total += row_total
 
+    energie_pivot_rows = []
+    energie_column_totals = [0.0 for _ in energie_columns]
+    energie_grand_total = 0.0
+    for month_label in labels:
+        row_cells = []
+        row_total = 0.0
+        for index, column in enumerate(energie_columns):
+            cell_value = energie_qte_by_month_flux_energie[month_label].get(column, 0.0)
+            row_cells.append(cell_value)
+            row_total += cell_value
+            energie_column_totals[index] += cell_value
+        energie_pivot_rows.append(
+            {
+                "month": month_label,
+                "cells": row_cells,
+                "total": row_total,
+            }
+        )
+        energie_grand_total += row_total
+
     datasets = []
     for index, flux_label in enumerate(flux_labels):
         raw_color = colors_by_flux.get(flux_label, "")
@@ -306,6 +349,11 @@ def statistiques_collecte(request):
             "km_pivot_rows": km_pivot_rows,
             "km_flux_totals": km_flux_totals,
             "km_grand_total": km_grand_total,
+            "energie_columns": [{"flux": flux_label, "energie": energie_label} for flux_label, energie_label in energie_columns],
+            "energie_flux_groups": energie_flux_groups,
+            "energie_pivot_rows": energie_pivot_rows,
+            "energie_column_totals": energie_column_totals,
+            "energie_grand_total": energie_grand_total,
             "rows": rows[:200],
         },
     )
@@ -864,11 +912,18 @@ class VehiculeListView(ListView):
     template_name = "core/vehicule_list.html"
     context_object_name = "vehicules"
 
+    def _show_all(self):
+        return self.request.GET.get("all") in {"1", "true", "True"}
+
     def get_queryset(self):
-        return Vehicule.objects.order_by("-nom_vehicule")
+        qs = Vehicule.objects.order_by("-nom_vehicule")
+        if self._show_all():
+            return qs
+        return qs.filter(archive=False)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx["show_all"] = self._show_all()
         ctx["energie_options"] = list(
             Energie.objects.exclude(energie__isnull=True)
             .exclude(energie__exact="")

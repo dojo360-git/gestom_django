@@ -11,6 +11,14 @@
       </div>
     </div>
 
+    <form method="get" class="actions" style="margin-bottom: 14px; justify-content: flex-start;">
+      {% if show_all %}
+      <a href="{% url 'core:vehicule_list' %}" class="btn btn--ghost">Masquer archives</a>
+      {% else %}
+      <a href="{% url 'core:vehicule_list' %}?all=1" class="btn btn--ghost">Afficher tous</a>
+      {% endif %}
+    </form>
+
     <div class="table-wrap">
       <table class="table">
         <thead>

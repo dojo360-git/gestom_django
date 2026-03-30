@@ -213,6 +213,56 @@
       </table>
     </div>
   </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <h2 class="h2">Energie_qte /flux /energie /mois</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th rowspan="2">Annee-mois</th>
+            {% for flux_group in energie_flux_groups %}
+              <th colspan="{{ flux_group.count }}">{{ flux_group.flux }}</th>
+            {% endfor %}
+            <th rowspan="2">Total</th>
+          </tr>
+          <tr>
+            {% for column in energie_columns %}
+              <th>{{ column.energie }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for pivot_row in energie_pivot_rows %}
+            <tr>
+              <td>{{ pivot_row.month }}</td>
+              {% for cell in pivot_row.cells %}
+                <td>{{ cell|floatformat:0 }}</td>
+              {% endfor %}
+              <td>{{ pivot_row.total|floatformat:0 }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ energie_columns|length|add:'2' }}">Aucune donnee pour la periode.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        {% if energie_pivot_rows %}
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              {% for column_total in energie_column_totals %}
+                <th>{{ column_total|floatformat:0 }}</th>
+              {% endfor %}
+              <th>{{ energie_grand_total|floatformat:0 }}</th>
+            </tr>
+          </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
 </div>
 
 {{ chart_payload|json_script:"statistiques-collecte-chart-data" }}

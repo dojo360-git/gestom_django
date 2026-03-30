@@ -13,6 +13,8 @@
         </div>
 
         <form class="planning__controls" id="planningForm" method="get">
+          <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">Nouvelle collecte</a>
+
           <label class="planning__control">
             <input class="input" type="date" id="dateInput" name="date" value="{{ selected_date|date:'Y-m-d' }}">
           </label>

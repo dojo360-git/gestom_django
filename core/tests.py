@@ -188,6 +188,32 @@ class VehiculeTests(TestCase):
         self.assertContains(response, "Camion 1")
         self.assertTemplateUsed(response, "core/vehicule_list.html")
 
+    def test_vehicule_list_view_masks_archives_by_default(self):
+        Vehicule.objects.create(
+            nom_vehicule="Camion archive",
+            type="Camion",
+            energie="Diesel",
+            archive=True,
+        )
+
+        response = self.client.get(reverse("core:vehicule_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Camion 1")
+        self.assertNotContains(response, "Camion archive")
+
+    def test_vehicule_list_view_show_all_displays_archives(self):
+        Vehicule.objects.create(
+            nom_vehicule="Camion archive",
+            type="Camion",
+            energie="Diesel",
+            archive=True,
+        )
+
+        response = self.client.get(reverse("core:vehicule_list"), {"all": "1"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Camion 1")
+        self.assertContains(response, "Camion archive")
+
     def test_vehicule_detail_view(self):
         response = self.client.get(reverse("core:vehicule_detail", args=[self.vehicule.pk]))
         self.assertEqual(response.status_code, 200)
