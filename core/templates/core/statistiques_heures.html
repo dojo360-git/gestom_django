@@ -48,6 +48,18 @@
         </div>
 
         <div class="planning__control">
+          <label class="planning__label" for="qualification">Qualification</label>
+          <select class="input" id="qualification" name="qualification">
+            <option value="">Toutes</option>
+            {% for qualification in qualifications %}
+              <option value="{{ qualification }}" {% if qualification == qualification_filtre %}selected{% endif %}>
+                {{ qualification }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="planning__control">
           <button class="btn btn--primary" type="submit">Filtrer</button>
         </div>
       </form>

@@ -327,12 +327,15 @@ def statistiques_heures(request):
     date_debut = parse_date(request.GET.get("date_debut"), first_day_of_year)
     date_fin = parse_date(request.GET.get("date_fin"), last_day_of_year)
     employeur_filtre = (request.GET.get("employeur") or "").strip()
+    qualification_filtre = (request.GET.get("qualification") or "").strip()
 
     if date_debut > date_fin:
         date_debut, date_fin = date_fin, date_debut
 
     filtre_employeur_heures = ""
     filtre_employeur_absences = ""
+    filtre_qualification_heures = ""
+    filtre_qualification_absences = ""
     params_heures = [date_debut, date_fin]
     params_absences = [date_debut, date_fin]
     if employeur_filtre:
@@ -340,6 +343,11 @@ def statistiques_heures(request):
         filtre_employeur_absences = " AND sh.employeur = %s"
         params_heures.append(employeur_filtre)
         params_absences.append(employeur_filtre)
+    if qualification_filtre:
+        filtre_qualification_heures = " AND qualification = %s"
+        filtre_qualification_absences = " AND sh.qualification = %s"
+        params_heures.append(qualification_filtre)
+        params_absences.append(qualification_filtre)
 
     requete_heures = """
         SELECT
@@ -364,8 +372,12 @@ def statistiques_heures(request):
         FROM stat_heures
         WHERE date BETWEEN %s AND %s
         {filtre_employeur_heures}
+        {filtre_qualification_heures}
         ORDER BY id_agent, date, stat_planning;
-    """.format(filtre_employeur_heures=filtre_employeur_heures)
+    """.format(
+        filtre_employeur_heures=filtre_employeur_heures,
+        filtre_qualification_heures=filtre_qualification_heures,
+    )
 
     requete_absences_par_pres = """
         SELECT
@@ -380,9 +392,13 @@ def statistiques_heures(request):
         WHERE sh.presence_id IS NOT NULL
           AND sh.date BETWEEN %s AND %s
           {filtre_employeur_absences}
+          {filtre_qualification_absences}
         GROUP BY pm.pres, pm.presence, pm.couleur_hex_motif_presence, annee_mois, mois_date
         ORDER BY pres, mois_date;
-    """.format(filtre_employeur_absences=filtre_employeur_absences)
+    """.format(
+        filtre_employeur_absences=filtre_employeur_absences,
+        filtre_qualification_absences=filtre_qualification_absences,
+    )
 
     requete_employeurs = """
         SELECT DISTINCT employeur
@@ -390,6 +406,14 @@ def statistiques_heures(request):
         WHERE employeur IS NOT NULL
           AND employeur <> ''
         ORDER BY employeur;
+    """
+
+    requete_qualifications = """
+        SELECT DISTINCT qualification
+        FROM stat_heures
+        WHERE qualification IS NOT NULL
+          AND qualification <> ''
+        ORDER BY qualification;
     """
 
     with connection.cursor() as cursor:
@@ -403,6 +427,9 @@ def statistiques_heures(request):
 
         cursor.execute(requete_employeurs)
         employeurs = [row[0] for row in cursor.fetchall() if row[0]]
+
+        cursor.execute(requete_qualifications)
+        qualifications = [row[0] for row in cursor.fetchall() if row[0]]
 
     mois_fr = {
         1: "jan",
@@ -470,6 +497,8 @@ def statistiques_heures(request):
             "date_fin": date_fin,
             "employeurs": employeurs,
             "employeur_filtre": employeur_filtre,
+            "qualifications": qualifications,
+            "qualification_filtre": qualification_filtre,
             "rows_heures_count": len(rows_heures),
             "absences_pivot_rows": absences_pivot_rows,
             "month_labels": month_labels,
