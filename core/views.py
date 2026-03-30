@@ -311,6 +311,115 @@ def statistiques_collecte(request):
     )
 
 
+def statistiques_heures(request):
+    today = timezone.localdate()
+    first_day_of_year = today.replace(month=1, day=1)
+    last_day_of_year = today.replace(month=12, day=31)
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    date_debut = parse_date(request.GET.get("date_debut"), first_day_of_year)
+    date_fin = parse_date(request.GET.get("date_fin"), last_day_of_year)
+    employeur_filtre = (request.GET.get("employeur") or "").strip()
+
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    filtre_employeur_heures = ""
+    filtre_employeur_absences = ""
+    params_heures = [date_debut, date_fin]
+    params_absences = [date_debut, date_fin]
+    if employeur_filtre:
+        filtre_employeur_heures = " AND employeur = %s"
+        filtre_employeur_absences = " AND sh.employeur = %s"
+        params_heures.append(employeur_filtre)
+        params_absences.append(employeur_filtre)
+
+    requete_heures = """
+        SELECT
+            id_agent,
+            date,
+            id_stat,
+            type,
+            id_flux,
+            id_itineraire,
+            is_heures_sup,
+            hr_debut,
+            hr_fin,
+            motif_hs,
+            presence_id,
+            stat_planning,
+            nom,
+            employeur,
+            qualification,
+            service,
+            background_color,
+            border_color
+        FROM stat_heures
+        WHERE date BETWEEN %s AND %s
+        {filtre_employeur_heures}
+        ORDER BY id_agent, date, stat_planning;
+    """.format(filtre_employeur_heures=filtre_employeur_heures)
+
+    requete_absences_par_pres = """
+        SELECT
+            sh.presence_id,
+            COALESCE(pm.pres, 'Non renseigne') AS pres,
+            COALESCE(pm.presence, '') AS presence,
+            COALESCE(pm.couleur_hex_motif_presence, '#F1F1F1') AS background_color,
+            COUNT(*) AS nb_absences
+        FROM stat_heures sh
+        LEFT JOIN core_presencemotif pm ON pm.id = sh.presence_id
+        WHERE sh.presence_id IS NOT NULL
+          AND sh.date BETWEEN %s AND %s
+          {filtre_employeur_absences}
+        GROUP BY sh.presence_id, pm.pres, pm.presence, pm.couleur_hex_motif_presence
+        ORDER BY nb_absences DESC, pres;
+    """.format(filtre_employeur_absences=filtre_employeur_absences)
+
+    requete_employeurs = """
+        SELECT DISTINCT employeur
+        FROM stat_heures
+        WHERE employeur IS NOT NULL
+          AND employeur <> ''
+        ORDER BY employeur;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(requete_heures, params_heures)
+        columns_heures = [col[0] for col in cursor.description]
+        rows_heures = [dict(zip(columns_heures, row)) for row in cursor.fetchall()]
+
+        cursor.execute(requete_absences_par_pres, params_absences)
+        columns_absences = [col[0] for col in cursor.description]
+        absences_par_pres = [dict(zip(columns_absences, row)) for row in cursor.fetchall()]
+
+        cursor.execute(requete_employeurs)
+        employeurs = [row[0] for row in cursor.fetchall() if row[0]]
+
+    total_absences = sum(int(row["nb_absences"] or 0) for row in absences_par_pres)
+
+    return render(
+        request,
+        "core/statistiques_heures.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "employeurs": employeurs,
+            "employeur_filtre": employeur_filtre,
+            "rows_heures_count": len(rows_heures),
+            "absences_par_pres": absences_par_pres,
+            "total_absences": total_absences,
+        },
+    )
+
+
 def flux2(request):
     fluxes = Flux.objects.all().order_by("flux")
     create_form = FluxForm(prefix="create")

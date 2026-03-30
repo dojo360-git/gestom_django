@@ -20,6 +20,7 @@ urlpatterns = [
     # Home
     path("", login_required(views.home), name="home"),
     path("statistiques_collecte/", login_required(views.statistiques_collecte), name="statistiques_collecte"),
+    path("statistiques_heures/", login_required(views.statistiques_heures), name="statistiques_heures"),
     path("planning/", login_required(planning), name="planning"),
     path("agents/", login_required(views.agents2), name="agents2"),
 

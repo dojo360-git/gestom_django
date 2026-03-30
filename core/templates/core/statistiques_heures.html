@@ -1,0 +1,120 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques heures{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques heures</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="employeur">Employeur</label>
+          <select class="input" id="employeur" name="employeur">
+            <option value="">Tous</option>
+            {% for employeur in employeurs %}
+              <option value="{{ employeur }}" {% if employeur == employeur_filtre %}selected{% endif %}>
+                {{ employeur }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="dashboard__kpis" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Absences</div>
+        <div class="h2">{{ total_absences }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Lignes stat_heures</div>
+        <div class="h2">{{ rows_heures_count }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Periode</div>
+        <div class="h2">{{ date_debut|date:"d/m/Y" }} - {{ date_fin|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <h2 class="h2">Nombre d'absence par pres</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table table--home-compact">
+        <thead>
+          <tr>
+            <th>Pres</th>
+            <th>Presence</th>
+            <th>Nb absences</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in absences_par_pres %}
+            <tr>
+              <td>
+                <div style="display:inline-block;padding:4px 8px;border-radius:999px;background:{{ row.background_color|default:'#F1F1F1' }};">
+                  {{ row.pres }}
+                </div>
+              </td>
+              <td>{{ row.presence }}</td>
+              <td>{{ row.nb_absences }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">Aucune absence sur la periode.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        {% if absences_par_pres %}
+          <tfoot>
+            <tr>
+              <th colspan="2">Total</th>
+              <th>{{ total_absences }}</th>
+            </tr>
+          </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
