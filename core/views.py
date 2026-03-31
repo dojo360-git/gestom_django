@@ -8,6 +8,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 import calendar
 import re
 from collections import defaultdict
+from datetime import datetime, date, timedelta
 
 from .forms import (
     AgentForm,
@@ -975,15 +976,28 @@ class CollecteListView(ListView):
     template_name = "core/collecte_list.html"
     context_object_name = "collectes"
 
+    @staticmethod
+    def _parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    def _get_date_range(self):
+        today = timezone.localdate()
+        date_fin = self._parse_date(self.request.GET.get("date_fin"), today)
+        default_date_debut = date_fin - timedelta(days=7)
+        date_debut = self._parse_date(self.request.GET.get("date_debut"), default_date_debut)
+
+        if date_debut > date_fin:
+            date_debut, date_fin = date_fin, date_debut
+
+        return date_debut, date_fin
+
     def get_queryset(self):
-        date_str = self.request.GET.get("date")
-        if date_str:
-            try:
-                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
-            except ValueError:
-                selected_date = timezone.localdate()
-        else:
-            selected_date = timezone.localdate()
+        date_debut, date_fin = self._get_date_range()
 
         qs = (
             Collecte.objects.select_related(
@@ -996,21 +1010,86 @@ class CollecteListView(ListView):
                 "id_flux2",
                 "id_flux3",
             )
-            .filter(date_collecte=selected_date)
+            .filter(date_collecte__range=(date_debut, date_fin))
+            .order_by("-date_collecte", "id_itineraire__itineraire", "id_collecte")
         )
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        date_str = self.request.GET.get("date")
-        if date_str:
-            try:
-                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
-            except ValueError:
-                selected_date = timezone.localdate()
-        else:
-            selected_date = timezone.localdate()
-        ctx["selected_date"] = selected_date
+        date_debut, date_fin = self._get_date_range()
+
+        collectes_by_day = defaultdict(list)
+        for collecte in ctx.get("collectes", []):
+            km = None
+            if collecte.km_depart is not None and collecte.km_retour is not None:
+                km = collecte.km_retour - collecte.km_depart
+            hs = None
+            if collecte.hr_sup_debut and collecte.hr_sup_fin:
+                hs_delta = (
+                    datetime.combine(date.min, collecte.hr_sup_fin)
+                    - datetime.combine(date.min, collecte.hr_sup_debut)
+                )
+                hs = hs_delta.total_seconds() / 3600.0
+
+            tonnages = []
+            for flux_field, tonnage_field in (
+                ("id_flux1", "tonnage1"),
+                ("id_flux2", "tonnage2"),
+                ("id_flux3", "tonnage3"),
+            ):
+                tonnage_value = getattr(collecte, tonnage_field)
+                if tonnage_value is None:
+                    continue
+                flux = getattr(collecte, flux_field)
+                tonnages.append(
+                    {
+                        "value_tonnes": tonnage_value / 1000.0,
+                        "background": (flux.couleur_flux if flux and flux.couleur_flux else "#e5e7eb"),
+                        "flux_name": str(flux) if flux else "",
+                    }
+                )
+
+            collectes_by_day[collecte.date_collecte].append(
+                {
+                    "obj": collecte,
+                    "itineraire": collecte.id_itineraire.itineraire if collecte.id_itineraire else "-",
+                    "vehicule": str(collecte.id_vehicule) if collecte.id_vehicule else "-",
+                    "vehicule_title": (
+                        f"Depart: {collecte.hr_depot_depart.strftime('%H:%M') if collecte.hr_depot_depart else '-'}"
+                        f" | Retour: {collecte.hr_depot_retour.strftime('%H:%M') if collecte.hr_depot_retour else '-'}"
+                    ),
+                    "agent_1": collecte.id_agent_1.nom if collecte.id_agent_1 else "-",
+                    "agent_2": collecte.id_agent_2.nom if collecte.id_agent_2 else "-",
+                    "agent_3": collecte.id_agent_3.nom if collecte.id_agent_3 else "-",
+                    "agent_1_title": collecte.a1_hr_fin.strftime("%H:%M") if collecte.a1_hr_fin else "-",
+                    "agent_2_title": collecte.a2_hr_fin.strftime("%H:%M") if collecte.a2_hr_fin else "-",
+                    "agent_3_title": collecte.a3_hr_fin.strftime("%H:%M") if collecte.a3_hr_fin else "-",
+                    "km": km,
+                    "km_title": (
+                        f"Depart: {collecte.km_depart if collecte.km_depart is not None else '-'}"
+                        f" | Retour: {collecte.km_retour if collecte.km_retour is not None else '-'}"
+                    ),
+                    "hs": hs,
+                    "hs_title": (
+                        f"{collecte.motif_heures_sup or '-'}"
+                        f" | {collecte.hr_sup_debut.strftime('%H:%M') if collecte.hr_sup_debut else '-'}"
+                        f" -> {collecte.hr_sup_fin.strftime('%H:%M') if collecte.hr_sup_fin else '-'}"
+                    ),
+                    "energie_qte": collecte.energie_qte_1,
+                    "tonnages": tonnages,
+                }
+            )
+
+        grouped_days = [
+            {"date": day, "rows": rows}
+            for day, rows in collectes_by_day.items()
+        ]
+        grouped_days.sort(key=lambda item: item["date"], reverse=True)
+
+        ctx["date_debut"] = date_debut
+        ctx["date_fin"] = date_fin
+        ctx["collectes_by_day"] = grouped_days
         return ctx
 
 

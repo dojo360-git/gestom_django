@@ -1,0 +1,15 @@
+on va reprendre la page collectes/
+
+
+utilise la table core_collecte 
+tri par da
+
+
+sur la page je veux :
+date_debut 
+date_fin
+bouton filtrer 
+
+par jour je veux un tableau : 
+
+Itinéraire vehicule nom_agent_1 nom_agent_2 nom_agent_3

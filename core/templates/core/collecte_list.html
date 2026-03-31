@@ -3,129 +3,116 @@
 {% block title %}Collectes{% endblock %}
 
 {% block content %}
+<style>
+  .collectes-day-table{
+    width: 100%;
+    table-layout: fixed;
+  }
+  .collectes-day-table th,
+  .collectes-day-table td{
+    width: calc(100% / 10);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+</style>
 <div class="card">
   <div class="card__pad">
-
-    <div class="header">
+    <div class="header header--controls-left">
       <div>
         <h1 class="h1">Collectes</h1>
       </div>
 
       <div class="actions">
-        <form method="get" class="form" id="collecte-filter">
+        <form method="get" class="form" id="collecte-filter" style="display:flex; gap:8px; align-items:end; flex-wrap:wrap;">
           <div class="field">
-            <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+            <label for="date_debut">Date debut</label>
+            <input type="date" id="date_debut" name="date_debut" value="{{ date_debut|date:'Y-m-d' }}">
           </div>
+          <div class="field">
+            <label for="date_fin">Date fin</label>
+            <input type="date" id="date_fin" name="date_fin" value="{{ date_fin|date:'Y-m-d' }}">
+          </div>
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+          <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">Nouvelle collecte</a>
         </form>
-        <div class="actions">
-          <button class="btn btn--sm btn--ghost" type="button" id="date-prev" title="Jour precedent">◀️</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-today" title="Aujourd'hui">🌍</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-next" title="Jour suivant">▶️</button>
-        </div>
-        <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">
-          + Nouvelle collecte
-        </a>
+
+        
       </div>
     </div>
 
-    <div class="collecte-cards">
-      {% for c in collectes %}
-      <div class="collecte-card">
-        <div class="collecte-card__head">
-          <div class="collecte-card__date">{{ c.date_collecte|date:"l d F Y" }}</div>
-          <div class="actions">
-            <a href="{% url 'core:collecte_detail' c.pk %}" class="btn btn--sm btn--ghost">Voir</a>
-            <a href="{% url 'core:collecte_update' c.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
-            <a href="{% url 'core:collecte_delete' c.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
-          </div>
-        </div>
-        <div class="collecte-card__body">
-          <div class="collecte-grid">
-            <div class="collecte-col">
-              <div class="collecte-col__title">Agents</div>
-              <div class="collecte-col__values">
-                <div>{{ c.id_agent_1|default:"-" }}</div>
-                <div>{{ c.id_agent_2|default:"-" }}</div>
-                <div>{{ c.id_agent_3|default:"-" }}</div>
-              </div>
-            </div>
-            <div class="collecte-col">
-              <div class="collecte-col__title">Heures de fin</div>
-              <div class="collecte-col__values">
-                <div>{{ c.a1_hr_fin|time:"H:i"|default:"-" }}</div>
-                <div>{{ c.a2_hr_fin|time:"H:i"|default:"-" }}</div>
-                <div>{{ c.a3_hr_fin|time:"H:i"|default:"-" }}</div>
-              </div>
-            </div>
-            <div class="collecte-col">
-              <div class="collecte-col__title">Benne</div>
-              <div class="collecte-col__values">
-                <div>{{ c.id_vehicule|default:"-" }}</div>
-                <div>{{ c.km_retour|default:"-" }}</div>
-                <div>{{ c.km_depart|default:"-" }}</div>
-              </div>
-            </div>
-            <div class="collecte-col">
-              <div class="collecte-col__title">Flux</div>
-              <div class="collecte-col__values">
-                <div>{{ c.id_flux1|default:"-" }}</div>
-                <div>{{ c.id_flux2|default:"-" }}</div>
-                <div>{{ c.id_flux3|default:"-" }}</div>
-              </div>
-            </div>
-            <div class="collecte-col">
-              <div class="collecte-col__title">Tonnages</div>
-              <div class="collecte-col__values">
-                <div>{{ c.tonnage1|default:"-" }}</div>
-                <div>{{ c.tonnage2|default:"-" }}</div>
-                <div>{{ c.tonnage3|default:"-" }}</div>
-              </div>
-            </div>
-            <div class="collecte-col">
-              <div class="collecte-col__title">Qte</div>
-              <div class="collecte-col__values">
-                <div>{{ c.energie_qte_1|default:"-" }}</div>
-              </div>
-            </div>
+    {% for day_group in collectes_by_day %}
+      <div class="card" style="margin-top:14px;">
+        <div class="card__pad">
+          <h2 class="h2" style="margin-bottom:10px;">{{ day_group.date|date:"l d F Y" }}</h2>
+          <div class="table-wrap">
+            <table class="table collectes-day-table">
+              <thead>
+                <tr>
+                  <th>Itineraire</th>
+                  <th>Vehicule</th>
+                  <th>nom_agent_1</th>
+                  <th>nom_agent_2</th>
+                  <th>nom_agent_3</th>
+                  <th>tonnages</th>
+                  <th>km</th>
+                  <th>HS</th>
+                  <th>energie_qte</th>
+                  <th>actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in day_group.rows %}
+                  <tr>
+                    <td>{{ row.itineraire }}</td>
+                    <td title="{{ row.vehicule_title }}">{{ row.vehicule }}</td>
+                    <td title="{{ row.agent_1_title }}">{{ row.agent_1 }}</td>
+                    <td title="{{ row.agent_2_title }}">{{ row.agent_2 }}</td>
+                    <td title="{{ row.agent_3_title }}">{{ row.agent_3 }}</td>
+                    <td>
+                      <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        {% for t in row.tonnages %}
+                          <div
+                            title="{{ t.flux_name }}"
+                            style="padding:4px 8px; border-radius:10px; border:1px solid #d1d5db; background:{{ t.background }};"
+                          >
+                            {{ t.value_tonnes|floatformat:1 }}
+                          </div>
+                        {% empty %}
+                          <span>-</span>
+                        {% endfor %}
+                      </div>
+                    </td>
+                    <td title="{{ row.km_title }}">{% if row.km is not None %}{{ row.km|floatformat:1 }}{% else %}-{% endif %}</td>
+                    <td title="{{ row.hs_title }}">{% if row.hs is not None %}{{ row.hs|floatformat:1 }}{% else %}-{% endif %}</td>
+                    <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:1 }}{% else %}-{% endif %}</td>
+                    <td>
+                      <div class="actions">
+                        <a
+                          href="{% url 'core:collecte_update' row.obj.pk %}"
+                          class="btn btn--sm btn--ghost"
+                          title="Modifier"
+                          aria-label="Modifier"
+                        >✏️</a>
+                        <a
+                          href="{% url 'core:collecte_delete' row.obj.pk %}"
+                          class="btn btn--sm btn--danger"
+                          title="Supprimer"
+                          aria-label="Supprimer"
+                        >🗑️</a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-      {% empty %}
-      <div class="card">
-        <div class="card__pad sub">Aucune collecte enregistree</div>
+    {% empty %}
+      <div class="card" style="margin-top:14px;">
+        <div class="card__pad sub">Aucune collecte sur la periode</div>
       </div>
-      {% endfor %}
-    </div>
-
+    {% endfor %}
   </div>
 </div>
-<script>
-  const dateInput = document.getElementById("date");
-  const filterForm = document.getElementById("collecte-filter");
-  if (dateInput && filterForm) {
-    dateInput.addEventListener("change", () => {
-      filterForm.submit();
-    });
-  }
-
-  function shiftDate(days) {
-    if (!dateInput || !filterForm) return;
-    const base = dateInput.value ? new Date(dateInput.value) : new Date();
-    base.setDate(base.getDate() + days);
-    dateInput.value = base.toISOString().slice(0, 10);
-    filterForm.submit();
-  }
-
-  const btnPrev = document.getElementById("date-prev");
-  const btnNext = document.getElementById("date-next");
-  const btnToday = document.getElementById("date-today");
-  if (btnPrev) btnPrev.addEventListener("click", () => shiftDate(-1));
-  if (btnNext) btnNext.addEventListener("click", () => shiftDate(1));
-  if (btnToday) btnToday.addEventListener("click", () => {
-    if (!dateInput || !filterForm) return;
-    const now = new Date();
-    dateInput.value = now.toISOString().slice(0, 10);
-    filterForm.submit();
-  });
-</script>
 {% endblock %}
