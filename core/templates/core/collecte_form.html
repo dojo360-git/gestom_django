@@ -322,25 +322,29 @@
       .map((id) => document.getElementById(id))
       .filter(Boolean);
 
-    function stripSpaces(value) {
-      return value.replace(/\s+/g, "").replace(",", ".");
+    function normalizeInteger(value) {
+      const raw = (value || "").replace(/\s+/g, "").replace(",", ".");
+      if (!raw) {
+        return "";
+      }
+      const parsed = Number.parseFloat(raw);
+      if (!Number.isNaN(parsed)) {
+        return String(Math.trunc(parsed));
+      }
+      return raw.split(".")[0].replace(/[^\d]/g, "");
     }
 
     function formatThousands(value) {
-      if (!value) {
-        return value;
+      const digits = normalizeInteger(value);
+      if (!digits) {
+        return "";
       }
-      const raw = stripSpaces(value);
-      const parts = raw.split(".");
-      const intPart = parts[0].replace(/\D/g, "");
-      const decPart = parts[1] ? parts[1].replace(/\D/g, "") : "";
-      const withSpaces = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-      return decPart ? `${withSpaces}.${decPart}` : withSpaces;
+      return digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }
 
     inputs.forEach((input) => {
       input.addEventListener("focus", function () {
-        input.value = stripSpaces(input.value);
+        input.value = normalizeInteger(input.value);
       });
       input.addEventListener("blur", function () {
         input.value = formatThousands(input.value);
@@ -354,7 +358,7 @@
     if (form) {
       form.addEventListener("submit", function () {
         inputs.forEach((input) => {
-          input.value = stripSpaces(input.value);
+          input.value = normalizeInteger(input.value);
         });
       });
     }

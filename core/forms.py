@@ -190,6 +190,30 @@ class CollecteForm(forms.ModelForm):
         self.fields["date_collecte"].localize = False
         self.fields["date_collecte"].widget.format = "%Y-%m-%d"
 
+    def _clean_integer_numeric_field(self, field_name):
+        value = self.cleaned_data.get(field_name)
+        if value is None:
+            return value
+        return float(int(value))
+
+    def clean_km_depart(self):
+        return self._clean_integer_numeric_field("km_depart")
+
+    def clean_km_retour(self):
+        return self._clean_integer_numeric_field("km_retour")
+
+    def clean_tonnage1(self):
+        return self._clean_integer_numeric_field("tonnage1")
+
+    def clean_tonnage2(self):
+        return self._clean_integer_numeric_field("tonnage2")
+
+    def clean_tonnage3(self):
+        return self._clean_integer_numeric_field("tonnage3")
+
+    def clean_energie_qte_1(self):
+        return self._clean_integer_numeric_field("energie_qte_1")
+
 
 class HeuresManuellesForm(forms.ModelForm):
     class Meta:

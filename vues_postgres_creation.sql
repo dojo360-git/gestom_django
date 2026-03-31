@@ -197,8 +197,8 @@ WITH
 			ag.employeur,
 			ag.qualification,
 			ag.service,
-			coalesce(pm.couleur_hex_motif_presence,'#F1F1F1F1') as background_color,
-			coalesce(fl.couleur_flux,'#666666') as border_color
+			coalesce(pm.couleur_hex_motif_presence,'#f8f8f8') as background_color,
+			coalesce(fl.couleur_flux,'#f8f8f8') as border_color
 	 	from (
 		 	select * from collecte
 			union all 
@@ -239,8 +239,17 @@ select
     ;
         
 select 
-	
-
-* from   stat_heures_sup_cdea
+	nom,
+	prenom,
+	date,
+	motif_hs,
+	hr_debut,
+	hr_fin,
+	hs_base,
+	hs_nuit,
+	hs_dim_jf,
+	type,
+	id_stat
+from   stat_heures_sup_cdea
         
         
