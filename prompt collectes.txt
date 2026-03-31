@@ -2,7 +2,7 @@ on va reprendre la page collectes/
 
 
 utilise la table core_collecte 
-tri par da
+tri par date decroissante, puis par Itinéraire croissant
 
 
 sur la page je veux :
@@ -12,4 +12,10 @@ bouton filtrer
 
 par jour je veux un tableau : 
 
-Itinéraire vehicule nom_agent_1 nom_agent_2 nom_agent_3
+Itinéraire vehicule nom_agent_1 nom_agent_2 nom_agent_3 tonnages km energie_qte modifier_collecte
+
+
+avec : 
+dans la case tonnage : div valeur = tonnage1/1000 1 décimale avec background color = couleur flux id_flux1_id pareil pour tonnage2 et tonnage3 
+
+km = km_retour - km_depart

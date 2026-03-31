@@ -609,6 +609,12 @@ def agents2(request):
     def _show_all() -> bool:
         return request.GET.get("all") in {"1", "true", "True"}
 
+    def _sort_key() -> str:
+        value = (request.GET.get("sort") or "nom").strip().lower()
+        if value in {"service", "qualification", "nom"}:
+            return value
+        return "nom"
+
     def _selected_date():
         date_str = request.GET.get("date")
         if date_str:
@@ -620,14 +626,21 @@ def agents2(request):
 
     selected_date = _selected_date()
     show_all = _show_all()
+    sort_key = _sort_key()
+    sort_fields_map = {
+        "nom": ("nom", "prenom"),
+        "service": ("service", "nom", "prenom"),
+        "qualification": ("qualification", "nom", "prenom"),
+    }
+    sort_fields = sort_fields_map[sort_key]
 
     if show_all:
-        agents = Agent.objects.all().order_by("nom", "prenom")
+        agents = Agent.objects.all().order_by(*sort_fields)
     else:
         agents = Agent.objects.filter(
             (Q(arrivee__isnull=True) | Q(arrivee__lte=selected_date))
             & (Q(depart__isnull=True) | Q(depart__gte=selected_date))
-        ).order_by("nom", "prenom")
+        ).order_by(*sort_fields)
 
     create_form = AgentForm(prefix="create")
     invalid_update_id = None
@@ -673,6 +686,7 @@ def agents2(request):
             "create_form": create_form,
             "selected_date": selected_date,
             "show_all": show_all,
+            "sort_key": sort_key,
         },
     )
 

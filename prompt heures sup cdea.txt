@@ -1,0 +1,45 @@
+créé la page statistiques_heure_sup 
+
+filtre 
+
+date_debut : 
+date_fin : 
+
+
+date de fin = par defaut aujourd hui
+date debut = par defaut meme jour aujourd'hui mois précedant
+
+bouton filtrer
+
+
+on va utiliser la requete : 
+
+
+select 
+	nom,
+	prenom,
+	date,
+	motif_hs,
+	hr_debut,
+	hr_fin,
+	hs_base,
+	hs_nuit,
+	hs_dim_jf,
+	type,
+	id_stat
+from   stat_heures_sup_cdea
+where date between date_debut and date_fin
+
+ 
+
+Pour chaque nom |', ' | prenom : 
+
+créé un tableau 
+DATES	= date
+MOTIF (Obligatoire)			= motif_hs
+"Heures supplémentaires de ……… à…………."	 = hr_debut | " à " | hr_fin
+"Nombre H.S. (hors nuit/dimanche/jour férié)"	 = hs_base
+"Nombre H.S. Nuit (entre 22h et 7h)"	= hs_nuit
+Nombre H.S. Dimanche et jour férié	=hs_dim_jf
+Nombre Heures à compenser
+Bouton modifier = si type commence par 'collecte' alors bouton '🖊️' qui va vers core_collecte id_collecte=id_stat  si type commence par 'manuelles' alors bouton '🖊️' qui va vers core_heuresmanuelles id=id_stat 

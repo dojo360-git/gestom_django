@@ -5,6 +5,7 @@
  * Contact : https://www.linkedin.com/in/julienbesombes/
  * contact [chez] dojo360 fr
  */
+DROP VIEW IF EXISTS stat_heures_sup_cdea;
 DROP VIEW IF EXISTS stat_heures;
 DROP VIEW IF EXISTS stat_vidages;
 DROP VIEW IF EXISTS stat_tournees;
@@ -192,6 +193,7 @@ WITH
 				else '⚠️'
 			end as stat_planning,
 			ag.nom,
+			ag.prenom,
 			ag.employeur,
 			ag.qualification,
 			ag.service,
@@ -212,15 +214,33 @@ SELECT
 from heures hr
 WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
 ;
-        select 
-        	*
+CREATE VIEW stat_heures_sup_cdea AS 
+select 
+			employeur,        	
+			nom,
+        	prenom,
+        	date,
+        	motif_hs,
+        	hr_debut,
+        	hr_fin,
+        	0 hs_base, 
+        	0 hs_nuit,
+        	0 hs_dim_jf,
+        	type,
+        	id_stat
 		from stat_heures
-		ORDER BY id_agent, date, stat_planning
+		where type in ('manuelles_hs','collecte_hs')
+		order by date desc, id_agent
+
  --        WHERE date BETWEEN %s AND %s
  --       ORDER BY id_agent, date, stat;
         
  
-    
+    ;
         
+select 
+	
+
+* from   stat_heures_sup_cdea
         
         
