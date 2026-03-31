@@ -1,0 +1,121 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques heures sup{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques heures sup</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="dashboard__kpis" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Agents</div>
+        <div class="h2">{{ total_agents }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Lignes</div>
+        <div class="h2">{{ total_rows }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Heures a compenser</div>
+        <div class="h2">{{ total_heures_a_compenser|floatformat:2 }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Periode</div>
+        <div class="h2">{{ date_debut|date:"d/m/Y" }} - {{ date_fin|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% for group in grouped_rows %}
+    <div class="card" style="margin-top: 16px;">
+      <div class="card__pad" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <h2 class="h2" style="margin:0;">{{ group.agent }}</h2>
+        <div class="sub">Total heures a compenser: {{ group.total_heures_a_compenser|floatformat:2 }}</div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Dates</th>
+              <th>Motif (obligatoire)</th>
+              <th>Heures supplementaires <br> de ... a ...</th>
+              <th>Nombre H.S. <br> (hors nuit/ <br> dimanche/jour ferie)</th>
+              <th>Nombre H.S. <br> Nuit (entre <br> 22h et 7h)</th>
+              <th>Nombre H.S. <br> Dimanche et <br> jour ferié</th>
+              <th>Nombre <br> heures à <br>compenser</th>
+              <th>Modifier</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in group.rows %}
+              <tr>
+                <td>{{ row.date|date:"d/m/Y" }}</td>
+                <td>{{ row.motif_hs|default:"-" }}</td>
+                <td>{{ row.hr_debut_label }} a {{ row.hr_fin_label }}</td>
+                <td>{{ row.hs_base|floatformat:2 }}</td>
+                <td>{{ row.hs_nuit|floatformat:2 }}</td>
+                <td>{{ row.hs_dim_jf|floatformat:2 }}</td>
+                <td>{{ row.heures_a_compenser|floatformat:2 }}</td>
+                <td>
+                  {% if row.edit_url %}
+                    <a class="btn btn--ghost btn--sm" href="{{ row.edit_url }}" title="Modifier">&#x1F58A;&#xFE0F;</a>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% empty %}
+    <div class="card" style="margin-top: 16px;">
+      <div class="card__pad sub">Aucune ligne d'heures supplementaires sur la periode.</div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

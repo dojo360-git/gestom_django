@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 import calendar
 import re
@@ -553,6 +553,123 @@ def statistiques_absences(request):
             "month_labels": month_labels,
             "month_totals": month_totals,
             "total_absences": total_absences,
+        },
+    )
+
+
+def statistiques_heure_sup(request):
+    today = timezone.localdate()
+
+    def previous_month_same_day(value):
+        year = value.year
+        month = value.month - 1
+        if month == 0:
+            month = 12
+            year -= 1
+        last_day_previous_month = calendar.monthrange(year, month)[1]
+        return value.replace(year=year, month=month, day=min(value.day, last_day_previous_month))
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    default_date_fin = today
+    default_date_debut = previous_month_same_day(today)
+
+    date_debut = parse_date(request.GET.get("date_debut"), default_date_debut)
+    date_fin = parse_date(request.GET.get("date_fin"), default_date_fin)
+
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    requete = """
+        SELECT
+            nom,
+            prenom,
+            date,
+            motif_hs,
+            hr_debut,
+            hr_fin,
+            hs_base,
+            hs_nuit,
+            hs_dim_jf,
+            type,
+            id_stat
+        FROM stat_heures_sup_cdea
+        WHERE date BETWEEN %s AND %s
+        ORDER BY nom, prenom, date, hr_debut;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(requete, [date_debut, date_fin])
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    rows_by_agent = defaultdict(list)
+    total_heures_a_compenser = 0.0
+
+    for row in rows:
+        nom = (row.get("nom") or "").strip()
+        prenom = (row.get("prenom") or "").strip()
+        agent_label = f"{nom}, {prenom}".strip(", ") or "Agent non renseigne"
+
+        hs_base = float(row.get("hs_base") or 0)
+        hs_nuit = float(row.get("hs_nuit") or 0)
+        hs_dim_jf = float(row.get("hs_dim_jf") or 0)
+        heures_a_compenser = hs_base + hs_nuit + hs_dim_jf
+        total_heures_a_compenser += heures_a_compenser
+
+        hr_debut = row.get("hr_debut")
+        hr_fin = row.get("hr_fin")
+        hr_debut_label = hr_debut.strftime("%H:%M") if hr_debut else "-"
+        hr_fin_label = hr_fin.strftime("%H:%M") if hr_fin else "-"
+
+        type_value = (row.get("type") or "").strip().lower()
+        id_stat = row.get("id_stat")
+        edit_url = ""
+        if id_stat is not None:
+            if type_value.startswith("collecte"):
+                edit_url = reverse("core:collecte_update", kwargs={"pk": id_stat})
+            elif type_value.startswith("manuelles"):
+                edit_url = reverse("core:heures_manuelles_update", kwargs={"pk": id_stat})
+
+        enriched_row = {
+            **row,
+            "agent_label": agent_label,
+            "hr_debut_label": hr_debut_label,
+            "hr_fin_label": hr_fin_label,
+            "hs_base": hs_base,
+            "hs_nuit": hs_nuit,
+            "hs_dim_jf": hs_dim_jf,
+            "heures_a_compenser": heures_a_compenser,
+            "edit_url": edit_url,
+        }
+
+        rows_by_agent[agent_label].append(enriched_row)
+
+    grouped_rows = [
+        {
+            "agent": agent,
+            "rows": rows_by_agent[agent],
+            "total_heures_a_compenser": sum(r["heures_a_compenser"] for r in rows_by_agent[agent]),
+        }
+        for agent in sorted(rows_by_agent.keys())
+    ]
+
+    return render(
+        request,
+        "core/statistiques_heure_sup.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "grouped_rows": grouped_rows,
+            "total_rows": len(rows),
+            "total_agents": len(grouped_rows),
+            "total_heures_a_compenser": total_heures_a_compenser,
         },
     )
 
