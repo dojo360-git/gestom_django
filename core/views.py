@@ -1026,11 +1026,12 @@ class CollecteListView(ListView):
                 km = collecte.km_retour - collecte.km_depart
             hs = None
             if collecte.hr_sup_debut and collecte.hr_sup_fin:
-                hs_delta = (
-                    datetime.combine(date.min, collecte.hr_sup_fin)
-                    - datetime.combine(date.min, collecte.hr_sup_debut)
-                )
-                hs = hs_delta.total_seconds() / 3600.0
+                hs_start = datetime.combine(date.min, collecte.hr_sup_debut)
+                hs_end = datetime.combine(date.min, collecte.hr_sup_fin)
+                if hs_end < hs_start:
+                    hs_end += timedelta(days=1)
+                hs_delta = hs_end - hs_start
+                hs = max(hs_delta.total_seconds() / 3600.0, 0.0)
 
             tonnages = []
             for flux_field, tonnage_field in (
