@@ -34,9 +34,9 @@
       <li>Flux 3 : {{ collecte.id_flux3 }}</li>
       <li>Tonnage 3 : {{ collecte.tonnage3 }}</li>
       <li>Energie 1 quantite : {{ collecte.energie_qte_1 }}</li>
-      <li>Consignes : {{ collecte.consignes|default:"-" }}</li>
-      <li>Info vehicule : {{ collecte.info_vehicule|default:"-" }}</li>
-      <li>Info collecte : {{ collecte.info_collecte|default:"-" }}</li>
+      <li>Consignes : {{ collecte.consignes|default:"" }}</li>
+      <li>Info vehicule : {{ collecte.info_vehicule }}</li>
+      <li>Info collecte : {{ collecte.info_collecte|default:"" }}</li>
       <li>Date creation : {{ collecte.date_creation }}</li>
       <li>Date modification : {{ collecte.date_modification }}</li>
     </ul>

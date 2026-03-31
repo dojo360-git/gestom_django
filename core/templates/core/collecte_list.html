@@ -10,10 +10,31 @@
   }
   .collectes-day-table th,
   .collectes-day-table td{
-    width: calc(100% / 10);
     vertical-align: top;
     overflow-wrap: anywhere;
   }
+  .collectes-day-table th:nth-child(1),
+  .collectes-day-table td:nth-child(1){ width: 12%; } /* Itineraire */
+  .collectes-day-table th:nth-child(2),
+  .collectes-day-table td:nth-child(2){ width: 10%; } /* Vehicule */
+  .collectes-day-table th:nth-child(3),
+  .collectes-day-table td:nth-child(3),
+  .collectes-day-table th:nth-child(4),
+  .collectes-day-table td:nth-child(4),
+  .collectes-day-table th:nth-child(5),
+  .collectes-day-table td:nth-child(5){ width: 8%; } /* Agents */
+  .collectes-day-table th:nth-child(6),
+  .collectes-day-table td:nth-child(6){ width: 20%; } /* Tonnages agrandie */
+  .collectes-day-table th:nth-child(7),
+  .collectes-day-table td:nth-child(7){ width: 5%; }  /* KM reduite */
+  .collectes-day-table th:nth-child(8),
+  .collectes-day-table td:nth-child(8){ width: 5%; }  /* HS reduite */
+  .collectes-day-table th:nth-child(9),
+  .collectes-day-table td:nth-child(9){ width: 7%; }  /* Energie */
+  .collectes-day-table th:nth-child(10),
+  .collectes-day-table td:nth-child(10){ width: 7%; } /* Infos */
+  .collectes-day-table th:nth-child(11),
+  .collectes-day-table td:nth-child(11){ width: 10%; } /* Actions */
 </style>
 <div class="card">
   <div class="card__pad">
@@ -57,6 +78,7 @@
                   <th>km</th>
                   <th>HS</th>
                   <th>energie_qte</th>
+                  <th>infos</th>
                   <th>actions</th>
                 </tr>
               </thead>
@@ -85,6 +107,19 @@
                     <td title="{{ row.km_title }}">{% if row.km is not None %}{{ row.km|floatformat:1 }}{% else %}-{% endif %}</td>
                     <td title="{{ row.hs_title }}">{% if row.hs is not None %}{{ row.hs|floatformat:1 }}{% else %}-{% endif %}</td>
                     <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:1 }}{% else %}-{% endif %}</td>
+                    <td>
+                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        {% if row.obj.consignes %}
+                          <div title="{{ row.obj.consignes }}">ℹ️</div>
+                        {% endif %}
+                        {% if row.obj.info_collecte %}
+                          <div title="{{ row.obj.info_collecte }}">🗑️</div>
+                        {% endif %}
+                        {% if row.obj.info_vehicule %}
+                          <div title="{{ row.obj.info_vehicule }}">🚛</div>
+                        {% endif %}
+                      </div>
+                    </td>
                     <td>
                       <div class="actions">
                         <a

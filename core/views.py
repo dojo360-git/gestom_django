@@ -193,10 +193,10 @@ def statistiques_collecte(request):
         total_km += km
 
         date_collecte = row.get("date_collecte")
-        mois = date_collecte.strftime("%Y-%m") if date_collecte else "Sans date"
+        mois = date_collecte.strftime("%Y-%m") if date_collecte else "-"
         month_labels_set.add(mois)
-        flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "Flux non renseigne"
-        energie_label = row.get("energie") or "Energie non renseignee"
+        flux_label = row.get("flux") or f"Flux {row.get('id_flux')}" if row.get("id_flux") else "-"
+        energie_label = row.get("energie") or "-"
 
         tonnage_by_month_flux[mois][flux_label] += tonnage
         km_by_month_flux[mois][flux_label] += km
@@ -360,7 +360,7 @@ def statistiques_collecte(request):
     )
 
 
-def statistiques_heures(request):
+def statistiques_absences(request):
     today = timezone.localdate()
     first_day_of_year = today.replace(month=1, day=1)
     last_day_of_year = today.replace(month=12, day=31)
@@ -540,7 +540,7 @@ def statistiques_heures(request):
 
     return render(
         request,
-        "core/statistiques_heures.html",
+        "core/statistiques_absences.html",
         {
             "date_debut": date_debut,
             "date_fin": date_fin,
