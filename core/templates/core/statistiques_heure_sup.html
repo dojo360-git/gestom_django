@@ -69,53 +69,37 @@
     </div>
   </div>
 
-  {% for group in grouped_rows %}
-    <div class="card" style="margin-top: 16px;">
-      <div class="card__pad" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-        <h2 class="h2" style="margin:0;">{{ group.agent }}</h2>
-        <div class="sub">Total heures a compenser: {{ group.total_heures_a_compenser|floatformat:2 }}</div>
-      </div>
-      <div class="table-wrap table-wrap--heures-sup">
-        <table class="table table--heures-sup">
-          <thead>
-            <tr>
-              <th>Dates</th>
-              <th>Motif (obligatoire)</th>
-              <th>Heures <br>supplementaires <br> de ... a ...</th>
-              <th>Nombre H.S. <br> (hors nuit/ <br> dimanche/jour ferie)</th>
-              <th>Nombre H.S. <br> Nuit (entre <br> 22h et 7h)</th>
-              <th>Nombre H.S. <br> Dimanche et <br> jour ferié</th>
-              <th>Nombre <br> heures à <br>compenser</th>
-              <th>Modifier</th>
-            </tr>
-          </thead>
-          <tbody>
+  {% if grouped_rows %}
+    <div class="table-wrap table-wrap--heures-sup" style="margin-top: 16px;">
+      <table class="table table--heures-sup">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prenom</th>
+            <th>Date</th>
+            <th>Motif (obligatoire)</th>
+            <th>Heures supplementaires de ... a ...</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for group in grouped_rows %}
             {% for row in group.rows %}
               <tr>
+                <td>{{ row.nom|default:"-" }}</td>
+                <td>{{ row.prenom|default:"-" }}</td>
                 <td>{{ row.date|date:"d/m/Y" }}</td>
                 <td>{{ row.motif_hs|default:"-" }}</td>
                 <td>{{ row.hr_debut_label }} a {{ row.hr_fin_label }}</td>
-                <td>{{ row.hs_base|floatformat:2 }}</td>
-                <td>{{ row.hs_nuit|floatformat:2 }}</td>
-                <td>{{ row.hs_dim_jf|floatformat:2 }}</td>
-                <td>{{ row.heures_a_compenser|floatformat:2 }}</td>
-                <td>
-                  {% if row.edit_url %}
-                    <a class="btn btn--ghost btn--sm" href="{{ row.edit_url }}" title="Modifier">&#x1F58A;&#xFE0F;</a>
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
               </tr>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  {% empty %}
+  {% else %}
     <div class="card" style="margin-top: 16px;">
       <div class="card__pad sub">Aucune ligne d'heures supplementaires sur la periode.</div>
     </div>
-  {% endfor %}
+  {% endif %}
 </div>
 {% endblock %}

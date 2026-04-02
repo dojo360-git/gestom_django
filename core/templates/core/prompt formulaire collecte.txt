@@ -1,0 +1,35 @@
+on remanie la mise en forme de collectes/nouveau/ 
+
+Div Niveau 1
+
+Section collecte : 
+Date collecte
+Id itineraire
+Consignes :
+
+Section Vehicule :
+Id vehicule | Energie qte 1 
+Km depart  | Hr depot depart
+Km retour  | Hr depot retour
+
+Section Equipage : 
+Id agent 1 | A1 hr debut | A1 hr fin 
+Id agent 2 | A2 hr debut | A2 hr fin 
+Id agent 3 | A3 hr debut | A3 hr fin
+Motif heures sup | Hr sup debut | Hr sup fin
+
+/ Div Niveau 1
+
+Div Niveau 1
+
+Section Flux : 
+id flux1 | Tonnage1 
+id flux2 | Tonnage2 
+id flux3 | Tonnage3 
+
+Section Commentaires
+
+Info vehicule :
+Info collecte : 
+
+/ div Niveau 1

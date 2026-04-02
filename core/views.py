@@ -601,7 +601,7 @@ def statistiques_heure_sup(request):
             id_stat
         FROM stat_heures_sup_cdea
         WHERE date BETWEEN %s AND %s
-        ORDER BY nom, prenom, date, hr_debut;
+        ORDER BY nom, prenom, date DESC, hr_debut DESC;
     """
 
     with connection.cursor() as cursor:
@@ -1266,33 +1266,43 @@ class HeuresManuellesListView(ListView):
     template_name = "core/heures_manuelles_list.html"
     context_object_name = "heures_manuelles"
 
+    @staticmethod
+    def _parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
     def get_queryset(self):
-        date_str = self.request.GET.get("date")
-        if date_str:
-            try:
-                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
-            except ValueError:
-                selected_date = timezone.localdate()
-        else:
-            selected_date = timezone.localdate()
+        today = timezone.localdate()
+        default_start = today - timedelta(days=7)
+
+        date_debut = self._parse_date(self.request.GET.get("date_debut"), default_start)
+        date_fin = self._parse_date(self.request.GET.get("date_fin"), today)
+
+        if date_debut > date_fin:
+            date_debut, date_fin = date_fin, date_debut
 
         return (
             HeuresManuelles.objects.select_related("agent")
-            .filter(date=selected_date)
-            .order_by("agent__nom", "agent__prenom", "heure_debut", "id")
+            .filter(date__range=(date_debut, date_fin))
+            .order_by("-date", "agent__nom", "agent__prenom", "heure_debut", "id")
         )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        date_str = self.request.GET.get("date")
-        if date_str:
-            try:
-                selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
-            except ValueError:
-                selected_date = timezone.localdate()
-        else:
-            selected_date = timezone.localdate()
-        ctx["selected_date"] = selected_date
+        today = timezone.localdate()
+        default_start = today - timedelta(days=7)
+
+        date_debut = self._parse_date(self.request.GET.get("date_debut"), default_start)
+        date_fin = self._parse_date(self.request.GET.get("date_fin"), today)
+        if date_debut > date_fin:
+            date_debut, date_fin = date_fin, date_debut
+
+        ctx["selected_date_start"] = date_debut
+        ctx["selected_date_end"] = date_fin
         return ctx
 
 

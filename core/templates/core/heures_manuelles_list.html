@@ -14,13 +14,14 @@
       <div class="actions">
         <form method="get" class="form" id="hm-filter">
           <div class="field">
-            <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+            <label for="date_debut">Date debut</label>
+            <input type="date" id="date_debut" name="date_debut" value="{{ selected_date_start|date:'Y-m-d' }}">
           </div>
-        </form>
-        <div class="actions">
-          <button class="btn btn--sm btn--ghost" type="button" id="date-prev">Jour precedent</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-today">Aujourd'hui</button>
-          <button class="btn btn--sm btn--ghost" type="button" id="date-next">Jour suivant</button>
+          <div class="field">
+            <label for="date_fin">Date fin</label>
+            <input type="date" id="date_fin" name="date_fin" value="{{ selected_date_end|date:'Y-m-d' }}">
+          </div>
+          <button class="btn btn--sm btn--ghost" type="submit">Filtrer</button>
         </div>
         <a href="{% url 'core:heures_manuelles_create' %}" class="btn btn--primary">
           + Nouvelle saisie
@@ -44,7 +45,7 @@
         <tbody>
           {% for hm in heures_manuelles %}
           <tr>
-            <td>{{ hm.date|date:"Y-m-d" }}</td>
+            <td class="fr-date" data-date="{{ hm.date|date:'Y-m-d' }}">{{ hm.date|date:"Y-m-d" }}</td>
             <td>{{ hm.agent }}</td>
             <td>{{ hm.heure_debut|default:"-" }}</td>
             <td>{{ hm.heure_fin|default:"-" }}</td>
@@ -69,42 +70,20 @@
   </div>
 </div>
 <script>
-  const dateInput = document.getElementById("date");
-  const filterForm = document.getElementById("hm-filter");
+  const formatter = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
-  function formatLocalDate(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }
-
-  if (dateInput && filterForm) {
-    dateInput.addEventListener("change", () => {
-      filterForm.submit();
-    });
-  }
-
-  function shiftDate(days) {
-    if (!dateInput || !filterForm) return;
-    const base = dateInput.value ? new Date(dateInput.value) : new Date();
-    base.setDate(base.getDate() + days);
-    dateInput.value = formatLocalDate(base);
-    filterForm.submit();
-  }
-
-  const btnPrev = document.getElementById("date-prev");
-  const btnNext = document.getElementById("date-next");
-  const btnToday = document.getElementById("date-today");
-
-  if (btnPrev) btnPrev.addEventListener("click", () => shiftDate(-1));
-  if (btnNext) btnNext.addEventListener("click", () => shiftDate(1));
-  if (btnToday) {
-    btnToday.addEventListener("click", () => {
-      if (!dateInput || !filterForm) return;
-      dateInput.value = formatLocalDate(new Date());
-      filterForm.submit();
-    });
-  }
+  document.querySelectorAll(".fr-date[data-date]").forEach((cell) => {
+    const iso = cell.dataset.date;
+    if (!iso) return;
+    const [year, month, day] = iso.split("-").map(Number);
+    if (!year || !month || !day) return;
+    const localDate = new Date(year, month - 1, day);
+    cell.textContent = formatter.format(localDate);
+  });
 </script>
 {% endblock %}

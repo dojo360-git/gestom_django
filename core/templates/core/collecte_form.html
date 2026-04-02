@@ -16,9 +16,24 @@
       .collecte-form .collecte-section {
         border: 1px solid #e6efe4;
         border-radius: 10px;
-        margin: 16px 0;
+        margin: 0;
         overflow: hidden;
         background: #ffffff;
+      }
+      .collecte-form .collecte-level1 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin: 16px 0;
+      }
+      .collecte-form .collecte-level1.three-cols {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
+      }
+      .collecte-form .collecte-level1.four-cols {
+        grid-template-columns: minmax(0, 0.75fr) minmax(0, 0.9fr) minmax(0, 1.45fr) minmax(0, 0.8fr);
+      }
+      .collecte-form .collecte-level1.single {
+        grid-template-columns: 1fr;
       }
       .collecte-form .section-title {
         background: #2f6b2f;
@@ -43,30 +58,21 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px 16px;
       }
+      .collecte-form .grid-3-tight {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 12px 16px;
+      }
       .collecte-form .grid-1 {
         display: grid;
         grid-template-columns: 1fr;
         gap: 12px 16px;
       }
-      .collecte-form .grid-4 {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 10px 12px;
-        align-items: end;
-      }
-      .collecte-form .row-labels {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 10px 12px;
-        font-weight: 600;
-        color: #2f6b2f;
-        margin-bottom: 6px;
-      }
-      .collecte-form .row-labels div {
-        font-size: 0.85rem;
-      }
       .collecte-form .field {
         margin: 0;
+      }
+      .collecte-form .field--full {
+        grid-column: 1 / -1;
       }
       .collecte-form .field label {
         display: block;
@@ -82,11 +88,9 @@
         max-width: 160px;
       }
       @media (max-width: 980px) {
-        .collecte-form .grid-4,
-        .collecte-form .row-labels {
-          grid-template-columns: 1fr;
-        }
+        .collecte-form .collecte-level1,
         .collecte-form .grid-3,
+        .collecte-form .grid-3-tight,
         .collecte-form .grid-2,
         .collecte-form .grid-1 {
           grid-template-columns: 1fr;
@@ -98,28 +102,79 @@
       {% csrf_token %}
       {{ form.non_field_errors }}
 
-      <div class="collecte-section">
-        <div class="section-title">Collecte</div>
-        <div class="section-body grid-2">
-          <div class="field">
-            {{ form.date_collecte.label_tag }}
-            {{ form.date_collecte }}
-            {{ form.date_collecte.errors }}
-          </div>
-          <div class="field">
-            {{ form.id_itineraire.label_tag }}
-            {{ form.id_itineraire }}
-            {{ form.id_itineraire.errors }}
+      <div class="collecte-level1 four-cols">
+        <div class="collecte-section">
+          <div class="section-title">Collecte</div>
+          <div class="section-body grid-1">
+            <div class="field">
+              {{ form.date_collecte.label_tag }}
+              {{ form.date_collecte }}
+              {{ form.date_collecte.errors }}
+            </div>
+            <div class="field">
+              {{ form.id_itineraire.label_tag }}
+              {{ form.id_itineraire }}
+              {{ form.id_itineraire.errors }}
+            </div>
+            <div class="field">
+              {{ form.consignes.label_tag }}
+              {{ form.consignes }}
+              {{ form.consignes.errors }}
+            </div>
+            <div class="field">
+              {{ form.info_collecte.label_tag }}
+              {{ form.info_collecte }}
+              {{ form.info_collecte.errors }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="collecte-section">
-        <div class="section-title">Equipage</div>
-        <div class="section-body">
+        <div class="collecte-section">
+          <div class="section-title">Vehicule</div>
+          <div class="section-body grid-2">
+            <div class="field">
+              {{ form.id_vehicule.label_tag }}
+              {{ form.id_vehicule }}
+              {{ form.id_vehicule.errors }}
+            </div>
+            <div class="field">
+              {{ form.energie_qte_1.label_tag }}
+              {{ form.energie_qte_1 }}
+              {{ form.energie_qte_1.errors }}
+            </div>
 
+            <div class="field">
+              {{ form.km_depart.label_tag }}
+              {{ form.km_depart }}
+              {{ form.km_depart.errors }}
+            </div>
+            <div class="field">
+              {{ form.hr_depot_depart.label_tag }}
+              {{ form.hr_depot_depart }}
+              {{ form.hr_depot_depart.errors }}
+            </div>
 
-          <div class="grid-4">
+            <div class="field">
+              {{ form.km_retour.label_tag }}
+              {{ form.km_retour }}
+              {{ form.km_retour.errors }}
+            </div>
+            <div class="field">
+              {{ form.hr_depot_retour.label_tag }}
+              {{ form.hr_depot_retour }}
+              {{ form.hr_depot_retour.errors }}
+            </div>
+            <div class="field field--full">
+              {{ form.info_vehicule.label_tag }}
+              {{ form.info_vehicule }}
+              {{ form.info_vehicule.errors }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="collecte-section">
+          <div class="section-title">Equipage</div>
+          <div class="section-body grid-3-tight">
             <div class="field">
               {{ form.id_agent_1.label_tag }}
               {{ form.id_agent_1 }}
@@ -135,7 +190,6 @@
               {{ form.a1_hr_fin }}
               {{ form.a1_hr_fin.errors }}
             </div>
-            <div></div>
 
             <div class="field">
               {{ form.id_agent_2.label_tag }}
@@ -152,7 +206,6 @@
               {{ form.a2_hr_fin }}
               {{ form.a2_hr_fin.errors }}
             </div>
-            <div></div>
 
             <div class="field">
               {{ form.id_agent_3.label_tag }}
@@ -169,7 +222,6 @@
               {{ form.a3_hr_fin }}
               {{ form.a3_hr_fin.errors }}
             </div>
-            <div></div>
 
             <div class="field">
               {{ form.motif_heures_sup.label_tag }}
@@ -186,109 +238,46 @@
               {{ form.hr_sup_fin }}
               {{ form.hr_sup_fin.errors }}
             </div>
-            <div></div>
+          </div>
+        </div>
+        <div class="collecte-section">
+          <div class="section-title">Flux</div>
+          <div class="section-body grid-2">
+            <div class="field">
+              {{ form.id_flux1.label_tag }}
+              {{ form.id_flux1 }}
+              {{ form.id_flux1.errors }}
+            </div>
+            <div class="field">
+              {{ form.tonnage1.label_tag }}
+              {{ form.tonnage1 }}
+              {{ form.tonnage1.errors }}
+            </div>
+
+            <div class="field">
+              {{ form.id_flux2.label_tag }}
+              {{ form.id_flux2 }}
+              {{ form.id_flux2.errors }}
+            </div>
+            <div class="field">
+              {{ form.tonnage2.label_tag }}
+              {{ form.tonnage2 }}
+              {{ form.tonnage2.errors }}
+            </div>
+
+            <div class="field">
+              {{ form.id_flux3.label_tag }}
+              {{ form.id_flux3 }}
+              {{ form.id_flux3.errors }}
+            </div>
+            <div class="field">
+              {{ form.tonnage3.label_tag }}
+              {{ form.tonnage3 }}
+              {{ form.tonnage3.errors }}
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="collecte-section">
-        <div class="section-title">Vehicule</div>
-        <div class="section-body grid-3">
-          <div class="field">
-            {{ form.id_vehicule.label_tag }}
-            {{ form.id_vehicule }}
-            {{ form.id_vehicule.errors }}
-          </div>
-          <div class="field">
-            {{ form.km_depart.label_tag }}
-            {{ form.km_depart }}
-            {{ form.km_depart.errors }}
-          </div>
-          <div class="field">
-            {{ form.km_retour.label_tag }}
-            {{ form.km_retour }}
-            {{ form.km_retour.errors }}
-          </div>
-          <div class="field">
-            {{ form.energie_qte_1.label_tag }}
-            {{ form.energie_qte_1 }}
-            {{ form.energie_qte_1.errors }}
-          </div>
-          <div class="field">
-            {{ form.hr_depot_depart.label_tag }}
-            {{ form.hr_depot_depart }}
-            {{ form.hr_depot_depart.errors }}
-          </div>
-          <div class="field">
-            {{ form.hr_depot_retour.label_tag }}
-            {{ form.hr_depot_retour }}
-            {{ form.hr_depot_retour.errors }}
-          </div>
-        </div>
-      </div>
-
-      <div class="collecte-section">
-        <div class="section-title">Flux</div>
-        <div class="section-body grid-3">
-          <div class="field">
-            {{ form.id_flux1.label_tag }}
-            {{ form.id_flux1 }}
-            {{ form.id_flux1.errors }}
-          </div>
-          <div class="field">
-            {{ form.tonnage1.label_tag }}
-            {{ form.tonnage1 }}
-            {{ form.tonnage1.errors }}
-          </div>
-          <div class="field"></div>
-
-          <div class="field">
-            {{ form.id_flux2.label_tag }}
-            {{ form.id_flux2 }}
-            {{ form.id_flux2.errors }}
-          </div>
-          <div class="field">
-            {{ form.tonnage2.label_tag }}
-            {{ form.tonnage2 }}
-            {{ form.tonnage2.errors }}
-          </div>
-          <div class="field"></div>
-
-          <div class="field">
-            {{ form.id_flux3.label_tag }}
-            {{ form.id_flux3 }}
-            {{ form.id_flux3.errors }}
-          </div>
-          <div class="field">
-            {{ form.tonnage3.label_tag }}
-            {{ form.tonnage3 }}
-            {{ form.tonnage3.errors }}
-          </div>
-          <div class="field"></div>
-        </div>
-      </div>
-
-      <div class="collecte-section">
-        <div class="section-title">Commentaires</div>
-        <div class="section-body grid-1">
-          <div class="field">
-            {{ form.consignes.label_tag }}
-            {{ form.consignes }}
-            {{ form.consignes.errors }}
-          </div>
-          <div class="field">
-            {{ form.info_vehicule.label_tag }}
-            {{ form.info_vehicule }}
-            {{ form.info_vehicule.errors }}
-          </div>
-          <div class="field">
-            {{ form.info_collecte.label_tag }}
-            {{ form.info_collecte }}
-            {{ form.info_collecte.errors }}
-          </div>
-        </div>
-      </div>
-
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>
@@ -308,6 +297,21 @@
         flux2.value = value;
         flux3.value = value;
       });
+    }
+
+    const hrDepotRetour = document.getElementById("id_hr_depot_retour");
+    const a1HrFin = document.getElementById("id_a1_hr_fin");
+    const a2HrFin = document.getElementById("id_a2_hr_fin");
+    const a3HrFin = document.getElementById("id_a3_hr_fin");
+    if (hrDepotRetour && a1HrFin && a2HrFin && a3HrFin) {
+      const syncHrFin = function () {
+        const value = hrDepotRetour.value;
+        a1HrFin.value = value;
+        a2HrFin.value = value;
+        a3HrFin.value = value;
+      };
+      hrDepotRetour.addEventListener("change", syncHrFin);
+      hrDepotRetour.addEventListener("input", syncHrFin);
     }
 
     const numericIds = [
