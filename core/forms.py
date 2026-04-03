@@ -133,16 +133,23 @@ class CollecteForm(forms.ModelForm):
             "hr_sup_fin": forms.TimeInput(attrs={"type": "time"}),
             "hr_depot_depart": forms.TimeInput(attrs={"type": "time"}),
             "hr_depot_retour": forms.TimeInput(attrs={"type": "time"}),
-            "motif_heures_sup": forms.TextInput(attrs={"autocomplete": "off"}),
-            "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "km_retour": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "tonnage1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
-            "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off"}),
+            "motif_heures_sup": forms.TextInput(
+                attrs={
+                    "autocomplete": "off",
+                    "list": "motif-heures-sup-options",
+                    "placeholder": "ex. : Rattrapages",
+                }
+            ),
+            "km_retour": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "60 045"}),
+            "tonnage1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
+            "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
+            "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
+            "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "45"}),
+            "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "60 000"}),
             "consignes": forms.Textarea(
                 attrs={
                     "autocomplete": "off",
+                    "placeholder": "Rattrapages et infos : bip, clé école",
                     "rows": 3,
                     "style": "resize: vertical;",
                 }
@@ -150,6 +157,7 @@ class CollecteForm(forms.ModelForm):
             "info_vehicule": forms.Textarea(
                 attrs={
                     "autocomplete": "off",
+                    "placeholder": "incident technique ou panne affectant le véhicule",
                     "rows": 3,
                     "style": "resize: vertical;",
                 }
@@ -157,6 +165,7 @@ class CollecteForm(forms.ModelForm):
             "info_collecte": forms.Textarea(
                 attrs={
                     "autocomplete": "off",
+                    "placeholder": "Rattrapages et infos",
                     "rows": 3,
                     "style": "resize: vertical;",
                 }

@@ -18,7 +18,7 @@
         border-radius: 10px;
         margin: 0;
         overflow: hidden;
-        background: #ffffff;
+        background: var(--bg);
       }
       .collecte-form .collecte-level1 {
         display: grid;
@@ -30,7 +30,7 @@
         grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
       }
       .collecte-form .collecte-level1.four-cols {
-        grid-template-columns: minmax(0, 0.75fr) minmax(0, 0.9fr) minmax(0, 1.45fr) minmax(0, 0.8fr);
+        grid-template-columns: minmax(220px, 0.8fr) minmax(240px, 0.95fr) minmax(320px, 1.45fr) minmax(220px, 0.8fr);
       }
       .collecte-form .collecte-level1.single {
         grid-template-columns: 1fr;
@@ -46,7 +46,6 @@
       }
       .collecte-form .section-body {
         padding: 12px 14px;
-        background: #f7fbf6;
       }
       .collecte-form .grid-2 {
         display: grid;
@@ -83,6 +82,10 @@
       .collecte-form select,
       .collecte-form textarea {
         width: 100%;
+      }
+      .collecte-form input::placeholder,
+      .collecte-form textarea::placeholder {
+        font-style: italic;
       }
       .collecte-form .thin {
         max-width: 160px;
@@ -226,6 +229,13 @@
             <div class="field">
               {{ form.motif_heures_sup.label_tag }}
               {{ form.motif_heures_sup }}
+              <datalist id="motif-heures-sup-options">
+                <option value="Renfort"></option>
+                <option value="Remplacement"></option>
+                <option value="Rattrapage"></option>
+                <option value="Manifestation"></option>
+                <option value="GDV"></option>
+              </datalist>
               {{ form.motif_heures_sup.errors }}
             </div>
             <div class="field">
