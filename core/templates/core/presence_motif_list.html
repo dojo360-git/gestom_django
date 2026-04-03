@@ -3,6 +3,18 @@
 {% block title %}Presences{% endblock %}
 
 {% block content %}
+<style>
+  .presence-motif-table-wrap {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .presence-motif-table-wrap .table {
+    width: max-content;
+    min-width: 0;
+  }
+</style>
+
 <div class="card">
   <div class="card__pad">
     <div class="header">
@@ -11,7 +23,7 @@
       </div>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap presence-motif-table-wrap">
       <table class="table">
         <thead>
           <tr>

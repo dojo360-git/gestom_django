@@ -37,21 +37,26 @@
               <th class="planning__sticky planning3__sticky--qualif">Qualification</th>
               <th class="planning__sticky planning3__sticky--nom">Nom agent</th>
               {% for day in days %}
-                <th class="planning__cell">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
+                <th class="planning__cell" data-day-col="{{ forloop.counter0 }}">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
               {% endfor %}
             </tr>
           </thead>
           <tbody>
             {% for row in rows %}
               <tr>
-                <td class="planning__sticky planning3__sticky--service">{{ row.agent.service|default:"-" }}</td>
-                <td class="planning__sticky planning3__sticky--qualif">{{ row.agent.qualification|default:"-" }}</td>
+                {% if row.show_service_cell %}
+                  <td class="planning__sticky planning3__sticky--service" rowspan="{{ row.service_rowspan }}">{{ row.service_value }}</td>
+                {% endif %}
+                {% if row.show_qualification_cell %}
+                  <td class="planning__sticky planning3__sticky--qualif" rowspan="{{ row.qualification_rowspan }}">{{ row.qualification_value }}</td>
+                {% endif %}
                 <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
                 {% for cell in row.day_cells %}
                   <td
-                    class="planning__cell planning3__cell cell_jour {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}"
+                    class="planning__cell planning3__cell cell_jour {% if cell.day == today %}planning3__cell--today{% endif %} {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}"
                     data-agent-id="{{ row.agent.id }}"
                     data-date="{{ cell.day|date:'Y-m-d' }}"
+                    data-day-col="{{ forloop.counter0 }}"
                   >
                     {% for e in cell.entries %}
                       <div
@@ -119,6 +124,7 @@
   const hmModal = document.getElementById("planningHmModal");
   const hmContent = document.getElementById("planningHmContent");
   const hmModalTitle = document.getElementById("planningHmModalTitle");
+  const planningTable = document.querySelector(".planning3__table");
 
   const collecteModal = document.getElementById("planningCollecteModal");
   const collecteModalSubtitle = document.getElementById("planningCollecteModalSubtitle");
@@ -288,6 +294,33 @@
       collecteModalSubtitle.textContent = `Collecte #${id} (${typeValue || "collecte"})`;
     }
     collecteModal.setAttribute("aria-hidden", "false");
+  }
+
+  function clearDateColumnHover() {
+    if (!planningTable) return;
+    planningTable
+      .querySelectorAll(".planning3__col-hover")
+      .forEach((el) => el.classList.remove("planning3__col-hover"));
+  }
+
+  function setDateColumnHover(dayCol) {
+    if (!planningTable || dayCol === null || dayCol === undefined || dayCol === "") return;
+    clearDateColumnHover();
+    planningTable
+      .querySelectorAll(`[data-day-col="${dayCol}"]`)
+      .forEach((el) => el.classList.add("planning3__col-hover"));
+  }
+
+  if (planningTable) {
+    planningTable.addEventListener("mouseover", (event) => {
+      const dayCell = event.target.closest("[data-day-col]");
+      if (!dayCell || !planningTable.contains(dayCell)) return;
+      setDateColumnHover(dayCell.dataset.dayCol);
+    });
+
+    planningTable.addEventListener("mouseleave", () => {
+      clearDateColumnHover();
+    });
   }
 
   document.addEventListener("keydown", (event) => {

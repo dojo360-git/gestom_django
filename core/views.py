@@ -1,5 +1,5 @@
 from django.db import connection
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -1553,11 +1553,22 @@ def planning(request):
     month_end = selected_date.replace(day=last_day)
     days = [month_start + timezone.timedelta(days=offset) for offset in range(last_day)]
 
+    qualification_order = Case(
+        When(qualification="Encadrement", then=Value(0)),
+        When(qualification="Coordinateur", then=Value(1)),
+        When(qualification="Chauffeur", then=Value(2)),
+        When(qualification="Ripeur", then=Value(3)),
+        default=Value(99),
+        output_field=IntegerField(),
+    )
+
     agents = list(
         Agent.objects.filter(
             (Q(arrivee__isnull=True) | Q(arrivee__lte=month_end))
             & (Q(depart__isnull=True) | Q(depart__gte=month_start))
-        ).order_by("service", "qualification", "nom", "prenom")
+        )
+        .annotate(qualification_sort=qualification_order)
+        .order_by("service", "qualification_sort", "qualification", "nom", "prenom")
     )
 
     def _safe_hex_color(raw_value, fallback):
@@ -1610,7 +1621,16 @@ def planning(request):
             )
 
     table_rows = []
+    current_service = None
+    current_service_start_index = None
+    current_service_count = 0
+    current_qualification = None
+    current_qualification_start_index = None
+    current_qualification_count = 0
+
     for agent in agents:
+        service_value = agent.service or "-"
+        qualification_value = agent.qualification or "-"
         day_cells = [
             {
                 "day": day,
@@ -1618,13 +1638,53 @@ def planning(request):
             }
             for day in days
         ]
-        table_rows.append({"agent": agent, "day_cells": day_cells})
+
+        if service_value != current_service:
+            if current_service_start_index is not None:
+                table_rows[current_service_start_index]["service_rowspan"] = current_service_count
+            current_service = service_value
+            current_service_start_index = len(table_rows)
+            current_service_count = 1
+            show_service_cell = True
+        else:
+            current_service_count += 1
+            show_service_cell = False
+
+        if qualification_value != current_qualification:
+            if current_qualification_start_index is not None:
+                table_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+            current_qualification = qualification_value
+            current_qualification_start_index = len(table_rows)
+            current_qualification_count = 1
+            show_qualification_cell = True
+        else:
+            current_qualification_count += 1
+            show_qualification_cell = False
+
+        table_rows.append(
+            {
+                "agent": agent,
+                "day_cells": day_cells,
+                "service_value": service_value,
+                "show_service_cell": show_service_cell,
+                "service_rowspan": 1,
+                "qualification_value": qualification_value,
+                "show_qualification_cell": show_qualification_cell,
+                "qualification_rowspan": 1,
+            }
+        )
+
+    if current_service_start_index is not None:
+        table_rows[current_service_start_index]["service_rowspan"] = current_service_count
+    if current_qualification_start_index is not None:
+        table_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
 
     return render(
         request,
         "core/planning.html",
         {
             "selected_date": selected_date,
+            "today": today,
             "days": days,
             "rows": table_rows,
         },

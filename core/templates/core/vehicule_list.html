@@ -3,6 +3,18 @@
 {% block title %}Vehicules{% endblock %}
 
 {% block content %}
+<style>
+  .vehicule-table-wrap {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .vehicule-table-wrap .table {
+    width: max-content;
+    min-width: 0;
+  }
+</style>
+
 <div class="card">
   <div class="card__pad">
     <div class="header">
@@ -19,7 +31,7 @@
       {% endif %}
     </form>
 
-    <div class="table-wrap">
+    <div class="table-wrap vehicule-table-wrap">
       <table class="table">
         <thead>
           <tr>

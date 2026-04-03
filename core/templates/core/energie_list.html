@@ -3,6 +3,18 @@
 {% block title %}Energies{% endblock %}
 
 {% block content %}
+<style>
+  .energie-table-wrap {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .energie-table-wrap .table {
+    width: max-content;
+    min-width: 0;
+  }
+</style>
+
 <div class="card">
   <div class="card__pad">
     <div class="header">
@@ -11,7 +23,7 @@
       </div>
     </div>
 
-    <div class="table-wrap">
+    <div class="table-wrap energie-table-wrap">
       <table class="table">
         <thead>
           <tr>

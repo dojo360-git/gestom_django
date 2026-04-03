@@ -822,7 +822,8 @@ input[type="checkbox"]{
    Planning mensuel (scopé)
 ========================= */
 .planning__wrap{
-  max-height: calc(100vh - 280px);
+  max-height: none;
+  overflow: visible;
 }
 
 .planning__table thead th{
@@ -918,11 +919,20 @@ input[type="checkbox"]{
 .planning3__cell{
   min-width: 5px;
 }
+.planning3__cell--today{
+  background: #f7fbf3;
+}
 .planning3__cell--weekend{
   background: #f5f5f5;
 }
 .table tr:hover td.planning3__cell--weekend{
   background: #f5f5f5;
+}
+.planning3__table :is(th, td).planning3__col-hover{
+  background: #e7f7ec;
+}
+.planning3__table td.planning3__cell--weekend.planning3__col-hover{
+  background: #deede3;
 }
 .planning3__cell .planning3__entry + .planning3__entry{
   margin-top: 4px;
