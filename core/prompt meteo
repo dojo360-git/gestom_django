@@ -1,0 +1,74 @@
+dans home/ 
+on va afficher des infos meteos 
+
+import requests
+api_url = "https://api.open-meteo.com/v1/forecast?latitude=48.63&longitude=2.31&hourly=temperature_2m,precipitation"
+response = requests.get(api_url)
+
+data = response.json()
+
+import pandas as pd
+
+# Extract hourly data
+hourly_data = data['hourly']
+
+# Create a DataFrame
+df = pd.DataFrame({
+    'time': hourly_data['time'],
+    'T°': hourly_data['temperature_2m'],
+    'precipitation': hourly_data['precipitation']
+})
+
+# Convert 'time' to datetime objects
+df['time'] = pd.to_datetime(df['time'])
+
+# Extract date
+df['date'] = df['time'].dt.date
+
+# Modify heure to 'HH:00' format
+df['heure'] = df['time'].dt.strftime('%H:00')
+
+# Modify jour_ddd to 'Lun. Mar.' format using a mapping
+english_day_names = df['time'].dt.day_name()
+day_name_map = {
+    'Monday': 'Lun.',
+    'Tuesday': 'Mar.',
+    'Wednesday': 'Mer.',
+    'Thursday': 'Jeu.',
+    'Friday': 'Ven.',
+    'Saturday': 'Sam.',
+    'Sunday': 'Dim.'
+}
+df['jour_ddd'] = english_day_names.map(day_name_map)
+
+# Modify jour_dd to day of the month (1, 2, 28, 29)
+df['jour_dd'] = df['time'].dt.day
+
+# Round 'temperature_2m' and 'precipitation' to 0 decimal places
+df['T°'] = df['T°'].round(0).astype(int)
+df['precipitation'] = df['precipitation'].round(0).astype(int)
+
+# Reorder and select columns as requested
+df_details = df[['date', 'heure', 'jour_ddd', 'jour_dd', 'T°', 'precipitation']]
+
+df_semaine = df_details.groupby('jour_ddd').agg(
+    t_max=('T°', 'max'),
+    t_min=('T°', 'min'),
+    precipitation=('precipitation', 'sum')
+).reset_index()
+
+
+utilise df_details : 
+trace une courbe couleur rgb(255, 204, 0) avec l'aire sous la courbe couleur  rgba(255, 204, 0, 0.2): 
+en y temperature  T°
+en x : en fonction de heure et jour_ddd
+en étiquette affiche  les valeurs de T°
+
+
+utilise df_semaine : 
+créé un tableau avec des bordures transparentes : 
+jour_ddd
+t_max | tmin 
+
+
+

@@ -6,9 +6,13 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 import calendar
+import json
 import re
 from collections import defaultdict
 from datetime import datetime, date, timedelta
+from urllib.request import urlopen
+
+import pandas as pd
 
 from .forms import (
     AgentForm,
@@ -105,6 +109,88 @@ def home(request):
         for row in rows
     ]
 
+    df_details = []
+    df_semaine = []
+    meteo_chart_labels = []
+    meteo_chart_temperatures = []
+    weather_error = ""
+
+    try:
+        api_url = (
+            "https://api.open-meteo.com/v1/forecast"
+            "?latitude=48.63&longitude=2.31"
+            "&hourly=temperature_2m,precipitation"
+            "&timezone=Europe%2FParis"
+        )
+        with urlopen(api_url, timeout=8) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        hourly_data = data.get("hourly", {})
+        df = pd.DataFrame(
+            {
+                "time": hourly_data.get("time", []),
+                "temperature": hourly_data.get("temperature_2m", []),
+                "precipitation": hourly_data.get("precipitation", []),
+            }
+        )
+
+        if not df.empty:
+            df["time"] = pd.to_datetime(df["time"], errors="coerce")
+            df = df.dropna(subset=["time"]).copy()
+            df["date"] = df["time"].dt.date
+            df["heure"] = df["time"].dt.strftime("%H:00")
+
+            english_day_names = df["time"].dt.day_name()
+            day_name_map = {
+                "Monday": "Lun.",
+                "Tuesday": "Mar.",
+                "Wednesday": "Mer.",
+                "Thursday": "Jeu.",
+                "Friday": "Ven.",
+                "Saturday": "Sam.",
+                "Sunday": "Dim.",
+            }
+            day_sort_map = {
+                "Monday": 0,
+                "Tuesday": 1,
+                "Wednesday": 2,
+                "Thursday": 3,
+                "Friday": 4,
+                "Saturday": 5,
+                "Sunday": 6,
+            }
+            df["jour_ddd"] = english_day_names.map(day_name_map)
+            df["day_order"] = english_day_names.map(day_sort_map).fillna(99).astype(int)
+            df["jour_dd"] = df["time"].dt.day
+
+            df["temperature"] = pd.to_numeric(df["temperature"], errors="coerce").fillna(0).round(0).astype(int)
+            df["precipitation"] = (
+                pd.to_numeric(df["precipitation"], errors="coerce").fillna(0).round(0).astype(int)
+            )
+
+            df_details_df = df[["date", "heure", "jour_ddd", "jour_dd", "temperature", "precipitation", "day_order"]]
+            df_details = df_details_df[
+                ["date", "heure", "jour_ddd", "jour_dd", "temperature", "precipitation"]
+            ].to_dict(
+                orient="records"
+            )
+
+            df_semaine_df = (
+                df_details_df.groupby(["day_order", "jour_ddd"], as_index=False)
+                .agg(
+                    t_max=("temperature", "max"),
+                    t_min=("temperature", "min"),
+                    precipitation=("precipitation", "sum"),
+                )
+                .sort_values(["day_order"])
+            )
+            df_semaine = df_semaine_df[["jour_ddd", "t_max", "t_min", "precipitation"]].to_dict(orient="records")
+
+            meteo_chart_labels = [f"{row['jour_ddd']} {row['heure']}" for row in df_details]
+            meteo_chart_temperatures = [row["temperature"] for row in df_details]
+    except Exception:
+        weather_error = "Les donnees meteo sont indisponibles pour le moment."
+
     return render(
         request,
         "core/home.html",
@@ -112,6 +198,11 @@ def home(request):
             "date_debut": date_debut,
             "date_fin": date_fin,
             "stats": stats,
+            "df_details": df_details,
+            "df_semaine": df_semaine,
+            "meteo_chart_labels": meteo_chart_labels,
+            "meteo_chart_temperatures": meteo_chart_temperatures,
+            "weather_error": weather_error,
         },
     )
 
