@@ -1,11 +1,9 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-
-{% block title %}Régie de collecte{% endblock %}
+{% block title %}Regie de collecte{% endblock %}
 
 {% block content %}
-
 
 <div class="card" style="margin-top: 16px;">
   <div class="card__pad">
@@ -43,7 +41,7 @@
   <div class="card__pad">
     <h2 class="h2">Stats par flux</h2>
   </div>
-  <div class="table-wrap">
+  <div>
     <table class="table table--home-compact">
       <thead>
         <tr>
@@ -78,136 +76,153 @@
     <h2 class="h2">Meteo</h2>
     {% if weather_error %}
       <p class="help">{{ weather_error }}</p>
-    {% endif %}
-    <div style="height: 320px;">
-      <canvas id="meteoTemperatureChart"></canvas>
-    </div>
-  </div>
-</div>
+    {% else %}
+      <div class="meteo-shell">
+        <div class="meteo-now">
+          <div class="meteo-now__left">
+            <div class="meteo-now__icon">{{ meteo_current.icon|default:"SUN" }}</div>
+            <div class="meteo-now__temp-wrap">
+              <div class="meteo-now__temp">{{ meteo_current.temperature|default:"-" }}</div>
+              <div class="meteo-now__unit">&deg;C</div>
+            </div>
+            <div class="meteo-now__stats">
+              <div>Precipitations: {{ meteo_current.precipitation|default:0 }} mm</div>
+              <div>Humidite: {{ meteo_current.humidity|default:0 }}%</div>
+              <div>Vent: {{ meteo_current.wind|default:0 }} km/h</div>
+            </div>
+          </div>
+          <div class="meteo-now__right">
+            <div class="meteo-now__title">Meteo</div>
+            <div class="meteo-now__day">{{ meteo_current.day_label|default:"" }}</div>
+            <div class="meteo-now__cond">{{ meteo_current.condition|default:"-" }}</div>
+            <div class="meteo-now__range">
+              max {{ meteo_current.t_max|default:"-" }}&deg; | min {{ meteo_current.t_min|default:"-" }}&deg;
+            </div>
+          </div>
+        </div>
 
-<div class="card" style="margin-top: 16px;">
-  <div class="card__pad">
-    <h2 class="h2">Synthese semaine</h2>
-  </div>
-  <div class="table-wrap">
-    <table class="table table--home-compact meteo-week-table">
-      <thead>
-        <tr>
-          <th>jour_ddd</th>
-          <th class="right">t_max</th>
-          <th class="right">t_min</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in df_semaine %}
-          <tr>
-            <td>{{ row.jour_ddd }}</td>
-            <td class="right">{{ row.t_max }}</td>
-            <td class="right">{{ row.t_min }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">Aucune donnee meteo.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        <div class="meteo-days">
+          {% for row in df_semaine %}
+            <div class="meteo-day-card">
+              <div class="meteo-day-card__label">{{ row.jour_ddd }}</div>
+              <div class="meteo-day-card__temps">{{ row.t_max }}&deg; / {{ row.t_min }}&deg;</div>
+            </div>
+          {% empty %}
+            <div class="help">Aucune donnee meteo.</div>
+          {% endfor %}
+        </div>
+
+        
+      </div>
+    {% endif %}
   </div>
 </div>
 
 <style>
+  .meteo-shell {
+    display: grid;
+    gap: 14px;
+  }
+  .meteo-now {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    border: 1px solid #dbe3ea;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f7fafc 0%, #ffffff 100%);
+    padding: 14px;
+    flex-wrap: wrap;
+  }
+  .meteo-now__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .meteo-now__icon {
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 8px 10px;
+    background: #f8fafc;
+  }
+  .meteo-now__temp-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .meteo-now__temp {
+    font-size: 54px;
+    line-height: 1;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  .meteo-now__unit {
+    font-size: 22px;
+    margin-top: 8px;
+    color: #4b5563;
+  }
+  .meteo-now__stats {
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .meteo-now__right {
+    text-align: right;
+    min-width: 140px;
+  }
+  .meteo-now__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+  }
+  .meteo-now__day {
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .meteo-now__cond {
+    color: #334155;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .meteo-now__range {
+    color: #64748b;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .meteo-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 8px;
+  }
+  .meteo-day-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: #ffffff;
+    text-align: center;
+  }
+  .meteo-day-card__label {
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 4px;
+  }
+  .meteo-day-card__temps {
+    color: #0f172a;
+    font-size: 13px;
+  }
   .meteo-week-table th,
   .meteo-week-table td {
     border-color: transparent !important;
   }
+  @media (max-width: 720px) {
+    .meteo-now__right {
+      text-align: left;
+    }
+  }
 </style>
 
-{{ meteo_chart_labels|json_script:"meteo-chart-labels" }}
-{{ meteo_chart_temperatures|json_script:"meteo-chart-temperatures" }}
-
-<script src="{% static 'core/chart.js' %}"></script>
-<script src="{% static 'core/dashboard.js' %}"></script>
-<script>
-  (function () {
-    var labelsNode = document.getElementById("meteo-chart-labels");
-    var temperaturesNode = document.getElementById("meteo-chart-temperatures");
-    var canvas = document.getElementById("meteoTemperatureChart");
-    if (!labelsNode || !temperaturesNode || !canvas || typeof Chart === "undefined") {
-      return;
-    }
-
-    var labels = JSON.parse(labelsNode.textContent || "[]");
-    var temperatures = JSON.parse(temperaturesNode.textContent || "[]");
-    if (!labels.length || !temperatures.length) {
-      return;
-    }
-
-    var valueLabelsPlugin = {
-      id: "valueLabelsPlugin",
-      afterDatasetsDraw: function (chart) {
-        var ctx = chart.ctx;
-        var dataset = chart.data.datasets[0];
-        var meta = chart.getDatasetMeta(0);
-        ctx.save();
-        ctx.fillStyle = "#334155";
-        ctx.font = "12px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-        meta.data.forEach(function (point, index) {
-          var value = dataset.data[index];
-          ctx.fillText(String(value), point.x, point.y - 6);
-        });
-        ctx.restore();
-      }
-    };
-
-    new Chart(canvas, {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: "T°",
-            data: temperatures,
-            borderColor: "rgb(255, 204, 0)",
-            backgroundColor: "rgba(255, 204, 0, 0.2)",
-            fill: true,
-            tension: 0.35,
-            borderWidth: 2,
-            pointRadius: 2.5,
-            pointHoverRadius: 4
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          x: {
-            ticks: {
-              autoSkip: true,
-              maxTicksLimit: 14
-            }
-          },
-          y: {
-            title: {
-              display: true,
-              text: "Temperature (T°)"
-            }
-          }
-        }
-      },
-      plugins: [valueLabelsPlugin]
-    });
-  })();
-</script>
-
-
-
-
 {% endblock %}
-
-

@@ -113,17 +113,62 @@ def home(request):
     df_semaine = []
     meteo_chart_labels = []
     meteo_chart_temperatures = []
+    meteo_current = {}
     weather_error = ""
 
     try:
+        weather_code_map = {
+            0: ("Ensoleille", "SUN"),
+            1: ("Principalement degage", "SUN"),
+            2: ("Partiellement nuageux", "CLOUD"),
+            3: ("Nuageux", "CLOUD"),
+            45: ("Brouillard", "MIST"),
+            48: ("Brouillard givrant", "MIST"),
+            51: ("Bruine legere", "RAIN"),
+            53: ("Bruine", "RAIN"),
+            55: ("Bruine forte", "RAIN"),
+            61: ("Pluie legere", "RAIN"),
+            63: ("Pluie", "RAIN"),
+            65: ("Pluie forte", "RAIN"),
+            71: ("Neige legere", "SNOW"),
+            73: ("Neige", "SNOW"),
+            75: ("Neige forte", "SNOW"),
+            80: ("Averses", "RAIN"),
+            81: ("Averses moderees", "RAIN"),
+            82: ("Averses fortes", "STORM"),
+            95: ("Orage", "STORM"),
+        }
+        day_name_map = {
+            "Monday": "lundi",
+            "Tuesday": "mardi",
+            "Wednesday": "mercredi",
+            "Thursday": "jeudi",
+            "Friday": "vendredi",
+            "Saturday": "samedi",
+            "Sunday": "dimanche",
+        }
         api_url = (
             "https://api.open-meteo.com/v1/forecast"
             "?latitude=48.63&longitude=2.31"
+            "&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code"
             "&hourly=temperature_2m,precipitation"
             "&timezone=Europe%2FParis"
         )
         with urlopen(api_url, timeout=8) as response:
             data = json.loads(response.read().decode("utf-8"))
+
+        current_data = data.get("current", {})
+        current_weather_code = current_data.get("weather_code")
+        current_condition, current_icon = weather_code_map.get(current_weather_code, ("Meteo", "SUN"))
+        meteo_current = {
+            "temperature": int(round(float(current_data.get("temperature_2m", 0) or 0))),
+            "humidity": int(round(float(current_data.get("relative_humidity_2m", 0) or 0))),
+            "precipitation": int(round(float(current_data.get("precipitation", 0) or 0))),
+            "wind": int(round(float(current_data.get("wind_speed_10m", 0) or 0))),
+            "condition": current_condition,
+            "icon": current_icon,
+            "day_label": day_name_map.get(today.strftime("%A"), ""),
+        }
 
         hourly_data = data.get("hourly", {})
         df = pd.DataFrame(
@@ -141,7 +186,7 @@ def home(request):
             df["heure"] = df["time"].dt.strftime("%H:00")
 
             english_day_names = df["time"].dt.day_name()
-            day_name_map = {
+            day_short_map = {
                 "Monday": "Lun.",
                 "Tuesday": "Mar.",
                 "Wednesday": "Mer.",
@@ -159,7 +204,7 @@ def home(request):
                 "Saturday": 5,
                 "Sunday": 6,
             }
-            df["jour_ddd"] = english_day_names.map(day_name_map)
+            df["jour_ddd"] = english_day_names.map(day_short_map)
             df["day_order"] = english_day_names.map(day_sort_map).fillna(99).astype(int)
             df["jour_dd"] = df["time"].dt.day
 
@@ -188,6 +233,10 @@ def home(request):
 
             meteo_chart_labels = [f"{row['jour_ddd']} {row['heure']}" for row in df_details]
             meteo_chart_temperatures = [row["temperature"] for row in df_details]
+
+            if df_semaine:
+                meteo_current["t_max"] = int(df_semaine[0]["t_max"])
+                meteo_current["t_min"] = int(df_semaine[0]["t_min"])
     except Exception:
         weather_error = "Les donnees meteo sont indisponibles pour le moment."
 
@@ -202,6 +251,7 @@ def home(request):
             "df_semaine": df_semaine,
             "meteo_chart_labels": meteo_chart_labels,
             "meteo_chart_temperatures": meteo_chart_temperatures,
+            "meteo_current": meteo_current,
             "weather_error": weather_error,
         },
     )
