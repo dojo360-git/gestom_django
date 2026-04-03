@@ -5,6 +5,80 @@
 {% block content %}
 <div class="card">
   <div class="card__pad">
+    <style>
+      .agent-form-sections {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(220px, 1fr));
+        gap: 16px;
+        margin: 16px 0;
+      }
+
+      .agent-form-section {
+        border: 1px solid #e6efe4;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+
+      .agent-form-section__title {
+        margin: 0;
+        background: #2f6b2f;
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+      }
+
+      .agent-form-section__body {
+        padding: 12px 14px;
+      }
+
+      .agent-form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px 14px;
+      }
+
+      .agent-form-grid .field {
+        margin: 0;
+      }
+
+      .agent-form-grid .field--full {
+        grid-column: 1 / -1;
+      }
+
+      .agent-form .field label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .agent-form input,
+      .agent-form select,
+      .agent-form textarea {
+        width: 100%;
+      }
+
+      @media (max-width: 1500px) {
+        .agent-form-sections {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1080px) {
+        .agent-form-sections {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 820px) {
+        .agent-form-sections {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
 
     <div class="header">
       <div>
@@ -13,39 +87,101 @@
       </div>
     </div>
 
-    <form method="post" class="form">
+    <form method="post" class="form agent-form">
       {% csrf_token %}
+      {{ form.non_field_errors }}
 
-      {% for field in form %}
-      <div class="field">
-        {{ field.label_tag }}
-        {{ field }}
-        {% if field.name == "employeur" %}
-        <datalist id="employeur-options">
-          <option value="CDEA"></option>
-          <option value="Hercule"></option>
-        </datalist>
-        {% endif %}
-        {% if field.name == "service" %}
-        <datalist id="service-options">
-          <option value="Collecte"></option>
-          <option value="PréCollecte"></option>
-          <option value="Propreté PAV"></option>
-          <option value="Encadrement"></option>
-        </datalist>
-        {% endif %}
-        {% if field.name == "qualification" %}
-        <datalist id="qualification-options">
-          <option value="Agent précollecte"></option>
-          <option value="Agent Propreté PAV"></option>
-          <option value="Chauffeur"></option>
-          <option value="Encadrement"></option>
-          <option value="Ripeur"></option>
-        </datalist>
-        {% endif %}
-        {{ field.errors }}
+      <div class="agent-form-sections">
+        <section class="agent-form-section">
+          <h2 class="agent-form-section__title">Identite</h2>
+          <div class="agent-form-section__body agent-form-grid">
+            <div class="field">
+              {{ form.nom.label_tag }}
+              {{ form.nom }}
+              {{ form.nom.errors }}
+            </div>
+            <div class="field">
+              {{ form.prenom.label_tag }}
+              {{ form.prenom }}
+              {{ form.prenom.errors }}
+            </div>
+            <div class="field field--full">
+              {{ form.tel.label_tag }}
+              {{ form.tel }}
+              {{ form.tel.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="agent-form-section">
+          <h2 class="agent-form-section__title">Organisation</h2>
+          <div class="agent-form-section__body agent-form-grid">
+            <div class="field">
+              {{ form.service.label_tag }}
+              {{ form.service }}
+              {{ form.service.errors }}
+            </div>
+            <div class="field">
+              {{ form.qualification.label_tag }}
+              {{ form.qualification }}
+              {{ form.qualification.errors }}
+            </div>
+            <div class="field field--full">
+              {{ form.employeur.label_tag }}
+              {{ form.employeur }}
+              {{ form.employeur.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="agent-form-section">
+          <h2 class="agent-form-section__title">Horaires</h2>
+          <div class="agent-form-section__body agent-form-grid">
+            <div class="field">
+              {{ form.hds_defaut.label_tag }}
+              {{ form.hds_defaut }}
+              {{ form.hds_defaut.errors }}
+            </div>
+            <div class="field">
+              {{ form.hfs_defaut.label_tag }}
+              {{ form.hfs_defaut }}
+              {{ form.hfs_defaut.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="agent-form-section">
+          <h2 class="agent-form-section__title">Echeances</h2>
+          <div class="agent-form-section__body agent-form-grid">
+            <div class="field">
+              {{ form.echeance_permis.label_tag }}
+              {{ form.echeance_permis }}
+              {{ form.echeance_permis.errors }}
+            </div>
+            <div class="field">
+              {{ form.echeance_fco.label_tag }}
+              {{ form.echeance_fco }}
+              {{ form.echeance_fco.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="agent-form-section">
+          <h2 class="agent-form-section__title">Contrat</h2>
+          <div class="agent-form-section__body agent-form-grid">
+            <div class="field">
+              {{ form.arrivee.label_tag }}
+              {{ form.arrivee }}
+              {{ form.arrivee.errors }}
+            </div>
+            <div class="field">
+              {{ form.depart.label_tag }}
+              {{ form.depart }}
+              {{ form.depart.errors }}
+            </div>
+          </div>
+        </section>
       </div>
-      {% endfor %}
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>

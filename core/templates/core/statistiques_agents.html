@@ -1,0 +1,110 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques agents{% endblock %}
+
+{% block content %}
+<style>
+  .stats-agents-table thead th {
+    font-size: 1.1rem;
+  }
+
+  .stats-agents-table {
+    width: max-content;
+    min-width: 0;
+  }
+
+  .stats-agents-table tbody tr,
+  .stats-agents-table tbody td,
+  .stats-agents-table tbody th {
+    font-size: 0.88rem;
+  }
+
+  .stats-agents-table tbody td {
+    padding: 2px;
+  }
+
+  .stats-agents-table .btn.btn--sm.btn--ghost {
+    padding: 2px;
+  }
+</style>
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques agents</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date">Date</label>
+          <input
+            class="input"
+            type="date"
+            id="date"
+            name="date"
+            value="{{ selected_date|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <h2 class="h2">Liste des agents par service</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table stats-agents-table">
+        <thead>
+          <tr>
+            <th>Qualification</th>
+            <th>Employeur</th>
+            <th>Nom, Prenom</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for group in grouped_services %}
+            <tr>
+              <th colspan="4" style="background:#f8fafc;">Service {{ group.service }}</th>
+            </tr>
+            {% for row in group.rows %}
+              <tr>
+                {% if row.show_qualification %}
+                  <td rowspan="{{ row.qualification_rowspan }}">{{ row.qualification_display }}</td>
+                {% endif %}
+                <td>{{ row.employeur|default:"-" }}</td>
+                <td>{{ row.agent.nom }}, {{ row.agent.prenom }}</td>
+                <td>
+                  <a
+                    class="btn btn--sm btn--ghost"
+                    href="{% url 'core:agent_update' row.agent.pk %}"
+                    title="Modifier {{ row.agent.nom }} {{ row.agent.prenom }}"
+                    aria-label="Modifier {{ row.agent.nom }} {{ row.agent.prenom }}"
+                  >
+                    🖊️
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="sub">Aucun agent actif pour ce service.</td>
+              </tr>
+            {% endfor %}
+          {% empty %}
+            <tr>
+              <td colspan="4" class="sub">Aucun agent actif a la date selectionnee.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

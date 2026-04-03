@@ -674,6 +674,119 @@ def statistiques_heure_sup(request):
     )
 
 
+def statistiques_agents(request):
+    today = timezone.localdate()
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    selected_date = parse_date(request.GET.get("date"), today)
+
+    qualification_order = [
+        "Encadrement",
+        "Coordinateur",
+        "Ripeur",
+        "Chauffeur",
+        "Suivi du Parc",
+        "Laveur PAV",
+        "Chauffeur-Livreur",
+        "Agent PAV",
+    ]
+    qualification_rank = {value: index for index, value in enumerate(qualification_order)}
+
+    service_order = ["Collecte", "Précollecte", "Propreté"]
+    service_rank = {value: index for index, value in enumerate(service_order)}
+
+    def normalize_service(value):
+        raw_value = (value or "").strip()
+        lowered = raw_value.lower()
+        if lowered == "collecte":
+            return "Collecte"
+        if lowered in {"précollecte", "precollecte"}:
+            return "Précollecte"
+        if lowered in {"propreté", "proprete"}:
+            return "Propreté"
+        return raw_value or "Non renseigne"
+
+    agents = list(
+        Agent.objects.filter(
+            (Q(arrivee__isnull=True) | Q(arrivee__lt=selected_date))
+            & (Q(depart__isnull=True) | Q(depart__gt=selected_date))
+        )
+    )
+
+    prepared_rows = []
+    for agent in agents:
+        service_label = normalize_service(agent.service)
+        qualification_label = (agent.qualification or "").strip()
+        qualification_display = qualification_label or "-"
+        employeur_label = (agent.employeur or "").strip()
+
+        prepared_rows.append(
+            {
+                "agent": agent,
+                "service": service_label,
+                "qualification": qualification_label,
+                "qualification_display": qualification_display,
+                "employeur": employeur_label,
+                "qualification_rank": qualification_rank.get(qualification_label, len(qualification_order)),
+            }
+        )
+
+    prepared_rows.sort(
+        key=lambda row: (
+            service_rank.get(row["service"], len(service_order)),
+            row["service"].lower(),
+            row["qualification_rank"],
+            row["qualification_display"].lower(),
+            row["employeur"].lower(),
+            row["agent"].nom.lower(),
+            row["agent"].prenom.lower(),
+        )
+    )
+
+    grouped_map = defaultdict(list)
+    for row in prepared_rows:
+        grouped_map[row["service"]].append(row)
+
+    for service_rows in grouped_map.values():
+        index = 0
+        while index < len(service_rows):
+            current_qualification = service_rows[index]["qualification_display"]
+            run_end = index + 1
+            while run_end < len(service_rows) and service_rows[run_end]["qualification_display"] == current_qualification:
+                run_end += 1
+
+            rowspan = run_end - index
+            service_rows[index]["show_qualification"] = True
+            service_rows[index]["qualification_rowspan"] = rowspan
+
+            for hidden_index in range(index + 1, run_end):
+                service_rows[hidden_index]["show_qualification"] = False
+                service_rows[hidden_index]["qualification_rowspan"] = 0
+
+            index = run_end
+
+    grouped_services = [{"service": service, "rows": grouped_map.get(service, [])} for service in service_order]
+    other_services = sorted([service for service in grouped_map.keys() if service not in service_rank], key=str.lower)
+    grouped_services.extend({"service": service, "rows": grouped_map[service]} for service in other_services)
+
+    return render(
+        request,
+        "core/statistiques_agents.html",
+        {
+            "selected_date": selected_date,
+            "grouped_services": grouped_services,
+            "total_agents": len(prepared_rows),
+        },
+    )
+
+
 def flux2(request):
     fluxes = Flux.objects.all().order_by("flux")
     create_form = FluxForm(prefix="create")

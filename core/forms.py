@@ -5,6 +5,29 @@ from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, Iti
 
 
 class AgentForm(forms.ModelForm):
+    QUALIFICATION_CHOICES = [
+        ("", "---------"),
+        ("Encadrement", "Encadrement"),
+        ("Coordinateur", "Coordinateur"),
+        ("Ripeur", "Ripeur"),
+        ("Chauffeur", "Chauffeur"),
+        ("Suivi du Parc", "Suivi du Parc"),
+        ("Laveur PAV", "Laveur PAV"),
+        ("Chauffeur-Livreur", "Chauffeur-Livreur"),
+        ("Agent PAV", "Agent PAV"),
+    ]
+    SERVICE_CHOICES = [
+        ("", "---------"),
+        ("Collecte", "Collecte"),
+        ("Précollecte", "Précollecte"),
+        ("Propreté", "Propreté"),
+    ]
+    EMPLOYEUR_CHOICES = [
+        ("", "---------"),
+        ("Hercule", "Hercule"),
+        ("CDEA", "CDEA"),
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         date_formats = ["%Y-%m-%d", "%d/%m/%Y"]
@@ -12,6 +35,21 @@ class AgentForm(forms.ModelForm):
             self.fields[field_name].input_formats = date_formats
             self.fields[field_name].localize = False
             self.fields[field_name].widget.format = "%Y-%m-%d"
+
+        # Force dropdowns instead of datalist-backed text inputs.
+        self.fields["qualification"].widget = forms.Select(choices=self.QUALIFICATION_CHOICES)
+        self.fields["service"].widget = forms.Select(choices=self.SERVICE_CHOICES)
+        self.fields["employeur"].widget = forms.Select(choices=self.EMPLOYEUR_CHOICES)
+
+        # Preserve legacy values if an existing record contains an old label.
+        for field_name in ["qualification", "service", "employeur"]:
+            current_value = (getattr(self.instance, field_name, "") or "").strip()
+            if current_value and current_value not in [value for value, _label in self.fields[field_name].widget.choices]:
+                self.fields[field_name].widget.choices = [
+                    *self.fields[field_name].widget.choices,
+                    (current_value, current_value),
+                ]
+
         if not self.instance.pk:
             self.fields["hds_defaut"].initial = "05:00"
             self.fields["hfs_defaut"].initial = "12:00"
@@ -21,7 +59,7 @@ class AgentForm(forms.ModelForm):
     class Meta:
         model = Agent
         fields = [
-            "nom", "prenom", "qualification", "service", "employeur",
+            "nom", "prenom", "service", "qualification", "employeur",
             "hds_defaut", "hfs_defaut", "echeance_permis", "echeance_fco",
             "arrivee", "depart", "tel",
         ]
@@ -32,9 +70,6 @@ class AgentForm(forms.ModelForm):
             "depart": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "hds_defaut": forms.TimeInput(attrs={"type": "time"}),
             "hfs_defaut": forms.TimeInput(attrs={"type": "time"}),
-            "qualification": forms.TextInput(attrs={"list": "qualification-options"}),
-            "employeur": forms.TextInput(attrs={"list": "employeur-options"}),
-            "service": forms.TextInput(attrs={"list": "service-options"}),
         }
 
 

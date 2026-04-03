@@ -11,26 +11,6 @@
       </div>
     </div>
 
-    <datalist id="employeur-options">
-      <option value="CDEA"></option>
-      <option value="HERCULE"></option>
-    </datalist>
-
-    <datalist id="service-options">
-      <option value="Collecte"></option>
-      <option value="Precollecte"></option>
-      <option value="Proprete PAV"></option>
-      <option value="Encadrement"></option>
-    </datalist>
-
-    <datalist id="qualification-options">
-      <option value="Agent precollecte"></option>
-      <option value="Agent Proprete PAV"></option>
-      <option value="Chauffeur"></option>
-      <option value="Encadrement"></option>
-      <option value="Ripeur"></option>
-    </datalist>
-
     <form method="get" class="actions" style="margin-bottom: 14px; justify-content: flex-start;">
       <label for="date" class="sub" style="align-self: center;">Date</label>
       <input id="date" name="date" type="date" class="input" value="{{ selected_date|date:'Y-m-d' }}" style="max-width: 220px;">
@@ -84,13 +64,47 @@
               <input type="text" name="create-prenom" value="{{ create_form.prenom.value|default_if_none:'' }}" form="create-agent-form" maxlength="100" required>
             </td>
             <td>
-              <input type="text" name="create-qualification" value="{{ create_form.qualification.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="qualification-options">
+              <select name="create-qualification" form="create-agent-form">
+                {% with current=create_form.qualification.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Encadrement" {% if current == "Encadrement" %}selected{% endif %}>Encadrement</option>
+                <option value="Coordinateur" {% if current == "Coordinateur" %}selected{% endif %}>Coordinateur</option>
+                <option value="Ripeur" {% if current == "Ripeur" %}selected{% endif %}>Ripeur</option>
+                <option value="Chauffeur" {% if current == "Chauffeur" %}selected{% endif %}>Chauffeur</option>
+                <option value="Suivi du Parc" {% if current == "Suivi du Parc" %}selected{% endif %}>Suivi du Parc</option>
+                <option value="Laveur PAV" {% if current == "Laveur PAV" %}selected{% endif %}>Laveur PAV</option>
+                <option value="Chauffeur-Livreur" {% if current == "Chauffeur-Livreur" %}selected{% endif %}>Chauffeur-Livreur</option>
+                <option value="Agent PAV" {% if current == "Agent PAV" %}selected{% endif %}>Agent PAV</option>
+                {% if current and current != "Encadrement" and current != "Coordinateur" and current != "Ripeur" and current != "Chauffeur" and current != "Suivi du Parc" and current != "Laveur PAV" and current != "Chauffeur-Livreur" and current != "Agent PAV" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
-              <input type="text" name="create-service" value="{{ create_form.service.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="service-options">
+              <select name="create-service" form="create-agent-form">
+                {% with current=create_form.service.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Collecte" {% if current == "Collecte" %}selected{% endif %}>Collecte</option>
+                <option value="Précollecte" {% if current == "Précollecte" %}selected{% endif %}>Précollecte</option>
+                <option value="Propreté" {% if current == "Propreté" %}selected{% endif %}>Propreté</option>
+                {% if current and current != "Collecte" and current != "Précollecte" and current != "Propreté" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
-              <input type="text" name="create-employeur" value="{{ create_form.employeur.value|default_if_none:'' }}" form="create-agent-form" maxlength="150" list="employeur-options">
+              <select name="create-employeur" form="create-agent-form">
+                {% with current=create_form.employeur.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Hercule" {% if current == "Hercule" %}selected{% endif %}>Hercule</option>
+                <option value="CDEA" {% if current == "CDEA" %}selected{% endif %}>CDEA</option>
+                {% if current and current != "Hercule" and current != "CDEA" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
               <input type="time" name="create-hds_defaut" value="{{ create_form.hds_defaut.value|default_if_none:'' }}" form="create-agent-form">
@@ -150,13 +164,47 @@
               <input type="text" name="row-{{ row.agent.pk }}-prenom" value="{{ row.form.prenom.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="100" required>
             </td>
             <td>
-              <input type="text" name="row-{{ row.agent.pk }}-qualification" value="{{ row.form.qualification.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="qualification-options">
+              <select name="row-{{ row.agent.pk }}-qualification" form="update-agent-{{ row.agent.pk }}">
+                {% with current=row.form.qualification.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Encadrement" {% if current == "Encadrement" %}selected{% endif %}>Encadrement</option>
+                <option value="Coordinateur" {% if current == "Coordinateur" %}selected{% endif %}>Coordinateur</option>
+                <option value="Ripeur" {% if current == "Ripeur" %}selected{% endif %}>Ripeur</option>
+                <option value="Chauffeur" {% if current == "Chauffeur" %}selected{% endif %}>Chauffeur</option>
+                <option value="Suivi du Parc" {% if current == "Suivi du Parc" %}selected{% endif %}>Suivi du Parc</option>
+                <option value="Laveur PAV" {% if current == "Laveur PAV" %}selected{% endif %}>Laveur PAV</option>
+                <option value="Chauffeur-Livreur" {% if current == "Chauffeur-Livreur" %}selected{% endif %}>Chauffeur-Livreur</option>
+                <option value="Agent PAV" {% if current == "Agent PAV" %}selected{% endif %}>Agent PAV</option>
+                {% if current and current != "Encadrement" and current != "Coordinateur" and current != "Ripeur" and current != "Chauffeur" and current != "Suivi du Parc" and current != "Laveur PAV" and current != "Chauffeur-Livreur" and current != "Agent PAV" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
-              <input type="text" name="row-{{ row.agent.pk }}-service" value="{{ row.form.service.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="service-options">
+              <select name="row-{{ row.agent.pk }}-service" form="update-agent-{{ row.agent.pk }}">
+                {% with current=row.form.service.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Collecte" {% if current == "Collecte" %}selected{% endif %}>Collecte</option>
+                <option value="Précollecte" {% if current == "Précollecte" %}selected{% endif %}>Précollecte</option>
+                <option value="Propreté" {% if current == "Propreté" %}selected{% endif %}>Propreté</option>
+                {% if current and current != "Collecte" and current != "Précollecte" and current != "Propreté" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
-              <input type="text" name="row-{{ row.agent.pk }}-employeur" value="{{ row.form.employeur.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}" maxlength="150" list="employeur-options">
+              <select name="row-{{ row.agent.pk }}-employeur" form="update-agent-{{ row.agent.pk }}">
+                {% with current=row.form.employeur.value|default_if_none:'' %}
+                <option value="" {% if not current %}selected{% endif %}>---------</option>
+                <option value="Hercule" {% if current == "Hercule" %}selected{% endif %}>Hercule</option>
+                <option value="CDEA" {% if current == "CDEA" %}selected{% endif %}>CDEA</option>
+                {% if current and current != "Hercule" and current != "CDEA" %}
+                  <option value="{{ current }}" selected>{{ current }}</option>
+                {% endif %}
+                {% endwith %}
+              </select>
             </td>
             <td>
               <input type="time" name="row-{{ row.agent.pk }}-hds_defaut" value="{{ row.form.hds_defaut.value|default_if_none:'' }}" form="update-agent-{{ row.agent.pk }}">
