@@ -38,6 +38,18 @@
             <div class="home-weather__metric-sub">Humidite relative {{ meteo_current.relative_humidity }} {{ meteo_current.relative_humidity_unit }}</div>
             <div class="home-weather__metric-sub">Vitesse du vent {{ meteo_current.wind_speed }} {{ meteo_current.wind_speed_unit }}</div>
           </div>
+          <div class="home-weather__hero-col home-weather__hero-col--clock">
+            <div class="home-weather-clock" id="home-weather-clock" aria-label="Horloge analogique locale">
+              <span class="home-weather-clock__tick home-weather-clock__tick--12"></span>
+              <span class="home-weather-clock__tick home-weather-clock__tick--3"></span>
+              <span class="home-weather-clock__tick home-weather-clock__tick--6"></span>
+              <span class="home-weather-clock__tick home-weather-clock__tick--9"></span>
+              <span class="home-weather-clock__hand home-weather-clock__hand--hour" id="clock-hour"></span>
+              <span class="home-weather-clock__hand home-weather-clock__hand--minute" id="clock-minute"></span>
+              <span class="home-weather-clock__hand home-weather-clock__hand--second" id="clock-second"></span>
+              <span class="home-weather-clock__center"></span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -77,4 +89,30 @@
     {% endif %}
   </div>
 </section>
+<script>
+  (function () {
+    var clock = document.getElementById("home-weather-clock");
+    var hourHand = document.getElementById("clock-hour");
+    var minuteHand = document.getElementById("clock-minute");
+    var secondHand = document.getElementById("clock-second");
+
+    if (!clock || !hourHand || !minuteHand || !secondHand) {
+      return;
+    }
+
+    function setClock() {
+      var now = new Date();
+      var seconds = now.getSeconds();
+      var minutes = now.getMinutes() + (seconds / 60);
+      var hours = (now.getHours() % 12) + (minutes / 60);
+
+      hourHand.style.transform = "translateX(-50%) rotate(" + (hours * 30) + "deg)";
+      minuteHand.style.transform = "translateX(-50%) rotate(" + (minutes * 6) + "deg)";
+      secondHand.style.transform = "translateX(-50%) rotate(" + (seconds * 6) + "deg)";
+    }
+
+    setClock();
+    setInterval(setClock, 1000);
+  })();
+</script>
 {% endblock %}
