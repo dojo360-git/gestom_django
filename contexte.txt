@@ -1,9 +1,0 @@
-On travaille sur une web app django avec une base de donnée postgres 
-
-on est dans l'envirronement de dev dont les paramêtres sont définis docker-compose__dev__.yml
-
-on utilise docker, docker compose 
-
-pour les tests il faut donc passer par docker
-
-ne change jamais le back end : modele ou base de donnée sans me demander confirmation 
