@@ -30,85 +30,6 @@ from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, C
 def home(request):
     today = timezone.localdate()
 
-    date_debut_str = request.GET.get("date_debut")
-    date_fin_str = request.GET.get("date_fin")
-
-    def parse_date(value, default):
-        if not value:
-            return default
-        try:
-            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
-        except ValueError:
-            return default
-
-    date_debut = parse_date(date_debut_str, today)
-    date_fin = parse_date(date_fin_str, today)
-
-    if date_debut > date_fin:
-        date_debut, date_fin = date_fin, date_debut
-
-    sql = """
-        WITH cflux AS (
-            SELECT *
-            FROM core_flux
-        )
-        
-        SELECT
-            cflux.flux,
-            SUM(tonnages.tonnage) / 1000.0 AS tonnage,
-            COUNT(*) AS nb_vidages,
-            COUNT(DISTINCT tonnages.id_collecte) AS nb_tournees,
-            SUM(tonnages.tonnage) / 1000.0 / NULLIF(COUNT(*), 0) AS tonnage_moyen
-        FROM (
-            SELECT
-                id_collecte,
-                date_collecte,
-                id_flux1_id AS id_flux,
-                tonnage1 AS tonnage
-            FROM core_collecte
-            WHERE tonnage1 IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                id_collecte,
-                date_collecte,
-                id_flux2_id AS id_flux,
-                tonnage2 AS tonnage
-            FROM core_collecte
-            WHERE tonnage2 IS NOT NULL
-
-            UNION ALL
-
-            SELECT
-                id_collecte,
-                date_collecte,
-                id_flux3_id AS id_flux,
-                tonnage3 AS tonnage
-            FROM core_collecte
-            WHERE tonnage3 IS NOT NULL
-        ) tonnages
-        LEFT JOIN cflux ON tonnages.id_flux = cflux.id_flux
-        WHERE tonnages.date_collecte BETWEEN %s AND %s
-        GROUP BY cflux.flux
-        ORDER BY cflux.flux
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(sql, [date_debut, date_fin])
-        rows = cursor.fetchall()
-
-    stats = [
-        {
-            "flux": row[0],
-            "tonnage": row[1],
-            "nb_vidages": row[2],
-            "nb_tournees": row[3],
-            "tonnage_moyen": row[4],
-        }
-        for row in rows
-    ]
-
     df_details = []
     df_semaine = []
     meteo_chart_labels = []
@@ -352,7 +273,7 @@ def home(request):
                 nearest_idx = (day_df["hour_int"] - target_hour).abs().idxmin()
                 return day_df.loc[nearest_idx]
 
-            forecast_dates = sorted([d for d in df["date"].dropna().unique() if d > today])[:3]
+            forecast_dates = sorted([d for d in df["date"].dropna().unique() if d > today])[:5]
             for forecast_date in forecast_dates:
                 day_df = df[df["date"] == forecast_date].copy()
                 if day_df.empty:
@@ -410,9 +331,6 @@ def home(request):
         request,
         "core/home.html",
         {
-            "date_debut": date_debut,
-            "date_fin": date_fin,
-            "stats": stats,
             "df_details": df_details,
             "df_semaine": df_semaine,
             "meteo_chart_labels": meteo_chart_labels,
@@ -1540,7 +1458,7 @@ class CollecteListView(ListView):
     def _get_date_range(self):
         today = timezone.localdate()
         date_fin = self._parse_date(self.request.GET.get("date_fin"), today)
-        default_date_debut = date_fin - timedelta(days=7)
+        default_date_debut = today - timedelta(days=15)
         date_debut = self._parse_date(self.request.GET.get("date_debut"), default_date_debut)
 
         if date_debut > date_fin:

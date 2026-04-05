@@ -5,72 +5,6 @@
 
 {% block content %}
 
-<div class="card" style="margin-top: 16px;">
-  <div class="card__pad">
-    <form class="form" method="get">
-      <div class="planning__controls">
-        <div class="planning__control">
-          <label class="planning__label" for="date_debut">Date debut</label>
-          <input
-            class="input"
-            type="date"
-            id="date_debut"
-            name="date_debut"
-            value="{{ date_debut|date:'Y-m-d' }}"
-          />
-        </div>
-        <div class="planning__control">
-          <label class="planning__label" for="date_fin">Date fin</label>
-          <input
-            class="input"
-            type="date"
-            id="date_fin"
-            name="date_fin"
-            value="{{ date_fin|date:'Y-m-d' }}"
-          />
-        </div>
-        <div class="planning__control">
-          <button class="btn btn--primary" type="submit">Filtrer</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="card" style="margin-top: 16px;">
-  <div class="card__pad">
-    <h2 class="h2">Stats par flux</h2>
-  </div>
-  <div>
-    <table class="table table--home-compact">
-      <thead>
-        <tr>
-          <th>Flux</th>
-          <th class="right">NbTournees</th>
-          <th class="right">Tonnage (t)</th>
-          <th class="right">NbVidage</th>
-          <th class="right">Tonnage moyen (t)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in stats %}
-          <tr>
-            <td>{{ row.flux|default:"-" }}</td>
-            <td class="right">{{ row.nb_tournees }}</td>
-            <td class="right">{{ row.tonnage|floatformat:2 }}</td>
-            <td class="right">{{ row.nb_vidages }}</td>
-            <td class="right">{{ row.tonnage_moyen|floatformat:2 }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5">Aucune donnee pour la periode.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
 <section class="card home-weather" style="margin-top: 16px;">
   <div class="card__pad home-weather__pad">
     <div class="home-weather__head">
@@ -122,8 +56,10 @@
                 <span class="home-weather__item-icon-fallback">{{ item.icon_fallback }}</span>
               </div>
               <div class="home-weather__item-lines">
-                <p class="home-weather__item-value">{{ item.temperature_5 }}</p>
-                <p class="home-weather__item-value">{{ item.temperature_12 }}</p>
+                <div class="home-weather__item-temperatures">
+                  <p class="home-weather__item-value">{{ item.temperature_5 }}</p>
+                  <p class="home-weather__item-value">{{ item.temperature_12 }}</p>
+                </div>
                 <p class="home-weather__item-unit">💧 {{ item.precipitation_probability }}</p>
                 <p class="home-weather__item-unit">💨 {{ item.wind_speed_10m }}</p>
               </div>

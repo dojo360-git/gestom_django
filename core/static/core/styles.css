@@ -1157,6 +1157,11 @@ input[type="checkbox"]{
   display: grid;
   gap: 4px;
 }
+.home-weather__item-temperatures{
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
 .home-weather__item-icon{
   width: 30px;
   height: 30px;
