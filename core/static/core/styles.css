@@ -1028,7 +1028,8 @@ input[type="checkbox"]{
 .home-weather__datetime{
   margin: 8px 0 0;
   color: #334155;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 700;
 }
 .home-weather__hero{
   margin-top: 14px;
@@ -1129,7 +1130,7 @@ input[type="checkbox"]{
 }
 .home-weather__item-label{
   margin: 0;
-  font-size: 12px;
+  font-size: 16px;
   text-transform: none;
   letter-spacing: .2px;
   font-weight: 700;
