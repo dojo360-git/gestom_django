@@ -118,56 +118,156 @@ def home(request):
 
     try:
         weather_code_map = {
-            0: ("Ensoleille", "SUN"),
-            1: ("Principalement degage", "SUN"),
-            2: ("Partiellement nuageux", "CLOUD"),
-            3: ("Nuageux", "CLOUD"),
-            45: ("Brouillard", "MIST"),
-            48: ("Brouillard givrant", "MIST"),
-            51: ("Bruine legere", "RAIN"),
-            53: ("Bruine", "RAIN"),
-            55: ("Bruine forte", "RAIN"),
-            61: ("Pluie legere", "RAIN"),
-            63: ("Pluie", "RAIN"),
-            65: ("Pluie forte", "RAIN"),
-            71: ("Neige legere", "SNOW"),
-            73: ("Neige", "SNOW"),
-            75: ("Neige forte", "SNOW"),
-            80: ("Averses", "RAIN"),
-            81: ("Averses moderees", "RAIN"),
-            82: ("Averses fortes", "STORM"),
-            95: ("Orage", "STORM"),
-        }
-        day_name_map = {
-            "Monday": "lundi",
-            "Tuesday": "mardi",
-            "Wednesday": "mercredi",
-            "Thursday": "jeudi",
-            "Friday": "vendredi",
-            "Saturday": "samedi",
-            "Sunday": "dimanche",
+            0: "Ensoleille",
+            1: "Principalement degage",
+            2: "Partiellement nuageux",
+            3: "Nuageux",
+            45: "Brouillard",
+            48: "Brouillard givrant",
+            51: "Bruine legere",
+            53: "Bruine",
+            55: "Bruine forte",
+            61: "Pluie legere",
+            63: "Pluie",
+            65: "Pluie forte",
+            71: "Neige legere",
+            73: "Neige",
+            75: "Neige forte",
+            80: "Averses",
+            81: "Averses moderees",
+            82: "Averses fortes",
+            95: "Orage",
         }
         api_url = (
             "https://api.open-meteo.com/v1/forecast"
-            "?latitude=48.63&longitude=2.31"
-            "&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code"
+            "?latitude=48.626032&longitude=2.309739"
+            "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day"
             "&hourly=temperature_2m,precipitation"
-            "&timezone=Europe%2FParis"
+            "&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset"
+            "&timezone=Europe/Paris"
         )
         with urlopen(api_url, timeout=8) as response:
             data = json.loads(response.read().decode("utf-8"))
 
         current_data = data.get("current", {})
+        current_units = data.get("current_units", {})
         current_weather_code = current_data.get("weather_code")
-        current_condition, current_icon = weather_code_map.get(current_weather_code, ("Meteo", "SUN"))
+        current_condition = weather_code_map.get(current_weather_code, "Meteo")
+        weather_icon_slug_map = {
+            0: "sun",
+            1: "sun",
+            2: "cloud",
+            3: "cloud",
+            45: "mist",
+            48: "mist",
+            51: "rain",
+            53: "rain",
+            55: "rain",
+            61: "rain",
+            63: "rain",
+            65: "rain",
+            71: "snow",
+            73: "snow",
+            75: "snow",
+            80: "rain",
+            81: "rain",
+            82: "storm",
+            95: "storm",
+        }
+
+        current_time_raw = str(current_data.get("time", "") or "")
+        current_time_formatted = current_time_raw
+        if current_time_raw:
+            try:
+                current_dt = datetime.fromisoformat(current_time_raw)
+                weekday_map = {
+                    "Monday": "lun.",
+                    "Tuesday": "mar.",
+                    "Wednesday": "mer.",
+                    "Thursday": "jeu.",
+                    "Friday": "ven.",
+                    "Saturday": "sam.",
+                    "Sunday": "dim.",
+                }
+                month_map = {
+                    1: "janv.",
+                    2: "fevr.",
+                    3: "mars",
+                    4: "avr.",
+                    5: "mai",
+                    6: "juin",
+                    7: "juil.",
+                    8: "aout",
+                    9: "sept.",
+                    10: "oct.",
+                    11: "nov.",
+                    12: "dec.",
+                }
+                weekday_fr = weekday_map.get(current_dt.strftime("%A"), "")
+                month_fr = month_map.get(current_dt.month, "")
+                current_time_formatted = (
+                    f"{weekday_fr} {current_dt.day:02d} {month_fr} {current_dt.year} {current_dt:%H:%M}"
+                )
+            except ValueError:
+                pass
+
+        def format_decimal_1(value):
+            return f"{float(value):.1f}".replace(".", ",")
+
+        def format_int(value):
+            return str(int(round(float(value))))
+
+        current_field_order = [
+            ("temperature_2m", "Temperature"),
+            ("apparent_temperature", "Temperature ressentie"),
+            ("relative_humidity_2m", "Humidite relative"),
+            ("wind_speed_10m", "Vitesse du vent"),
+            ("weather_code", "Code meteo"),
+            ("is_day", "Jour / nuit"),
+        ]
+
+        current_fields = []
+        for key, label in current_field_order:
+            if key not in current_data:
+                continue
+            value = current_data.get(key)
+            display_value = value
+            unit = current_units.get(key, "") or "-"
+
+            if key in {"temperature_2m", "apparent_temperature", "wind_speed_10m"}:
+                display_value = format_decimal_1(value)
+            elif key == "relative_humidity_2m":
+                display_value = format_int(value)
+            if key == "is_day":
+                display_value = "Jour" if int(value) == 1 else "Nuit"
+                unit = "-"
+            if key == "weather_code":
+                display_value = f"{value} ({current_condition})"
+                unit = current_units.get(key, "") or "wmo code"
+
+            current_fields.append(
+                {
+                    "key": key,
+                    "label": label,
+                    "value": display_value,
+                    "unit": unit,
+                }
+            )
+
+        weather_icon_slug = weather_icon_slug_map.get(current_weather_code, "cloud")
         meteo_current = {
-            "temperature": int(round(float(current_data.get("temperature_2m", 0) or 0))),
-            "humidity": int(round(float(current_data.get("relative_humidity_2m", 0) or 0))),
-            "precipitation": int(round(float(current_data.get("precipitation", 0) or 0))),
-            "wind": int(round(float(current_data.get("wind_speed_10m", 0) or 0))),
+            "station_name": "ST CDEA - Montaton",
+            "today_label": f"Aujourd'hui : {current_time_formatted}",
+            "datetime_formatted": current_time_formatted,
+            "fields": current_fields,
             "condition": current_condition,
-            "icon": current_icon,
-            "day_label": day_name_map.get(today.strftime("%A"), ""),
+            "temperature": format_decimal_1(current_data.get("temperature_2m", 0)),
+            "apparent_temperature": format_decimal_1(current_data.get("apparent_temperature", 0)),
+            "icon_url": (
+                "https://storage.googleapis.com/dojo360-public/cdea/gestom/"
+                f"img_weather_code_{weather_icon_slug}.png"
+            ),
+            "icon_fallback": weather_icon_slug.upper(),
         }
 
         hourly_data = data.get("hourly", {})
@@ -234,9 +334,6 @@ def home(request):
             meteo_chart_labels = [f"{row['jour_ddd']} {row['heure']}" for row in df_details]
             meteo_chart_temperatures = [row["temperature"] for row in df_details]
 
-            if df_semaine:
-                meteo_current["t_max"] = int(df_semaine[0]["t_max"])
-                meteo_current["t_min"] = int(df_semaine[0]["t_min"])
     except Exception:
         weather_error = "Les donnees meteo sont indisponibles pour le moment."
 

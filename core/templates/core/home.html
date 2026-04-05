@@ -71,158 +71,44 @@
   </div>
 </div>
 
-<div class="card" style="margin-top: 16px;">
+<section class="card home-weather" style="margin-top: 16px;">
   <div class="card__pad">
-    <h2 class="h2">Meteo</h2>
+    <h1 class="home-weather__title">Meteo - {{ meteo_current.station_name|default:"ST CDEA - Montaton" }}</h1>
+
     {% if weather_error %}
-      <p class="help">{{ weather_error }}</p>
-    {% else %}
-      <div class="meteo-shell">
-        <div class="meteo-now">
-          <div class="meteo-now__left">
-            <div class="meteo-now__icon">{{ meteo_current.icon|default:"SUN" }}</div>
-            <div class="meteo-now__temp-wrap">
-              <div class="meteo-now__temp">{{ meteo_current.temperature|default:"-" }}</div>
-              <div class="meteo-now__unit">&deg;C</div>
-            </div>
-            <div class="meteo-now__stats">
-              <div>Precipitations: {{ meteo_current.precipitation|default:0 }} mm</div>
-              <div>Humidite: {{ meteo_current.humidity|default:0 }}%</div>
-              <div>Vent: {{ meteo_current.wind|default:0 }} km/h</div>
-            </div>
-          </div>
-          <div class="meteo-now__right">
-            <div class="meteo-now__title">Meteo</div>
-            <div class="meteo-now__day">{{ meteo_current.day_label|default:"" }}</div>
-            <div class="meteo-now__cond">{{ meteo_current.condition|default:"-" }}</div>
-            <div class="meteo-now__range">
-              max {{ meteo_current.t_max|default:"-" }}&deg; | min {{ meteo_current.t_min|default:"-" }}&deg;
-            </div>
-          </div>
-        </div>
+      <p class="home-weather__error">{{ weather_error }}</p>
+    {% elif meteo_current %}
+      <p class="home-weather__datetime">{{ meteo_current.today_label }}</p>
 
-        <div class="meteo-days">
-          {% for row in df_semaine %}
-            <div class="meteo-day-card">
-              <div class="meteo-day-card__label">{{ row.jour_ddd }}</div>
-              <div class="meteo-day-card__temps">{{ row.t_max }}&deg; / {{ row.t_min }}&deg;</div>
-            </div>
-          {% empty %}
-            <div class="help">Aucune donnee meteo.</div>
-          {% endfor %}
+      <div class="home-weather__hero">
+        <div class="home-weather__icon-wrap">
+          <img
+            class="home-weather__icon"
+            src="{{ meteo_current.icon_url }}"
+            alt="Icone meteo {{ meteo_current.condition }}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+          />
+          <span class="home-weather__icon-fallback">{{ meteo_current.icon_fallback }}</span>
         </div>
-
-        
+        <div class="home-weather__hero-metrics">
+          <div class="home-weather__metric-main">{{ meteo_current.temperature }}&deg;C</div>
+          <div class="home-weather__metric-sub">Ressentie {{ meteo_current.apparent_temperature }}&deg;C</div>
+          <div class="home-weather__condition">{{ meteo_current.condition }}</div>
+        </div>
       </div>
+
+      <div class="home-weather__list">
+        {% for item in meteo_current.fields %}
+          <article class="home-weather__item">
+            <p class="home-weather__item-label">{{ item.label }}</p>
+            <p class="home-weather__item-value">{{ item.value }}</p>
+            <p class="home-weather__item-unit">{{ item.unit|default:"-" }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="home-weather__error">Les donnees meteo sont indisponibles pour le moment.</p>
     {% endif %}
   </div>
-</div>
-
-<style>
-  .meteo-shell {
-    display: grid;
-    gap: 14px;
-  }
-  .meteo-now {
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    border: 1px solid #dbe3ea;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #f7fafc 0%, #ffffff 100%);
-    padding: 14px;
-    flex-wrap: wrap;
-  }
-  .meteo-now__left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .meteo-now__icon {
-    font-size: 12px;
-    line-height: 1;
-    font-weight: 800;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-radius: 999px;
-    padding: 8px 10px;
-    background: #f8fafc;
-  }
-  .meteo-now__temp-wrap {
-    display: flex;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  .meteo-now__temp {
-    font-size: 54px;
-    line-height: 1;
-    font-weight: 700;
-    color: #1f2937;
-  }
-  .meteo-now__unit {
-    font-size: 22px;
-    margin-top: 8px;
-    color: #4b5563;
-  }
-  .meteo-now__stats {
-    color: #334155;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  .meteo-now__right {
-    text-align: right;
-    min-width: 140px;
-  }
-  .meteo-now__title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #111827;
-  }
-  .meteo-now__day {
-    color: #64748b;
-    margin-top: 2px;
-  }
-  .meteo-now__cond {
-    color: #334155;
-    margin-top: 6px;
-    font-weight: 600;
-  }
-  .meteo-now__range {
-    color: #64748b;
-    margin-top: 6px;
-    font-size: 13px;
-  }
-  .meteo-days {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-    gap: 8px;
-  }
-  .meteo-day-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 8px 10px;
-    background: #ffffff;
-    text-align: center;
-  }
-  .meteo-day-card__label {
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 4px;
-  }
-  .meteo-day-card__temps {
-    color: #0f172a;
-    font-size: 13px;
-  }
-  .meteo-week-table th,
-  .meteo-week-table td {
-    border-color: transparent !important;
-  }
-  @media (max-width: 720px) {
-    .meteo-now__right {
-      text-align: left;
-    }
-  }
-</style>
-
+</section>
 {% endblock %}
