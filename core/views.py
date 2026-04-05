@@ -179,7 +179,7 @@ def home(request):
 
         weather_icon_slug = weather_icon_slug_map.get(current_weather_code, "cloud")
         meteo_current = {
-            "station_name": "ST CDEA - Montatons",
+            "station_name": "CDEA\PGD - Montatons",
             "today_label": f"Aujourd'hui : {current_time_formatted}",
             "datetime_formatted": current_time_formatted,
             "fields": current_fields,
