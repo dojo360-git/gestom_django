@@ -72,8 +72,11 @@
 </div>
 
 <section class="card home-weather" style="margin-top: 16px;">
-  <div class="card__pad">
-    <h1 class="home-weather__title">Meteo - {{ meteo_current.station_name|default:"ST CDEA - Montaton" }}</h1>
+  <div class="card__pad home-weather__pad">
+    <div class="home-weather__head">
+      <h1 class="home-weather__title">Meteo - {{ meteo_current.station_name|default:"ST CDEA - Montaton" }}</h1>
+      <span class="home-weather__badge">Temps reel</span>
+    </div>
 
     {% if weather_error %}
       <p class="home-weather__error">{{ weather_error }}</p>
@@ -91,18 +94,45 @@
           <span class="home-weather__icon-fallback">{{ meteo_current.icon_fallback }}</span>
         </div>
         <div class="home-weather__hero-metrics">
-          <div class="home-weather__metric-main">{{ meteo_current.temperature }}&deg;C</div>
-          <div class="home-weather__metric-sub">Ressentie {{ meteo_current.apparent_temperature }}&deg;C</div>
-          <div class="home-weather__condition">{{ meteo_current.condition }}</div>
+          <div class="home-weather__hero-col home-weather__hero-col--main">
+            <div class="home-weather__metric-main">{{ meteo_current.temperature }}&deg;C</div>
+            <div class="home-weather__metric-sub">Temperature</div>
+            <div class="home-weather__condition">{{ meteo_current.condition }}</div>
+          </div>
+          <div class="home-weather__hero-col home-weather__hero-col--details">
+            <div class="home-weather__metric-sub">Temperature ressentie {{ meteo_current.apparent_temperature }}&deg;C</div>
+            <div class="home-weather__metric-sub">Humidite relative {{ meteo_current.relative_humidity }} {{ meteo_current.relative_humidity_unit }}</div>
+            <div class="home-weather__metric-sub">Vitesse du vent {{ meteo_current.wind_speed }} {{ meteo_current.wind_speed_unit }}</div>
+          </div>
         </div>
       </div>
 
-      <div class="home-weather__list">
-        {% for item in meteo_current.fields %}
-          <article class="home-weather__item">
-            <p class="home-weather__item-label">{{ item.label }}</p>
-            <p class="home-weather__item-value">{{ item.value }}</p>
-            <p class="home-weather__item-unit">{{ item.unit|default:"-" }}</p>
+      <div class="home-weather__list" role="list">
+        {% for item in meteo_forecast_cards %}
+          <article class="home-weather__item" role="listitem">
+            <p class="home-weather__item-label">{{ item.date_label }}</p>
+            <div class="home-weather__item-body">
+              <div class="home-weather__item-icon-wrap">
+                <img
+                  class="home-weather__item-icon"
+                  src="{{ item.icon_url }}"
+                  alt="Icone meteo"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+                />
+                <span class="home-weather__item-icon-fallback">{{ item.icon_fallback }}</span>
+              </div>
+              <div class="home-weather__item-lines">
+                <p class="home-weather__item-value">{{ item.temperature_5 }}</p>
+                <p class="home-weather__item-value">{{ item.temperature_12 }}</p>
+                <p class="home-weather__item-unit">💧 {{ item.precipitation_probability }}</p>
+                <p class="home-weather__item-unit">💨 {{ item.wind_speed_10m }}</p>
+              </div>
+            </div>
+          </article>
+        {% empty %}
+          <article class="home-weather__item" role="listitem">
+            <p class="home-weather__item-label">Meteo</p>
+            <p class="home-weather__item-unit">Donnees indisponibles</p>
           </article>
         {% endfor %}
       </div>

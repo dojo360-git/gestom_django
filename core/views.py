@@ -114,6 +114,7 @@ def home(request):
     meteo_chart_labels = []
     meteo_chart_temperatures = []
     meteo_current = {}
+    meteo_forecast_cards = []
     weather_error = ""
 
     try:
@@ -142,7 +143,7 @@ def home(request):
             "https://api.open-meteo.com/v1/forecast"
             "?latitude=48.626032&longitude=2.309739"
             "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day"
-            "&hourly=temperature_2m,precipitation"
+            "&hourly=temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m"
             "&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset"
             "&timezone=Europe/Paris"
         )
@@ -154,8 +155,9 @@ def home(request):
         current_weather_code = current_data.get("weather_code")
         current_condition = weather_code_map.get(current_weather_code, "Meteo")
         weather_icon_slug_map = {
-            0: "sun",
-            1: "sun",
+            # UI choix: garder une icone neutre "cloud" meme quand le ciel est degage.
+            0: "cloud",
+            1: "cloud",
             2: "cloud",
             3: "cloud",
             45: "mist",
@@ -256,13 +258,17 @@ def home(request):
 
         weather_icon_slug = weather_icon_slug_map.get(current_weather_code, "cloud")
         meteo_current = {
-            "station_name": "ST CDEA - Montaton",
+            "station_name": "ST CDEA - Montatons",
             "today_label": f"Aujourd'hui : {current_time_formatted}",
             "datetime_formatted": current_time_formatted,
             "fields": current_fields,
             "condition": current_condition,
             "temperature": format_decimal_1(current_data.get("temperature_2m", 0)),
             "apparent_temperature": format_decimal_1(current_data.get("apparent_temperature", 0)),
+            "relative_humidity": format_int(current_data.get("relative_humidity_2m", 0)),
+            "wind_speed": format_decimal_1(current_data.get("wind_speed_10m", 0)),
+            "relative_humidity_unit": current_units.get("relative_humidity_2m", "%"),
+            "wind_speed_unit": current_units.get("wind_speed_10m", "km/h"),
             "icon_url": (
                 "https://storage.googleapis.com/dojo360-public/cdea/gestom/"
                 f"img_weather_code_{weather_icon_slug}.png"
@@ -276,6 +282,9 @@ def home(request):
                 "time": hourly_data.get("time", []),
                 "temperature": hourly_data.get("temperature_2m", []),
                 "precipitation": hourly_data.get("precipitation", []),
+                "precipitation_probability": hourly_data.get("precipitation_probability", []),
+                "weather_code": hourly_data.get("weather_code", []),
+                "wind_speed_10m": hourly_data.get("wind_speed_10m", []),
             }
         )
 
@@ -284,6 +293,7 @@ def home(request):
             df = df.dropna(subset=["time"]).copy()
             df["date"] = df["time"].dt.date
             df["heure"] = df["time"].dt.strftime("%H:00")
+            df["hour_int"] = df["time"].dt.hour
 
             english_day_names = df["time"].dt.day_name()
             day_short_map = {
@@ -308,10 +318,69 @@ def home(request):
             df["day_order"] = english_day_names.map(day_sort_map).fillna(99).astype(int)
             df["jour_dd"] = df["time"].dt.day
 
-            df["temperature"] = pd.to_numeric(df["temperature"], errors="coerce").fillna(0).round(0).astype(int)
+            df["temperature_num"] = pd.to_numeric(df["temperature"], errors="coerce").fillna(0)
+            df["precipitation_probability_num"] = (
+                pd.to_numeric(df["precipitation_probability"], errors="coerce").fillna(0)
+            )
+            df["wind_speed_10m_num"] = pd.to_numeric(df["wind_speed_10m"], errors="coerce").fillna(0)
+            df["weather_code_num"] = pd.to_numeric(df["weather_code"], errors="coerce").fillna(3).astype(int)
+
+            df["temperature"] = df["temperature_num"].round(0).astype(int)
             df["precipitation"] = (
                 pd.to_numeric(df["precipitation"], errors="coerce").fillna(0).round(0).astype(int)
             )
+
+            month_short_map = {
+                1: "janv.",
+                2: "fevr.",
+                3: "mars",
+                4: "avr.",
+                5: "mai",
+                6: "juin",
+                7: "juil.",
+                8: "aout",
+                9: "sept.",
+                10: "oct.",
+                11: "nov.",
+                12: "dec.",
+            }
+
+            def pick_hour_row(day_df, target_hour):
+                exact = day_df[day_df["hour_int"] == target_hour]
+                if not exact.empty:
+                    return exact.iloc[0]
+                nearest_idx = (day_df["hour_int"] - target_hour).abs().idxmin()
+                return day_df.loc[nearest_idx]
+
+            forecast_dates = sorted([d for d in df["date"].dropna().unique() if d > today])[:3]
+            for forecast_date in forecast_dates:
+                day_df = df[df["date"] == forecast_date].copy()
+                if day_df.empty:
+                    continue
+                day_df = day_df.sort_values("hour_int")
+
+                row_5 = pick_hour_row(day_df, 5)
+                row_12 = pick_hour_row(day_df, 12)
+                icon_code = int(row_12["weather_code_num"])
+                icon_slug = weather_icon_slug_map.get(icon_code, "cloud")
+
+                meteo_forecast_cards.append(
+                    {
+                        "date_label": (
+                            f"{day_short_map.get(forecast_date.strftime('%A'), '')} "
+                            f"{forecast_date.day:02d} {month_short_map.get(forecast_date.month, '')}"
+                        ),
+                        "icon_url": (
+                            "https://storage.googleapis.com/dojo360-public/cdea/gestom/"
+                            f"img_weather_code_{icon_slug}.png"
+                        ),
+                        "icon_fallback": icon_slug.upper(),
+                        "temperature_5": f"{format_int(row_5['temperature_num'])}\u00b0C",
+                        "temperature_12": f"{format_int(row_12['temperature_num'])}\u00b0C",
+                        "precipitation_probability": f"{format_int(row_12['precipitation_probability_num'])}%",
+                        "wind_speed_10m": f"{format_int(row_12['wind_speed_10m_num'])} km/h",
+                    }
+                )
 
             df_details_df = df[["date", "heure", "jour_ddd", "jour_dd", "temperature", "precipitation", "day_order"]]
             df_details = df_details_df[
@@ -349,6 +418,7 @@ def home(request):
             "meteo_chart_labels": meteo_chart_labels,
             "meteo_chart_temperatures": meteo_chart_temperatures,
             "meteo_current": meteo_current,
+            "meteo_forecast_cards": meteo_forecast_cards,
             "weather_error": weather_error,
         },
     )
