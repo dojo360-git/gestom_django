@@ -98,10 +98,14 @@
 
 <script>
   (function () {
+    var nav = document.querySelector(".nav");
     var toggle = document.querySelector(".nav__toggle");
     var menu = document.querySelector("#main-nav-menu");
     var backdrop = document.querySelector(".nav__backdrop");
     var dropdowns = menu ? menu.querySelectorAll(".nav__dropdown") : [];
+    var isPlanningPage = document.body.classList.contains("page-planning3");
+    var lastScrollY = window.scrollY || window.pageYOffset || 0;
+    var scrollTicking = false;
     if (!toggle || !menu || !backdrop) {
       return;
     }
@@ -115,6 +119,31 @@
         "aria-label",
         isOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"
       );
+      if (isOpen && nav) {
+        nav.classList.remove("nav--hidden");
+      }
+    }
+
+    function updateNavOnScroll() {
+      scrollTicking = false;
+      if (!isPlanningPage || !nav) {
+        return;
+      }
+      var currentScrollY = window.scrollY || window.pageYOffset || 0;
+      var isMenuOpen = toggle.getAttribute("aria-expanded") === "true";
+      if (isMenuOpen || window.innerWidth <= 720 || currentScrollY <= 0) {
+        nav.classList.remove("nav--hidden");
+        lastScrollY = currentScrollY;
+        return;
+      }
+
+      var delta = currentScrollY - lastScrollY;
+      if (delta > 8) {
+        nav.classList.add("nav--hidden");
+      } else if (delta < -3) {
+        nav.classList.remove("nav--hidden");
+      }
+      lastScrollY = currentScrollY;
     }
 
     toggle.addEventListener("click", function () {
@@ -158,7 +187,22 @@
       if (window.innerWidth > 720) {
         setOpenState(false);
       }
+      if (nav) {
+        nav.classList.remove("nav--hidden");
+      }
     });
+
+    window.addEventListener("scroll", function () {
+      if (!isPlanningPage || scrollTicking) {
+        return;
+      }
+      scrollTicking = true;
+      window.requestAnimationFrame(updateNavOnScroll);
+    }, { passive: true });
+
+    if (nav) {
+      nav.classList.remove("nav--hidden");
+    }
   })();
 </script>
 

@@ -33,9 +33,10 @@
         <table class="table planning__table planning3__table">
           <thead>
             <tr>
-              <th class="planning__sticky planning3__sticky--service">Service</th>
-              <th class="planning__sticky planning3__sticky--qualif">Qualification</th>
-              <th class="planning__sticky planning3__sticky--nom">Nom agent</th>
+              <th class="planning__sticky planning3__sticky--service">Serv.</th>
+              <th class="planning__sticky planning3__sticky--qualif">Qual.</th>
+              <th class="planning__sticky planning3__sticky--employeur">Empl.</th>
+              <th class="planning__sticky planning3__sticky--nom">Agent</th>
               {% for day in days %}
                 <th class="planning__cell" data-day-col="{{ forloop.counter0 }}">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
               {% endfor %}
@@ -45,12 +46,13 @@
             {% for row in rows %}
               <tr>
                 {% if row.show_service_cell %}
-                  <td class="planning__sticky planning3__sticky--service" rowspan="{{ row.service_rowspan }}">{{ row.service_value }}</td>
+                  <td class="planning__sticky planning3__sticky--service" rowspan="{{ row.service_rowspan }}">{% with service_short=row.service_value|slice:":4" %}{% if service_short == "Coll" %}Coll.{% elif service_short == "Préc" %}Préc.{% elif service_short == "Prop" %}Prop.{% else %}{{ service_short }}{% endif %}{% endwith %}</td>
                 {% endif %}
                 {% if row.show_qualification_cell %}
-                  <td class="planning__sticky planning3__sticky--qualif" rowspan="{{ row.qualification_rowspan }}">{{ row.qualification_value }}</td>
+                  <td class="planning__sticky planning3__sticky--qualif" rowspan="{{ row.qualification_rowspan }}">{% if row.qualification_value == "Encadrement" %}Encad.{% elif row.qualification_value == "Coordinateur" %}Coord.{% else %}{{ row.qualification_value }}{% endif %}</td>
                 {% endif %}
-                <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }} {{ row.agent.prenom }}</td>
+                <td class="planning__sticky planning3__sticky--employeur">{{ row.agent.employeur|default:"-"|slice:":4" }}</td>
+                <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }}</td>
                 {% for cell in row.day_cells %}
                   <td
                     class="planning__cell planning3__cell cell_jour {% if cell.day == today %}planning3__cell--today{% endif %} {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}"
@@ -74,7 +76,7 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="{{ days|length|add:'3' }}" class="sub">Aucun agent sur la periode</td>
+                <td colspan="{{ days|length|add:'4' }}" class="sub">Aucun agent sur la periode</td>
               </tr>
             {% endfor %}
           </tbody>

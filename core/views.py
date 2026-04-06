@@ -1820,7 +1820,7 @@ def planning(request):
             & (Q(depart__isnull=True) | Q(depart__gte=month_start))
         )
         .annotate(qualification_sort=qualification_order)
-        .order_by("service", "qualification_sort", "qualification", "nom", "prenom")
+        .order_by("service", "qualification_sort", "qualification", "employeur", "nom", "prenom")
     )
 
     def _safe_hex_color(raw_value, fallback):

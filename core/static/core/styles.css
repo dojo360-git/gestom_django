@@ -61,6 +61,13 @@ a{ color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--border);
   box-shadow: 0 2px 0 #dcfce7;
 }
+.page-planning3 .nav{
+  transition: transform .12s ease-out;
+  will-change: transform;
+}
+.page-planning3 .nav.nav--hidden{
+  transform: translateY(calc(-100% - 6px));
+}
 .nav::before{
   content: "";
   display: block;
@@ -913,6 +920,9 @@ input[type="checkbox"]{
 .planning3__table td{
   vertical-align: top;
 }
+.planning3__table td.planning__cell.planning3__cell.cell_jour{
+  padding: 4px 4px;
+}
 .planning3__cell{
   min-width: 5px;
 }
@@ -936,17 +946,25 @@ input[type="checkbox"]{
 }
 .planning .planning3__sticky--service{
   left: 0;
-  min-width: 100px;
+  min-width: 65px;
   font-weight: 700;
 }
 .planning .planning3__sticky--qualif{
-  left: 100px;
-  min-width: 120px;
+  left: 65px;
+  min-width: 85px;
+  font-weight: 700;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.planning .planning3__sticky--employeur{
+  left: 150px;
+  min-width: 70px;
   font-weight: 700;
 }
 .planning .planning3__sticky--nom{
   left: 220px;
-  min-width: 160px;
+  min-width: 120px;
   font-weight: 700;
 }
 .planning3__entry{
