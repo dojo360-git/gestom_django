@@ -76,10 +76,10 @@ def home(request):
         current_weather_code = current_data.get("weather_code")
         current_condition = weather_code_map.get(current_weather_code, "Meteo")
         weather_icon_slug_map = {
-            # UI choix: garder une icone neutre "cloud" meme quand le ciel est degage.
-            0: "cloud",
-            1: "cloud",
-            2: "cloud",
+            # Ciel degage: icone soleil.
+            0: "sun",
+            1: "sun",
+            2: "sun",
             3: "cloud",
             45: "mist",
             48: "mist",
@@ -179,7 +179,7 @@ def home(request):
 
         weather_icon_slug = weather_icon_slug_map.get(current_weather_code, "cloud")
         meteo_current = {
-            "station_name": "CDEA\PGD - Montatons",
+            "station_name": "CDEA\\PGD - Montatons",
             "today_label": f"Aujourd'hui : {current_time_formatted}",
             "datetime_formatted": current_time_formatted,
             "fields": current_fields,
@@ -1588,9 +1588,35 @@ class CollecteUpdateView(UpdateView):
     template_name = "core/collecte_form.html"
     success_url = reverse_lazy("core:collecte_list")
 
+    def _is_embedded(self):
+        return (self.request.GET.get("embedded") or self.request.POST.get("embedded")) == "1"
+
+    def get_template_names(self):
+        if self._is_embedded():
+            return ["core/collecte_form_embedded.html"]
+        return [self.template_name]
+
+    def _get_next_url(self):
+        next_url = self.request.POST.get("next") or self.request.GET.get("next") or ""
+        if not next_url:
+            return ""
+        if not url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return ""
+        return next_url
+
+    def get_success_url(self):
+        return self._get_next_url() or str(self.success_url)
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = "Modifier collecte"
+        ctx["next_url"] = self._get_next_url()
+        ctx["embedded"] = self._is_embedded()
+        ctx["form_action"] = self.request.get_full_path()
         return ctx
 
 

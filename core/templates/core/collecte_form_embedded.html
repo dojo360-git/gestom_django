@@ -1,0 +1,350 @@
+<style>
+  .collecte-form .collecte-section {
+    border: 1px solid #e6efe4;
+    border-radius: 10px;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .collecte-form .collecte-level1 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+  }
+  .collecte-form .collecte-level1.four-cols {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(240px, 0.95fr) minmax(320px, 1.45fr) minmax(220px, 0.8fr);
+  }
+  .collecte-form .section-title {
+    background: #2f6b2f;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+  .collecte-form .section-body {
+    padding: 12px 14px;
+  }
+  .collecte-form .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .collecte-form .grid-3-tight {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .collecte-form .grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px 16px;
+  }
+  .collecte-form .field {
+    margin: 0;
+  }
+  .collecte-form .field--full {
+    grid-column: 1 / -1;
+  }
+  .collecte-form .field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .collecte-form input,
+  .collecte-form select,
+  .collecte-form textarea {
+    width: 100%;
+  }
+  .collecte-form input::placeholder,
+  .collecte-form textarea::placeholder {
+    font-style: italic;
+  }
+  @media (max-width: 980px) {
+    .collecte-form .collecte-level1,
+    .collecte-form .grid-3-tight,
+    .collecte-form .grid-2,
+    .collecte-form .grid-1 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<form method="post" action="{{ form_action }}" class="form collecte-form" id="collecteEmbeddedForm">
+  {% csrf_token %}
+  {% if next_url %}
+  <input type="hidden" name="next" value="{{ next_url }}">
+  {% endif %}
+  {% if embedded %}
+  <input type="hidden" name="embedded" value="1">
+  {% endif %}
+
+  {{ form.non_field_errors }}
+
+  <div class="collecte-level1 four-cols">
+    <div class="collecte-section">
+      <div class="section-title">Collecte</div>
+      <div class="section-body grid-1">
+        <div class="field">
+          {{ form.date_collecte.label_tag }}
+          {{ form.date_collecte }}
+          {{ form.date_collecte.errors }}
+        </div>
+        <div class="field">
+          {{ form.id_itineraire.label_tag }}
+          {{ form.id_itineraire }}
+          {{ form.id_itineraire.errors }}
+        </div>
+        <div class="field">
+          {{ form.consignes.label_tag }}
+          {{ form.consignes }}
+          {{ form.consignes.errors }}
+        </div>
+        <div class="field">
+          {{ form.info_collecte.label_tag }}
+          {{ form.info_collecte }}
+          {{ form.info_collecte.errors }}
+        </div>
+      </div>
+    </div>
+
+    <div class="collecte-section">
+      <div class="section-title">Vehicule</div>
+      <div class="section-body grid-2">
+        <div class="field">
+          {{ form.id_vehicule.label_tag }}
+          {{ form.id_vehicule }}
+          {{ form.id_vehicule.errors }}
+        </div>
+        <div class="field">
+          {{ form.energie_qte_1.label_tag }}
+          {{ form.energie_qte_1 }}
+          {{ form.energie_qte_1.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.km_depart.label_tag }}
+          {{ form.km_depart }}
+          {{ form.km_depart.errors }}
+        </div>
+        <div class="field">
+          {{ form.hr_depot_depart.label_tag }}
+          {{ form.hr_depot_depart }}
+          {{ form.hr_depot_depart.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.km_retour.label_tag }}
+          {{ form.km_retour }}
+          {{ form.km_retour.errors }}
+        </div>
+        <div class="field">
+          {{ form.hr_depot_retour.label_tag }}
+          {{ form.hr_depot_retour }}
+          {{ form.hr_depot_retour.errors }}
+        </div>
+        <div class="field field--full">
+          {{ form.info_vehicule.label_tag }}
+          {{ form.info_vehicule }}
+          {{ form.info_vehicule.errors }}
+        </div>
+      </div>
+    </div>
+
+    <div class="collecte-section">
+      <div class="section-title">Equipage</div>
+      <div class="section-body grid-3-tight">
+        <div class="field">
+          {{ form.id_agent_1.label_tag }}
+          {{ form.id_agent_1 }}
+          {{ form.id_agent_1.errors }}
+        </div>
+        <div class="field">
+          {{ form.a1_hr_debut.label_tag }}
+          {{ form.a1_hr_debut }}
+          {{ form.a1_hr_debut.errors }}
+        </div>
+        <div class="field">
+          {{ form.a1_hr_fin.label_tag }}
+          {{ form.a1_hr_fin }}
+          {{ form.a1_hr_fin.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.id_agent_2.label_tag }}
+          {{ form.id_agent_2 }}
+          {{ form.id_agent_2.errors }}
+        </div>
+        <div class="field">
+          {{ form.a2_hr_debut.label_tag }}
+          {{ form.a2_hr_debut }}
+          {{ form.a2_hr_debut.errors }}
+        </div>
+        <div class="field">
+          {{ form.a2_hr_fin.label_tag }}
+          {{ form.a2_hr_fin }}
+          {{ form.a2_hr_fin.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.id_agent_3.label_tag }}
+          {{ form.id_agent_3 }}
+          {{ form.id_agent_3.errors }}
+        </div>
+        <div class="field">
+          {{ form.a3_hr_debut.label_tag }}
+          {{ form.a3_hr_debut }}
+          {{ form.a3_hr_debut.errors }}
+        </div>
+        <div class="field">
+          {{ form.a3_hr_fin.label_tag }}
+          {{ form.a3_hr_fin }}
+          {{ form.a3_hr_fin.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.motif_heures_sup.label_tag }}
+          {{ form.motif_heures_sup }}
+          <datalist id="motif-heures-sup-options">
+            <option value="Renfort"></option>
+            <option value="Remplacement"></option>
+            <option value="Rattrapage"></option>
+            <option value="Manifestation"></option>
+            <option value="GDV"></option>
+          </datalist>
+          {{ form.motif_heures_sup.errors }}
+        </div>
+        <div class="field">
+          {{ form.hr_sup_debut.label_tag }}
+          {{ form.hr_sup_debut }}
+          {{ form.hr_sup_debut.errors }}
+        </div>
+        <div class="field">
+          {{ form.hr_sup_fin.label_tag }}
+          {{ form.hr_sup_fin }}
+          {{ form.hr_sup_fin.errors }}
+        </div>
+      </div>
+    </div>
+
+    <div class="collecte-section">
+      <div class="section-title">Flux</div>
+      <div class="section-body grid-2">
+        <div class="field">
+          {{ form.id_flux1.label_tag }}
+          {{ form.id_flux1 }}
+          {{ form.id_flux1.errors }}
+        </div>
+        <div class="field">
+          {{ form.tonnage1.label_tag }}
+          {{ form.tonnage1 }}
+          {{ form.tonnage1.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.id_flux2.label_tag }}
+          {{ form.id_flux2 }}
+          {{ form.id_flux2.errors }}
+        </div>
+        <div class="field">
+          {{ form.tonnage2.label_tag }}
+          {{ form.tonnage2 }}
+          {{ form.tonnage2.errors }}
+        </div>
+
+        <div class="field">
+          {{ form.id_flux3.label_tag }}
+          {{ form.id_flux3 }}
+          {{ form.id_flux3.errors }}
+        </div>
+        <div class="field">
+          {{ form.tonnage3.label_tag }}
+          {{ form.tonnage3 }}
+          {{ form.tonnage3.errors }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn--primary" type="submit">Enregistrer</button>
+    <button class="btn btn--ghost" type="button" data-close-collecte="1">Annuler</button>
+  </div>
+</form>
+
+<script>
+  (function () {
+    const flux1 = document.getElementById("id_id_flux1");
+    const flux2 = document.getElementById("id_id_flux2");
+    const flux3 = document.getElementById("id_id_flux3");
+    if (flux1 && flux2 && flux3) {
+      flux1.addEventListener("change", function () {
+        const value = flux1.value;
+        flux2.value = value;
+        flux3.value = value;
+      });
+    }
+
+    const hrDepotRetour = document.getElementById("id_hr_depot_retour");
+    const a1HrFin = document.getElementById("id_a1_hr_fin");
+    const a2HrFin = document.getElementById("id_a2_hr_fin");
+    const a3HrFin = document.getElementById("id_a3_hr_fin");
+    if (hrDepotRetour && a1HrFin && a2HrFin && a3HrFin) {
+      const syncHrFin = function () {
+        const value = hrDepotRetour.value;
+        a1HrFin.value = value;
+        a2HrFin.value = value;
+        a3HrFin.value = value;
+      };
+      hrDepotRetour.addEventListener("change", syncHrFin);
+      hrDepotRetour.addEventListener("input", syncHrFin);
+    }
+
+    const numericIds = [
+      "id_km_depart",
+      "id_km_retour",
+      "id_tonnage1",
+      "id_tonnage2",
+      "id_tonnage3",
+      "id_energie_qte_1",
+    ];
+    const inputs = numericIds.map((id) => document.getElementById(id)).filter(Boolean);
+
+    function normalizeInteger(value) {
+      const raw = (value || "").replace(/\s+/g, "").replace(",", ".");
+      if (!raw) return "";
+      const parsed = Number.parseFloat(raw);
+      if (!Number.isNaN(parsed)) return String(Math.trunc(parsed));
+      return raw.split(".")[0].replace(/[^\d]/g, "");
+    }
+
+    function formatThousands(value) {
+      const digits = normalizeInteger(value);
+      if (!digits) return "";
+      return digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    inputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        input.value = normalizeInteger(input.value);
+      });
+      input.addEventListener("blur", function () {
+        input.value = formatThousands(input.value);
+      });
+      if (input.value) {
+        input.value = formatThousands(input.value);
+      }
+    });
+
+    const form = document.getElementById("collecteEmbeddedForm");
+    if (form) {
+      form.addEventListener("submit", function () {
+        inputs.forEach((input) => {
+          input.value = normalizeInteger(input.value);
+        });
+      });
+    }
+  })();
+</script>
