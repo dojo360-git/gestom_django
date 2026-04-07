@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
-from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, Itineraire, HeuresManuelles
+from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, Itineraire, HeuresManuelles, Tache
 
 
 class AgentForm(forms.ModelForm):
@@ -318,3 +318,20 @@ class HeuresManuellesForm(forms.ModelForm):
             if not cleaned_data.get("heure_fin"):
                 cleaned_data["heure_fin"] = agent.hfs_defaut
         return cleaned_data
+
+
+class TacheForm(forms.ModelForm):
+    class Meta:
+        model = Tache
+        fields = ["date", "info", "jour_ferie", "etat"]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "etat": forms.Select(
+                choices=[
+                    ("", "---------"),
+                    ("ouvert", "ouvert"),
+                    ("en_cours", "en cours"),
+                    ("cloture", "clôturé"),
+                ]
+            ),
+        }

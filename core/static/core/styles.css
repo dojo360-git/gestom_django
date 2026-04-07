@@ -1003,6 +1003,55 @@ input[type="checkbox"]{
 .planning3__w-100{ width: 100%; }
 
 /* =========================
+   Calendrier
+========================= */
+.calendrier__table{
+  min-width: 980px;
+}
+.calendrier__week{
+  font-weight: 800;
+  white-space: nowrap;
+}
+.calendrier__cell{
+  position: relative;
+  min-height: 96px;
+  vertical-align: top;
+  padding-top: 24px;
+}
+.calendrier__cell--active{
+  cursor: pointer;
+}
+.calendrier__cell--active:hover{
+  background: #ecfdf3;
+}
+.calendrier__cell--out{
+  background: #f8fafc;
+}
+.calendrier__watermark{
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  pointer-events: none;
+}
+.calendrier__task{
+  display: grid;
+  gap: 2px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+}
+.calendrier__checkbox-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* =========================
    Home weather
 ========================= */
 .home-weather{

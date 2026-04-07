@@ -1,0 +1,168 @@
+{% extends "core/base.html" %}
+
+{% block title %}Calendrier{% endblock %}
+
+{% block content %}
+<div class="planning">
+  <div class="card">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Calendrier</h1>
+        </div>
+        <form class="planning__controls" method="get">
+          <label class="planning__control">
+            <span class="planning__label">Date debut</span>
+            <input class="input" type="date" name="date_debut" value="{{ date_debut|date:'Y-m-d' }}">
+          </label>
+          <label class="planning__control">
+            <span class="planning__label">Date fin</span>
+            <input class="input" type="date" name="date_fin" value="{{ date_fin|date:'Y-m-d' }}">
+          </label>
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__pad">
+      <div class="table-wrap">
+        <table class="table calendrier__table">
+          <thead>
+            <tr>
+              <th>Semaine</th>
+              <th>Lundi</th>
+              <th>Mardi</th>
+              <th>Jeudi</th>
+              <th>Vendredi</th>
+              <th>Samedi</th>
+              <th>Dimanche</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td class="calendrier__week">{{ row.semaine_label }}</td>
+                {% for cell in row.cells %}
+                  <td
+                    class="calendrier__cell {% if cell.in_range %}calendrier__cell--active{% else %}calendrier__cell--out{% endif %}"
+                    {% if cell.in_range %}data-date="{{ cell.date_str }}"{% endif %}
+                  >
+                    <span class="calendrier__watermark">{{ cell.date_watermark }}</span>
+                    {% for tache in cell.taches %}
+                      <div class="calendrier__task">
+                        <span>{{ tache.info }}</span>
+                        <span class="sub">{{ tache.etat }}</span>
+                      </div>
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="sub">Aucune semaine sur cette periode.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="planning-modal" id="tacheModal" aria-hidden="true">
+  <div class="planning-modal__backdrop" data-close-tache="1"></div>
+  <div class="planning-modal__panel" role="dialog" aria-modal="true" aria-labelledby="tacheModalTitle">
+    <div class="planning-modal__head">
+      <div>
+        <h2 class="h2" id="tacheModalTitle" style="margin:0;">Nouvelle tache</h2>
+        <p class="sub" id="tacheModalDate" style="margin:6px 0 0;"></p>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button" data-close-tache="1">Fermer</button>
+    </div>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+      <input type="hidden" name="date" id="id_modal_date" value="{{ modal_date_value }}">
+
+      <div class="field">
+        <label for="id_info">Info</label>
+        {{ tache_form.info }}
+        {{ tache_form.info.errors }}
+      </div>
+
+      <div class="field">
+        <label for="id_etat">Etat</label>
+        {{ tache_form.etat }}
+        {{ tache_form.etat.errors }}
+      </div>
+
+      <div class="field calendrier__checkbox-row">
+        <label for="id_jour_ferie">Jour ferie</label>
+        {{ tache_form.jour_ferie }}
+        {{ tache_form.jour_ferie.errors }}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modal = document.getElementById("tacheModal");
+    var modalDateText = document.getElementById("tacheModalDate");
+    var modalDateInput = document.getElementById("id_modal_date");
+    if (!modal || !modalDateText || !modalDateInput) {
+      return;
+    }
+
+    function formatDateFr(dateStr) {
+      if (!dateStr) return "";
+      var parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      var months = ["janv.", "fevr.", "mars", "avr.", "mai", "juin", "juil.", "aout", "sept.", "oct.", "nov.", "dec."];
+      var year = parts[0];
+      var monthIndex = parseInt(parts[1], 10) - 1;
+      var day = parts[2];
+      if (monthIndex < 0 || monthIndex > 11) return dateStr;
+      return day + " " + months[monthIndex] + " " + year;
+    }
+
+    function openModalForDate(dateStr) {
+      modalDateInput.value = dateStr;
+      modalDateText.textContent = "Date : " + formatDateFr(dateStr);
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    document.addEventListener("click", function (event) {
+      if (event.target && event.target.dataset && event.target.dataset.closeTache) {
+        closeModal();
+        return;
+      }
+      var cell = event.target.closest(".calendrier__cell--active");
+      if (!cell) return;
+      var dateValue = cell.getAttribute("data-date");
+      if (!dateValue) return;
+      openModalForDate(dateValue);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    {% if modal_open and modal_date_value %}
+      openModalForDate("{{ modal_date_value }}");
+    {% endif %}
+  })();
+</script>
+{% endblock %}

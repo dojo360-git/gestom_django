@@ -227,3 +227,27 @@ class HeuresManuelles(models.Model):
     def __str__(self):
         return f"{self.date} - {self.agent}"
 
+
+class Tache(models.Model):
+    class EtatChoices(models.TextChoices):
+        OUVERT = "ouvert", "ouvert"
+        EN_COURS = "en_cours", "en cours"
+        CLOTURE = "cloture", "clôturé"
+
+    date = models.DateField()
+    info = models.CharField(max_length=255, blank=True, default="")
+    jour_ferie = models.BooleanField(default=False)
+    etat = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        choices=EtatChoices.choices,
+    )
+
+    class Meta:
+        db_table = "taches"
+        ordering = ["date", "info"]
+
+    def __str__(self):
+        return f"{self.date} - {self.info}"
+

@@ -11,6 +11,7 @@ from .views import (
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     HeuresManuellesListView, HeuresManuellesDetailView, HeuresManuellesCreateView, HeuresManuellesUpdateView, HeuresManuellesDeleteView,
     planning,
+    calendrier,
 )
 
 app_name = "core"
@@ -24,6 +25,7 @@ urlpatterns = [
     path("statistiques_heure_sup/", login_required(views.statistiques_heure_sup), name="statistiques_heure_sup"),
     path("statistiques_agents/", login_required(views.statistiques_agents), name="statistiques_agents"),
     path("planning/", login_required(planning), name="planning"),
+    path("calendrier/", login_required(calendrier), name="calendrier"),
     path("agents/", login_required(views.agents2), name="agents2"),
 
     # Agents

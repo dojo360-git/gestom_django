@@ -23,8 +23,9 @@ from .forms import (
     VehiculeForm,
     CollecteForm,
     HeuresManuellesForm,
+    TacheForm,
 )
-from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, HeuresManuelles
+from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, HeuresManuelles, Tache
 
 
 def home(request):
@@ -1939,5 +1940,115 @@ def planning(request):
             "today": today,
             "days": days,
             "rows": table_rows,
+        },
+    )
+
+
+def calendrier(request):
+    today = timezone.localdate()
+    default_start = today.replace(month=1, day=1)
+    default_end = today.replace(month=12, day=31)
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    date_debut = parse_date(request.GET.get("date_debut"), default_start)
+    date_fin = parse_date(request.GET.get("date_fin"), default_end)
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    modal_open = False
+    modal_date_value = ""
+    tache_form = TacheForm(initial={"jour_ferie": False, "etat": ""})
+
+    if request.method == "POST":
+        tache_form = TacheForm(request.POST)
+        modal_open = True
+        modal_date_value = request.POST.get("date", "")
+        if tache_form.is_valid():
+            tache_form.save()
+            params = f"?date_debut={date_debut:%Y-%m-%d}&date_fin={date_fin:%Y-%m-%d}"
+            return redirect(f"{reverse('core:calendrier')}{params}")
+
+    day_specs = [
+        ("lundi", 0, "Lundi"),
+        ("mardi", 1, "Mardi"),
+        ("jeudi", 3, "Jeudi"),
+        ("vendredi", 4, "Vendredi"),
+        ("samedi", 5, "Samedi"),
+        ("dimanche", 6, "Dimanche"),
+    ]
+
+    month_map = {
+        1: "janv.",
+        2: "fevr.",
+        3: "mars",
+        4: "avr.",
+        5: "mai",
+        6: "juin",
+        7: "juil.",
+        8: "aout",
+        9: "sept.",
+        10: "oct.",
+        11: "nov.",
+        12: "dec.",
+    }
+
+    start_monday = date_debut - timedelta(days=date_debut.weekday())
+    end_monday = date_fin - timedelta(days=date_fin.weekday())
+    week_starts = []
+    cursor = start_monday
+    while cursor <= end_monday:
+        week_starts.append(cursor)
+        cursor += timedelta(days=7)
+
+    taches = (
+        Tache.objects.filter(date__range=(date_debut, date_fin))
+        .order_by("date", "id")
+    )
+    taches_by_date = defaultdict(list)
+    for tache in taches:
+        taches_by_date[tache.date].append(tache)
+
+    rows = []
+    for week_start in week_starts:
+        iso_year, iso_week, _iso_day = week_start.isocalendar()
+        cells = []
+        for key, day_index, label in day_specs:
+            cell_date = week_start + timedelta(days=day_index)
+            in_range = date_debut <= cell_date <= date_fin
+            cells.append(
+                {
+                    "key": key,
+                    "label": label,
+                    "date": cell_date,
+                    "date_str": cell_date.strftime("%Y-%m-%d"),
+                    "date_watermark": f"{cell_date.day:02d} {month_map[cell_date.month]}",
+                    "in_range": in_range,
+                    "taches": taches_by_date.get(cell_date, []),
+                }
+            )
+        rows.append(
+            {
+                "semaine_label": f"{iso_year}-S{iso_week:02d}",
+                "cells": cells,
+            }
+        )
+
+    return render(
+        request,
+        "core/calendrier.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "rows": rows,
+            "tache_form": tache_form,
+            "modal_open": modal_open,
+            "modal_date_value": modal_date_value,
         },
     )

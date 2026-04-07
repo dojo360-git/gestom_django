@@ -6,3 +6,6 @@ On utilise docker docker compose dont les infos sont  dans docker-compose__dev__
 le readme dev est  readme-install__dev__PC__windows.md
 
 ne change jamais le back end : modele ou base de donnée sans me demander confirmation 
+
+voici la commande pour lancer les migrations
+docker exec -it app2_django python manage.py migrate
