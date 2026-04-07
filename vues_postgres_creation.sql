@@ -223,6 +223,16 @@ select
         	motif_hs,
         	hr_debut,
         	hr_fin,
+			    EXTRACT(EPOCH FROM (
+        (date + hr_fin)
+        - 
+        (date + hr_debut)
+        + 
+        CASE 
+            WHEN hr_fin < hr_debut THEN INTERVAL '1 day'
+            ELSE INTERVAL '0 day'
+        END
+    )) / 3600.0 AS duree,
         	0 hs_base, 
         	0 hs_nuit,
         	0 hs_dim_jf,
@@ -231,13 +241,9 @@ select
 		from stat_heures
 		where type in ('manuelles_hs','collecte_hs')
 		order by date desc, id_agent
-
  --        WHERE date BETWEEN %s AND %s
  --       ORDER BY id_agent, date, stat;
-        
- 
     ;
-        
 select 
 	nom,
 	prenom,
@@ -245,6 +251,7 @@ select
 	motif_hs,
 	hr_debut,
 	hr_fin,
+	duree,
 	hs_base,
 	hs_nuit,
 	hs_dim_jf,

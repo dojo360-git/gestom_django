@@ -64,7 +64,7 @@
     {% for day_group in collectes_by_day %}
       <div class="card" style="margin-top:14px;">
         <div class="card__pad">
-          <h2 class="h2" style="margin-bottom:10px;">{{ day_group.date|date:"l d F Y" }}</h2>
+          <h2 class="h2" style="margin-bottom:10px;">S{{ day_group.date|date:"W" }} - {{ day_group.date|date:"l d F Y" }}</h2>
           <div class="table-wrap">
             <table class="table collectes-day-table">
               <thead>
