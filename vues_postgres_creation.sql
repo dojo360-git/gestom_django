@@ -210,7 +210,18 @@ WITH
 		left join core_agent ag on ag.id = hr.id_agent
 			)
 SELECT 
-	*
+	*,
+	EXTRACT(EPOCH FROM (
+        (date + hr_fin)
+        - 
+        (date + hr_debut)
+        + 
+        CASE 
+            WHEN hr_fin < hr_debut THEN INTERVAL '1 day'
+            ELSE INTERVAL '0 day'
+        END
+    )) / 3600.0 AS duree
+	
 from heures hr
 WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
 ;
@@ -223,16 +234,7 @@ select
         	motif_hs,
         	hr_debut,
         	hr_fin,
-			    EXTRACT(EPOCH FROM (
-        (date + hr_fin)
-        - 
-        (date + hr_debut)
-        + 
-        CASE 
-            WHEN hr_fin < hr_debut THEN INTERVAL '1 day'
-            ELSE INTERVAL '0 day'
-        END
-    )) / 3600.0 AS duree,
+			duree,
         	0 hs_base, 
         	0 hs_nuit,
         	0 hs_dim_jf,
@@ -244,19 +246,7 @@ select
  --        WHERE date BETWEEN %s AND %s
  --       ORDER BY id_agent, date, stat;
     ;
-select 
-	nom,
-	prenom,
-	date,
-	motif_hs,
-	hr_debut,
-	hr_fin,
-	duree,
-	hs_base,
-	hs_nuit,
-	hs_dim_jf,
-	type,
-	id_stat
-from   stat_heures_sup_cdea
+select *
+from   stat_heures
         
         

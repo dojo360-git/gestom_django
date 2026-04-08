@@ -1006,11 +1006,17 @@ input[type="checkbox"]{
    Calendrier
 ========================= */
 .calendrier__table{
+  width: 100%;
+  table-layout: fixed;
   min-width: 980px;
+}
+.calendrier__table th,
+.calendrier__table td{
+  width: calc(100% / 7);
 }
 .calendrier__week{
   font-weight: 800;
-  white-space: nowrap;
+  white-space: normal;
 }
 .calendrier__cell{
   position: relative;

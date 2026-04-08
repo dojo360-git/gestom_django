@@ -1,0 +1,26 @@
+créé la page HPNE 
+
+filtre 
+date_debut : par defaut debut debut de mois ( aujourd'hui) 
+date_fin : par defaut aujourd'hui
+
+en utilisant la vue stat_heures : 
+
+créé un tableau : 
+Service | Qualification | Employeur | Nom | #Tournées | Hr Eff. | Hr Sup. | Hr Th. | HPNE | #Tournées YTD |  Hr Eff. YTD | Hr Sup. YTD | Hr Th.  YTD | HPNE YTD
+
+avec : 
+#Tournées : distinct count (id_stat) where (date entre date_debut et date_fin) et type = "collecte"
+#Tournées YTD : distinct count (id_stat) where (date entre debut_année(date_fin)  et date_fin) et type = "collecte"   
+
+Hr Eff. = sum duree where (date entre date_debut et date_fin) et type = "collecte"
+Hr Eff. YTD = sum(duree) where (date entre debut_année(date_fin)  et date_fin) et type = "collecte"   
+
+Hr Th. = #Tournées * 7
+Hr Th.  YTD  = #Tournées YTD
+
+HPNE = Hr Th. - Hr Eff.
+HPNE YTD = Hr Th. YTD   - Hr Eff. YTD  
+
+Hr Sup. = sum(duree) where (date entre date_debut et date_fin) et ( type = "collecte_hs" ou type = "manuelles_hs")
+Hr Sup. YTD = sum(duree) where (date entre debut_année(date_fin) et date_fin) et ( type = "collecte_hs" ou type = "manuelles_hs")

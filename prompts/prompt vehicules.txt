@@ -1,0 +1,15 @@
+créé la page statistiques_vehicules 
+
+inuput date : 
+date_debut: aujourdhui - 14 jours
+date_fin : aujourd'hui 
+
+selectionne les collectes 
+avec (date_collecte between date_debut et date_fin)v and ( info_vehicule non null) 
+trie par date desc
+ 
+fait un tableau : 
+date 
+
+fait un tableau avec : 
+

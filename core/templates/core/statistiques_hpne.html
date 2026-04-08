@@ -1,0 +1,136 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques HPNE{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques HPNE</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="dashboard__kpis" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Lignes</div>
+        <div class="h2">{{ total_rows }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">#Tournees</div>
+        <div class="h2">{{ total_tournees }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Hr Eff.</div>
+        <div class="h2">{{ total_hr_eff|floatformat:2 }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Periode</div>
+        <div class="h2">{{ date_debut|date:"d/m/Y" }} - {{ date_fin|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% if rows %}
+    <div class="table-wrap" style="margin-top: 16px;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Qualification</th>
+            <th>Employeur</th>
+            <th>Nom</th>
+            <th>#Tournees</th>
+            <th>Hr Eff.</th>
+            <th>Hr Sup.</th>
+            <th>Hr Th.</th>
+            <th>HPNE</th>
+            <th>#Tournees YTD</th>
+            <th>Hr Eff. YTD</th>
+            <th>Hr Sup. YTD</th>
+            <th>Hr Th. YTD</th>
+            <th>HPNE YTD</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.service }}</td>
+              <td>{{ row.qualification }}</td>
+              <td>{{ row.employeur }}</td>
+              <td>{{ row.nom }}</td>
+              <td>{{ row.nb_tournees }}</td>
+              <td>{{ row.hr_eff|floatformat:2 }}</td>
+              <td>{{ row.hr_sup|floatformat:2 }}</td>
+              <td>{{ row.hr_th|floatformat:2 }}</td>
+              <td>{{ row.hpne|floatformat:2 }}</td>
+              <td>{{ row.nb_tournees_ytd }}</td>
+              <td>{{ row.hr_eff_ytd|floatformat:2 }}</td>
+              <td>{{ row.hr_sup_ytd|floatformat:2 }}</td>
+              <td>{{ row.hr_th_ytd|floatformat:2 }}</td>
+              <td>{{ row.hpne_ytd|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="4">Total</th>
+            <th>{{ total_tournees }}</th>
+            <th>{{ total_hr_eff|floatformat:2 }}</th>
+            <th>{{ total_hr_sup|floatformat:2 }}</th>
+            <th>{{ total_hr_th|floatformat:2 }}</th>
+            <th>{{ total_hpne|floatformat:2 }}</th>
+            <th>{{ total_tournees_ytd }}</th>
+            <th>{{ total_hr_eff_ytd|floatformat:2 }}</th>
+            <th>{{ total_hr_sup_ytd|floatformat:2 }}</th>
+            <th>{{ total_hr_th_ytd|floatformat:2 }}</th>
+            <th>{{ total_hpne_ytd|floatformat:2 }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  {% else %}
+    <div class="card" style="margin-top: 16px;">
+      <div class="card__pad sub">Aucune donnee collecte sur la periode YTD.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

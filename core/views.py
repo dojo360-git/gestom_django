@@ -821,6 +821,7 @@ def statistiques_heure_sup(request):
             motif_hs,
             hr_debut,
             hr_fin,
+            duree,
             hs_base,
             hs_nuit,
             hs_dim_jf,
@@ -837,18 +838,20 @@ def statistiques_heure_sup(request):
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     rows_by_agent = defaultdict(list)
-    total_heures_a_compenser = 0.0
+    total_nb_heures_sup = 0.0
 
     for row in rows:
         nom = (row.get("nom") or "").strip()
         prenom = (row.get("prenom") or "").strip()
         agent_label = f"{nom}, {prenom}".strip(", ") or "Agent non renseigne"
 
+        duree = float(row.get("duree") or 0)
+        total_nb_heures_sup += duree
+
         hs_base = float(row.get("hs_base") or 0)
         hs_nuit = float(row.get("hs_nuit") or 0)
         hs_dim_jf = float(row.get("hs_dim_jf") or 0)
         heures_a_compenser = hs_base + hs_nuit + hs_dim_jf
-        total_heures_a_compenser += heures_a_compenser
 
         hr_debut = row.get("hr_debut")
         hr_fin = row.get("hr_fin")
@@ -869,6 +872,7 @@ def statistiques_heure_sup(request):
             "agent_label": agent_label,
             "hr_debut_label": hr_debut_label,
             "hr_fin_label": hr_fin_label,
+            "duree": duree,
             "hs_base": hs_base,
             "hs_nuit": hs_nuit,
             "hs_dim_jf": hs_dim_jf,
@@ -896,7 +900,161 @@ def statistiques_heure_sup(request):
             "grouped_rows": grouped_rows,
             "total_rows": len(rows),
             "total_agents": len(grouped_rows),
-            "total_heures_a_compenser": total_heures_a_compenser,
+            "total_nb_heures_sup": total_nb_heures_sup,
+        },
+    )
+
+
+def statistiques_hpne(request):
+    today = timezone.localdate()
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    default_date_debut = today.replace(day=1)
+    default_date_fin = today
+
+    date_debut = parse_date(request.GET.get("date_debut"), default_date_debut)
+    date_fin = parse_date(request.GET.get("date_fin"), default_date_fin)
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    date_debut_ytd = date_fin.replace(month=1, day=1)
+
+    requete = """
+        SELECT
+            COALESCE(service, '-') AS service,
+            COALESCE(qualification, '-') AS qualification,
+            COALESCE(employeur, '-') AS employeur,
+            COALESCE(nom, '-') AS nom,
+            COUNT(DISTINCT CASE WHEN date BETWEEN %s AND %s THEN id_stat END) AS nb_tournees,
+            COALESCE(SUM(CASE WHEN date BETWEEN %s AND %s THEN duree ELSE 0 END), 0) AS hr_eff,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN date BETWEEN %s AND %s
+                             AND type IN ('collecte_hs', 'manuelles_hs')
+                        THEN duree
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS hr_sup,
+            COUNT(DISTINCT id_stat) AS nb_tournees_ytd,
+            COALESCE(SUM(duree), 0) AS hr_eff_ytd,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN type IN ('collecte_hs', 'manuelles_hs')
+                        THEN duree
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS hr_sup_ytd
+        FROM stat_heures
+        WHERE type IN ('collecte', 'collecte_hs', 'manuelles_hs')
+          AND date BETWEEN %s AND %s
+        GROUP BY service, qualification, employeur, nom
+        ORDER BY service, qualification, employeur, nom;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            requete,
+            [
+                date_debut,
+                date_fin,
+                date_debut,
+                date_fin,
+                date_debut,
+                date_fin,
+                date_debut_ytd,
+                date_fin,
+            ],
+        )
+        columns = [col[0] for col in cursor.description]
+        raw_rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    rows = []
+    total_tournees = 0
+    total_hr_eff = 0.0
+    total_hr_sup = 0.0
+    total_hr_th = 0
+    total_hpne = 0.0
+    total_tournees_ytd = 0
+    total_hr_eff_ytd = 0.0
+    total_hr_sup_ytd = 0.0
+    total_hr_th_ytd = 0
+    total_hpne_ytd = 0.0
+
+    for row in raw_rows:
+        nb_tournees = int(row.get("nb_tournees") or 0)
+        hr_eff = float(row.get("hr_eff") or 0)
+        hr_sup = float(row.get("hr_sup") or 0)
+        nb_tournees_ytd = int(row.get("nb_tournees_ytd") or 0)
+        hr_eff_ytd = float(row.get("hr_eff_ytd") or 0)
+        hr_sup_ytd = float(row.get("hr_sup_ytd") or 0)
+
+        hr_th = nb_tournees * 7
+        hr_th_ytd = nb_tournees_ytd
+        hpne = hr_th - hr_eff
+        hpne_ytd = hr_th_ytd - hr_eff_ytd
+
+        rows.append(
+            {
+                "service": row.get("service") or "-",
+                "qualification": row.get("qualification") or "-",
+                "employeur": row.get("employeur") or "-",
+                "nom": row.get("nom") or "-",
+                "nb_tournees": nb_tournees,
+                "hr_eff": hr_eff,
+                "hr_sup": hr_sup,
+                "hr_th": hr_th,
+                "hpne": hpne,
+                "nb_tournees_ytd": nb_tournees_ytd,
+                "hr_eff_ytd": hr_eff_ytd,
+                "hr_sup_ytd": hr_sup_ytd,
+                "hr_th_ytd": hr_th_ytd,
+                "hpne_ytd": hpne_ytd,
+            }
+        )
+
+        total_tournees += nb_tournees
+        total_hr_eff += hr_eff
+        total_hr_sup += hr_sup
+        total_hr_th += hr_th
+        total_hpne += hpne
+        total_tournees_ytd += nb_tournees_ytd
+        total_hr_eff_ytd += hr_eff_ytd
+        total_hr_sup_ytd += hr_sup_ytd
+        total_hr_th_ytd += hr_th_ytd
+        total_hpne_ytd += hpne_ytd
+
+    return render(
+        request,
+        "core/statistiques_hpne.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "date_debut_ytd": date_debut_ytd,
+            "rows": rows,
+            "total_rows": len(rows),
+            "total_tournees": total_tournees,
+            "total_hr_eff": total_hr_eff,
+            "total_hr_sup": total_hr_sup,
+            "total_hr_th": total_hr_th,
+            "total_hpne": total_hpne,
+            "total_tournees_ytd": total_tournees_ytd,
+            "total_hr_eff_ytd": total_hr_eff_ytd,
+            "total_hr_sup_ytd": total_hr_sup_ytd,
+            "total_hr_th_ytd": total_hr_th_ytd,
+            "total_hpne_ytd": total_hpne_ytd,
         },
     )
 
