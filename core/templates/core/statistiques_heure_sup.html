@@ -70,6 +70,9 @@
   </div>
 
   {% if grouped_rows %}
+    <div style="margin-top: 16px;">
+      <button class="btn btn--primary" type="button" id="copy-heures-sup-btn">Copier les données</button>
+    </div>
     <div class="table-wrap table-wrap--heures-sup" style="margin-top: 16px;">
       <table class="table table--heures-sup">
         <thead>
@@ -78,7 +81,7 @@
             <th>Prenom</th>
             <th>Date</th>
             <th>Motif (obligatoire)</th>
-            <th>Heures supplementaires de ... a ...</th>
+            <th>Heures supplementaires de ... à ...</th>
           </tr>
         </thead>
         <tbody>
@@ -89,13 +92,77 @@
                 <td>{{ row.prenom|default:"-" }}</td>
                 <td>{{ row.date|date:"d/m/Y" }}</td>
                 <td>{{ row.motif_hs|default:"-" }}</td>
-                <td>{{ row.hr_debut_label }} a {{ row.hr_fin_label }}</td>
+                <td>{{ row.hr_debut_label }} à {{ row.hr_fin_label }}</td>
               </tr>
             {% endfor %}
           {% endfor %}
         </tbody>
       </table>
     </div>
+    <script>
+      (function () {
+        var copyButton = document.getElementById("copy-heures-sup-btn");
+        var tableBody = document.querySelector(".table-wrap--heures-sup tbody");
+        if (!copyButton || !tableBody) {
+          return;
+        }
+
+        function getBodyAsTsv() {
+          var rows = tableBody.querySelectorAll("tr");
+          var lines = [];
+
+          rows.forEach(function (row) {
+            var cells = row.querySelectorAll("td");
+            var values = [];
+            cells.forEach(function (cell) {
+              var text = (cell.innerText || "")
+                .replace(/\r?\n/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+              values.push(text);
+            });
+            lines.push(values.join("\t"));
+          });
+
+          return lines.join("\n");
+        }
+
+        function fallbackCopy(text) {
+          var textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "fixed";
+          textarea.style.left = "-9999px";
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
+
+        copyButton.addEventListener("click", async function () {
+          var tsv = getBodyAsTsv();
+          if (!tsv) {
+            return;
+          }
+
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(tsv);
+            } else {
+              fallbackCopy(tsv);
+            }
+            copyButton.textContent = "Données en mémoire";
+          } catch (error) {
+            fallbackCopy(tsv);
+            copyButton.textContent = "Données en mémoire";
+          }
+
+          window.setTimeout(function () {
+            copyButton.textContent = "Copier les données";
+          }, 1200);
+        });
+      })();
+    </script>
   {% else %}
     <div class="card" style="margin-top: 16px;">
       <div class="card__pad sub">Aucune ligne d'heures supplementaires sur la periode.</div>

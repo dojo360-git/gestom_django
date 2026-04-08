@@ -933,7 +933,10 @@ def statistiques_hpne(request):
             COALESCE(employeur, '-') AS employeur,
             COALESCE(nom, '-') AS nom,
             COUNT(DISTINCT CASE WHEN date BETWEEN %s AND %s THEN id_stat END) AS nb_tournees,
-            COALESCE(SUM(CASE WHEN date BETWEEN %s AND %s THEN duree ELSE 0 END), 0) AS hr_eff,
+            COALESCE(SUM(CASE 
+                        WHEN date BETWEEN %s AND %s 
+                        AND type IN ('collecte', 'manuelles')
+                        THEN duree ELSE 0 END), 0) AS hr_eff,
             COALESCE(
                 SUM(
                     CASE
@@ -946,7 +949,9 @@ def statistiques_hpne(request):
                 0
             ) AS hr_sup,
             COUNT(DISTINCT id_stat) AS nb_tournees_ytd,
-            COALESCE(SUM(duree), 0) AS hr_eff_ytd,
+            COALESCE(SUM(CASE  
+                        WHEN type IN ('collecte', 'manuelles')
+                        THEN duree ELSE 0 END), 0) AS hr_eff_ytd,
             COALESCE(
                 SUM(
                     CASE
@@ -958,7 +963,7 @@ def statistiques_hpne(request):
                 0
             ) AS hr_sup_ytd
         FROM stat_heures
-        WHERE type IN ('collecte', 'collecte_hs', 'manuelles_hs')
+        WHERE type IN ('collecte', 'collecte_hs', 'manuelles', 'manuelles_hs')
           AND date BETWEEN %s AND %s
         GROUP BY service, qualification, employeur, nom
         ORDER BY service, qualification, employeur, nom;

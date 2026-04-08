@@ -184,21 +184,24 @@ WITH
 	 heures as (
 		 select 
 		 	hr.*,
-			case type
-				when 'collecte' then TO_CHAR(hr_fin, 'HH24:MI')
-				when 'collecte_hs' then ROUND(EXTRACT(EPOCH FROM (hr_fin - hr_debut)) / 3600) || 'h'
-				when 'manuelles' then TO_CHAR(hr_fin, 'HH24:MI')
-				when 'manuelles_abs' then pm.pres
-				when 'manuelles_hs' then ROUND(EXTRACT(EPOCH FROM (hr_fin - hr_debut)) / 3600) || 'h'
-				else '⚠️'
-			end as stat_planning,
+		 	EXTRACT(EPOCH FROM (
+        (date + hr_fin)
+        - 
+        (date + hr_debut)
+        + 
+        CASE 
+            WHEN hr_fin < hr_debut THEN INTERVAL '1 day'
+            ELSE INTERVAL '0 day'
+        END
+    )) / 3600.0 AS duree,
 			ag.nom,
 			ag.prenom,
 			ag.employeur,
 			ag.qualification,
 			ag.service,
 			coalesce(pm.couleur_hex_motif_presence,'#f8f8f8') as background_color,
-			coalesce(fl.couleur_flux,'#f8f8f8') as border_color
+			coalesce(fl.couleur_flux,'#f8f8f8') as border_color,
+			pm.pres
 	 	from (
 		 	select * from collecte
 			union all 
@@ -211,17 +214,14 @@ WITH
 			)
 SELECT 
 	*,
-	EXTRACT(EPOCH FROM (
-        (date + hr_fin)
-        - 
-        (date + hr_debut)
-        + 
-        CASE 
-            WHEN hr_fin < hr_debut THEN INTERVAL '1 day'
-            ELSE INTERVAL '0 day'
-        END
-    )) / 3600.0 AS duree
-	
+			case type
+				when 'collecte' then TO_CHAR(hr_fin, 'HH24:MI')
+				when 'collecte_hs' then ROUND(duree) || 'h'
+				when 'manuelles' then TO_CHAR(hr_fin, 'HH24:MI')
+				when 'manuelles_abs' then pres
+				when 'manuelles_hs' then ROUND(duree) || 'h'
+				else '⚠️'
+			end as stat_planning
 from heures hr
 WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
 ;
