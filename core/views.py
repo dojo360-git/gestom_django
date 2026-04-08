@@ -1007,7 +1007,7 @@ def statistiques_hpne(request):
         hr_sup_ytd = float(row.get("hr_sup_ytd") or 0)
 
         hr_th = nb_tournees * 7
-        hr_th_ytd = nb_tournees_ytd
+        hr_th_ytd = nb_tournees_ytd * 7
         hpne = hr_th - hr_eff
         hpne_ytd = hr_th_ytd - hr_eff_ytd
 
