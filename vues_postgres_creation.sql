@@ -5,6 +5,7 @@
  * Contact : https://www.linkedin.com/in/julienbesombes/
  * contact [chez] dojo360 fr
  */
+DROP VIEW IF EXISTS alertes;
 DROP VIEW IF EXISTS stat_heures_sup_cdea;
 DROP VIEW IF EXISTS stat_heures;
 DROP VIEW IF EXISTS stat_vidages;
@@ -246,7 +247,79 @@ select
  --        WHERE date BETWEEN %s AND %s
  --       ORDER BY id_agent, date, stat;
     ;
-select *
-from   stat_heures
+CREATE VIEW alertes AS 
+with ag_fc as (
+	select 
+		depart date,
+		'Agents' categorie,
+		'Fin de contrat' type,
+		id id_stat,
+		concat('Fin de contrat de ' , nom)  title,
+		'👷' value
+	from core_agent ag 
+), 
+ag_fp as (
+	select 
+		echeance_permis  date,
+		'Agents' categorie,
+		'Echéance de permis' type,
+		id id_stat,
+		concat('Fin de permis de ' , nom)  title,
+		'📄' value
+	from core_agent ag 
+	where echeance_permis is not null 
+),
+ag_fco as (
+	select 
+		echeance_fco  date,
+		'Agents' categorie,
+		'Echéance de FCO' type,
+		id id_stat,
+		concat('Echéance de FCO ' , nom)  title,
+		'🪪' value
+	from core_agent ag 
+	where echeance_fco is not null 
+),
+tch as (
+	select 
+		date  date,
+		'taches' categorie,
+		'Tâche' type,
+		id id_stat,
+		concat(info)  title,
+		'🔧' value
+	from taches ag 
+),
+incV as (
+	select 
+		date_collecte  date,
+		'collectes' categorie,
+		'incident véhicules' type,
+		id_collecte id_stat,
+		concat(  info_vehicule, nom_vehicule)  title,
+		'🚚' value
+	from core_collecte co 
+	left join core_vehicule vh on vh.id = co.id_vehicule_id
+	where info_vehicule is not null 
+),
+alts as (
+	select * 
+	from (
+		select * from ag_fc
+		union all
+		select * from ag_fp
+		union all
+		select * from ag_fco
+		union all
+		select * from tch
+		union all
+		select * from incV
+	)
+	order by date asc
+)
+select * from alts;
+select * from alertes
+
+
         
         
