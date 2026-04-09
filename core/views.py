@@ -391,6 +391,29 @@ def statistiques_collecte(request):
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
     nb_tournees = len({row.get("id_collecte") for row in rows if row.get("id_collecte") is not None})
 
+    requete_duree_tournee_moyenne = """
+        SELECT
+            AVG(
+                COALESCE(
+                    st.duree_tournee,
+                    COALESCE(co.hr_depot_retour, TIME '12:00') - COALESCE(co.hr_depot_depart, TIME '05:00')
+                )
+            ) AS duree_tournee_moyenne
+        FROM stat_tournees st
+        LEFT JOIN core_collecte co ON co.id_collecte = st.id_collecte
+        WHERE co.date_collecte BETWEEN %s AND %s
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(requete_duree_tournee_moyenne, [date_debut, date_fin])
+        duree_tournee_moyenne = cursor.fetchone()[0]
+
+    duree_tournee_moyenne_label = "-"
+    if duree_tournee_moyenne:
+        total_minutes = max(0, int(round(duree_tournee_moyenne.total_seconds() / 60)))
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        duree_tournee_moyenne_label = f"{hours:02d}:{minutes:02d}"
+
     total_tonnage = 0.0
     total_km = 0.0
     tonnage_by_month_flux = defaultdict(lambda: defaultdict(float))
@@ -566,6 +589,7 @@ def statistiques_collecte(request):
             "total_tonnage": round(total_tonnage, 0),
             "total_km": round(total_km, 0),
             "nb_tournees": nb_tournees,
+            "duree_tournee_moyenne_label": duree_tournee_moyenne_label,
             "chart_payload": chart_payload,
             "flux_labels": flux_labels,
             "pivot_rows": pivot_rows,
