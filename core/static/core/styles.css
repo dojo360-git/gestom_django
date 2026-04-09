@@ -1042,14 +1042,27 @@ input[type="checkbox"]{
   font-weight: 700;
   pointer-events: none;
 }
-.calendrier__task{
-  display: grid;
-  gap: 2px;
-  margin-bottom: 8px;
-  padding: 6px 8px;
+.calendrier__alert{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 28px;
+  margin: 0 6px 6px 0;
+  padding: 4px 7px;
   border-radius: 10px;
   border: 1px solid #bbf7d0;
   background: #f0fdf4;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.calendrier__alert:hover{
+  background: #dcfce7;
+}
+.calendrier__alert:not([data-edit-url]){
+  cursor: default;
 }
 .calendrier__checkbox-row{
   display: flex;

@@ -50,10 +50,14 @@
                     {% if cell.in_range %}data-date="{{ cell.date_str }}"{% endif %}
                   >
                     <span class="calendrier__watermark">{{ cell.date_watermark }}</span>
-                    {% for tache in cell.taches %}
-                      <div class="calendrier__task">
-                        <span>{{ tache.info }}</span>
-                        <span class="sub">{{ tache.etat }}</span>
+                    {% for alerte in cell.alertes %}
+                      <div
+                        class="calendrier__alert"
+                        data-value="{{ alerte.value }}"
+                        {% if alerte.edit_url %}data-edit-url="{{ alerte.edit_url }}"{% endif %}
+                        title="{{ alerte.title }}"
+                      >
+                        {{ alerte.value }}
                       </div>
                     {% endfor %}
                   </td>
@@ -116,6 +120,7 @@
     var modal = document.getElementById("tacheModal");
     var modalDateText = document.getElementById("tacheModalDate");
     var modalDateInput = document.getElementById("id_modal_date");
+    var modalJourFerieInput = document.getElementById("id_jour_ferie");
     if (!modal || !modalDateText || !modalDateInput) {
       return;
     }
@@ -132,9 +137,12 @@
       return day + " " + months[monthIndex] + " " + year;
     }
 
-    function openModalForDate(dateStr) {
+    function openModalForDate(dateStr, autoJourFerie) {
       modalDateInput.value = dateStr;
       modalDateText.textContent = "Date : " + formatDateFr(dateStr);
+      if (autoJourFerie && modalJourFerieInput) {
+        modalJourFerieInput.checked = true;
+      }
       modal.setAttribute("aria-hidden", "false");
     }
 
@@ -147,11 +155,20 @@
         closeModal();
         return;
       }
+      var alerte = event.target.closest(".calendrier__alert");
+      if (alerte) {
+        var editUrl = alerte.getAttribute("data-edit-url");
+        if (editUrl) {
+          window.location.href = editUrl;
+        }
+        return;
+      }
       var cell = event.target.closest(".calendrier__cell--active");
       if (!cell) return;
+      if (cell.querySelector(".calendrier__alert")) return;
       var dateValue = cell.getAttribute("data-date");
       if (!dateValue) return;
-      openModalForDate(dateValue);
+      openModalForDate(dateValue, true);
     });
 
     document.addEventListener("keydown", function (event) {
@@ -161,7 +178,7 @@
     });
 
     {% if modal_open and modal_date_value %}
-      openModalForDate("{{ modal_date_value }}");
+      openModalForDate("{{ modal_date_value }}", false);
     {% endif %}
   })();
 </script>

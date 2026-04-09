@@ -1,4 +1,4 @@
-from django.db import connection
+from django.db import connection, DatabaseError
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -1953,6 +1953,18 @@ class HeuresManuellesDeleteView(DeleteView):
         return self._get_next_url() or str(self.success_url)
 
 
+class TacheUpdateView(UpdateView):
+    model = Tache
+    form_class = TacheForm
+    template_name = "core/tache_form.html"
+    success_url = reverse_lazy("core:calendrier")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["title"] = "Modifier tache"
+        return ctx
+
+
 def planning(request):
     today = timezone.localdate()
     date_str = request.GET.get("date")
@@ -2170,13 +2182,52 @@ def calendrier(request):
         week_starts.append(cursor)
         cursor += timedelta(days=7)
 
-    taches = (
-        Tache.objects.filter(date__range=(date_debut, date_fin))
-        .order_by("date", "id")
-    )
-    taches_by_date = defaultdict(list)
-    for tache in taches:
-        taches_by_date[tache.date].append(tache)
+    requete_alertes = """
+        SELECT
+            date,
+            categorie,
+            type,
+            id_stat,
+            title,
+            value
+        FROM alertes
+        WHERE date BETWEEN %s AND %s
+        ORDER BY date, categorie, type, id_stat
+    """
+    try:
+        with connection.cursor() as cursor_sql:
+            cursor_sql.execute(requete_alertes, [date_debut, date_fin])
+            cols = [col[0] for col in cursor_sql.description]
+            alertes_rows = [dict(zip(cols, row)) for row in cursor_sql.fetchall()]
+    except DatabaseError:
+        alertes_rows = []
+
+    alertes_by_date = defaultdict(list)
+    for alerte in alertes_rows:
+        alerte_date = alerte.get("date")
+        if not alerte_date:
+            continue
+        categorie = str(alerte.get("categorie") or "").strip().lower()
+        id_stat = alerte.get("id_stat")
+        edit_url = ""
+        if id_stat:
+            if categorie == "agents":
+                edit_url = reverse("core:agent_update", kwargs={"pk": id_stat})
+            elif categorie == "collectes":
+                edit_url = reverse("core:collecte_update", kwargs={"pk": id_stat})
+            elif categorie == "taches":
+                edit_url = reverse("core:tache_update", kwargs={"pk": id_stat})
+
+        alertes_by_date[alerte_date].append(
+            {
+                "categorie": categorie,
+                "type": alerte.get("type") or "",
+                "id_stat": id_stat,
+                "title": alerte.get("title") or "",
+                "value": alerte.get("value") or "",
+                "edit_url": edit_url,
+            }
+        )
 
     rows = []
     for week_start in week_starts:
@@ -2193,7 +2244,7 @@ def calendrier(request):
                     "date_str": cell_date.strftime("%Y-%m-%d"),
                     "date_watermark": f"{cell_date.day:02d} {month_map[cell_date.month]}",
                     "in_range": in_range,
-                    "taches": taches_by_date.get(cell_date, []),
+                    "alertes": alertes_by_date.get(cell_date, []),
                 }
             )
         rows.append(

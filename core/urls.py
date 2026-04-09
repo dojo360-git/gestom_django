@@ -10,6 +10,7 @@ from .views import (
     VehiculeListView, VehiculeDetailView, VehiculeCreateView, VehiculeUpdateView, VehiculeDeleteView,
     CollecteListView, CollecteDetailView, CollecteCreateView, CollecteUpdateView, CollecteDeleteView,
     HeuresManuellesListView, HeuresManuellesDetailView, HeuresManuellesCreateView, HeuresManuellesUpdateView, HeuresManuellesDeleteView,
+    TacheUpdateView,
     planning,
     calendrier,
 )
@@ -55,6 +56,9 @@ urlpatterns = [
     path("heures-manuelles/<int:pk>/", login_required(HeuresManuellesDetailView.as_view()), name="heures_manuelles_detail"),
     path("heures-manuelles/<int:pk>/modifier/", login_required(HeuresManuellesUpdateView.as_view()), name="heures_manuelles_update"),
     path("heures-manuelles/<int:pk>/supprimer/", login_required(HeuresManuellesDeleteView.as_view()), name="heures_manuelles_delete"),
+
+    # Taches
+    path("taches/<int:pk>/modifier/", login_required(TacheUpdateView.as_view()), name="tache_update"),
 
     # Flux (edition rapide uniquement)
     path("flux/", login_required(views.flux2), name="flux2"),

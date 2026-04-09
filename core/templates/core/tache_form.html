@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+
+{% block title %}Tache{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">{{ title|default:"Tache" }}</h1>
+      </div>
+    </div>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="field">
+        {{ form.date.label_tag }}
+        {{ form.date }}
+        {{ form.date.errors }}
+      </div>
+
+      <div class="field">
+        {{ form.info.label_tag }}
+        {{ form.info }}
+        {{ form.info.errors }}
+      </div>
+
+      <div class="field">
+        {{ form.etat.label_tag }}
+        {{ form.etat }}
+        {{ form.etat.errors }}
+      </div>
+
+      <div class="field calendrier__checkbox-row">
+        {{ form.jour_ferie.label_tag }}
+        {{ form.jour_ferie }}
+        {{ form.jour_ferie.errors }}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a href="{% url 'core:calendrier' %}" class="btn btn--ghost">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
