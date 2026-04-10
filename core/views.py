@@ -1237,7 +1237,9 @@ def previsions_semaines(request):
         }
         return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
 
-    selected_date = _parse_date(request.GET.get("date"), timezone.localdate())
+    today = timezone.localdate()
+    default_monday = today - timedelta(days=today.weekday())
+    selected_date = _parse_date(request.GET.get("date"), default_monday)
     dates = [selected_date + timedelta(days=offset) for offset in range(5)]
 
     rows_queryset = (
