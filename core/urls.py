@@ -28,6 +28,7 @@ urlpatterns = [
     path("statistiques_agents/", login_required(views.statistiques_agents), name="statistiques_agents"),
     path("planning/", login_required(planning), name="planning"),
     path("calendrier/", login_required(calendrier), name="calendrier"),
+    path("previsions-semaines/", login_required(views.previsions_semaines), name="previsions_semaines"),
     path("agents/", login_required(views.agents2), name="agents2"),
 
     # Agents

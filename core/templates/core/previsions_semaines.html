@@ -1,0 +1,293 @@
+{% extends "core/base.html" %}
+
+{% block title %}Previsions semaines{% endblock %}
+
+{% block content %}
+<style>
+  .semaine {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .semaine-titre {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+  }
+
+  .semaine-titre-text {
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+  }
+
+  .semaine-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .jour {
+    margin: 0;
+    padding: 0;
+  }
+
+  .jour h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+  }
+
+  .jour table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .jour th,
+  .jour td {
+    margin: 0;
+    padding: 0;
+    border: 1px solid #d1d5db;
+    font-size: 12px;
+    vertical-align: top;
+    word-wrap: break-word;
+  }
+
+  .jour .empty {
+    text-align: center;
+    color: #6b7280;
+  }
+
+  .info-card {
+    margin: 0;
+    padding: 0;
+    border: 1px solid #d1d5db;
+  }
+
+  .info-card .body {
+    margin: 0;
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 8px 0 0;
+    padding: 0;
+  }
+
+  .info-table th,
+  .info-table td {
+    border: 1px solid #d1d5db;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .info-cell {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .info-pres {
+    margin: 0;
+    padding: 2px 6px;
+    display: inline-block;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .filter-row {
+    margin: 0 0 10px;
+    padding: 0;
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    margin: 0 0 10px;
+    padding: 0;
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1200px) {
+    .semaine {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .semaine {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="card">
+  <div class="card__pad">
+    <div class="header" style="margin:0 0 10px;">
+      <h1 class="h1">Previsions semaines</h1>
+    </div>
+
+    <div class="header-actions">
+      <form method="get" class="filter-row">
+        <div class="field" style="margin:0;">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+        </div>
+        <button class="btn btn--primary" type="submit">Afficher</button>
+      </form>
+      <button
+        class="btn btn--ghost"
+        type="button"
+        id="previsions-v2-fullscreen-btn"
+        aria-label="Activer le plein ecran"
+      >Plein ecran</button>
+    </div>
+
+    <div class="semaine" id="previsions-v2-semaine">
+      <div class="semaine-titre">
+        <p class="semaine-titre-text">Planning prévisionnel de la semaine {{ iso_week }}</p>
+        <div class="semaine-nav">
+          <a class="btn btn--ghost" href="{% url 'core:previsions_semaines' %}?date={{ prev_week_date|date:'Y-m-d' }}">&lt;</a>
+          <a class="btn btn--ghost" href="{% url 'core:previsions_semaines' %}?date={{ next_week_date|date:'Y-m-d' }}">&gt;</a>
+        </div>
+      </div>
+
+      {% for group in day_groups %}
+      <div class="jour {{ group.slot }}">
+        <h2>{{ group.slot|upper }} - {{ group.date_label }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>itineraire</th>
+              <th>vehicule</th>
+              <th>flux</th>
+              <th>agent1</th>
+              <th>agent2</th>
+              <th>agent3</th>
+              <th>depart</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in group.rows %}
+            <tr>
+              <td>{{ row.itineraire|default:"" }}</td>
+              <td>{{ row.vehicule|default:"" }}</td>
+              <td>{{ row.flux|default:"" }}</td>
+              <td>{{ row.agent_1|default:"" }}</td>
+              <td>{{ row.agent_2|default:"" }}</td>
+              <td>{{ row.agent_3|default:"" }}</td>
+              <td>{{ row.depart|time:"H:i"|default:"" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="empty">Aucune prevision</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+
+      <div class="jour info">
+        <h2>INFO</h2>
+        <div class="info-card">
+          <div class="body">
+            <p style="margin:0;">Periode : {{ info.selected_date|date:"Y-m-d" }} -> {{ info.date_fin|date:"Y-m-d" }}</p>
+            <p style="margin:6px 0 0;">Total previsions : {{ info.total_rows }}</p>
+            <table class="info-table">
+              <thead>
+                <tr>
+                  <th>Qualification</th>
+                  <th>Nom</th>
+                  {% for day_col in info.date_headers %}
+                  <th>{{ day_col.label }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in info.table_rows %}
+                <tr>
+                  <td>{{ row.qualification }}</td>
+                  <td>{{ row.nom }}</td>
+                  {% for cell in row.cells %}
+                  <td class="info-cell">
+                    <div class="info-pres" style="background-color: {{ cell.background_color }};">{{ cell.pres }}</div>
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="empty">Aucune ligne manuelles_abs</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var button = document.getElementById("previsions-v2-fullscreen-btn");
+    var target = document.getElementById("previsions-v2-semaine");
+    if (!button || !target) return;
+
+    var hasFullscreen = !!(target.requestFullscreen && document.exitFullscreen);
+    if (!hasFullscreen) {
+      button.disabled = true;
+      button.title = "Plein ecran non supporte";
+      return;
+    }
+
+    function refreshLabel() {
+      var isActive = document.fullscreenElement === target;
+      button.textContent = isActive ? "Quitter plein ecran" : "Plein ecran";
+      button.setAttribute(
+        "aria-label",
+        isActive ? "Quitter le plein ecran" : "Activer le plein ecran"
+      );
+    }
+
+    button.addEventListener("click", function () {
+      if (document.fullscreenElement === target) {
+        document.exitFullscreen();
+        return;
+      }
+      target.requestFullscreen();
+    });
+
+    document.addEventListener("fullscreenchange", refreshLabel);
+    refreshLabel();
+  })();
+</script>
+{% endblock %}

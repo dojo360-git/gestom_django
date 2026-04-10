@@ -1,7 +1,18 @@
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
-from .models import Agent, Flux, Energie, Vehicule, Collecte, PresenceMotif, Itineraire, HeuresManuelles, Tache
+from .models import (
+    Agent,
+    Flux,
+    Energie,
+    Vehicule,
+    Collecte,
+    CollectPrev,
+    PresenceMotif,
+    Itineraire,
+    HeuresManuelles,
+    Tache,
+)
 
 
 class AgentForm(forms.ModelForm):
@@ -257,6 +268,52 @@ class CollecteForm(forms.ModelForm):
 
     def clean_energie_qte_1(self):
         return self._clean_integer_numeric_field("energie_qte_1")
+
+
+class CollectPrevForm(forms.ModelForm):
+    class Meta:
+        model = CollectPrev
+        fields = [
+            "date",
+            "classement",
+            "itineraire",
+            "vehicule",
+            "relais",
+            "flux",
+            "agent_1",
+            "agent_2",
+            "agent_3",
+            "infos",
+            "depart",
+        ]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "depart": forms.TimeInput(attrs={"type": "time"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+        self.fields["date"].input_formats = ["%Y-%m-%d", "%d/%m/%Y"]
+        self.fields["date"].localize = False
+        self.fields["date"].widget.format = "%Y-%m-%d"
+
+        self.fields["itineraire"].queryset = Itineraire.objects.order_by("regie", "itineraire")
+        vehicules_qs = Vehicule.objects.filter(archive=False).order_by("nom_vehicule")
+        self.fields["vehicule"].queryset = vehicules_qs
+        self.fields["relais"].queryset = vehicules_qs
+        self.fields["flux"].queryset = Flux.objects.filter(archive=False).order_by("flux")
+        agents_qs = Agent.objects.order_by("nom", "prenom")
+        self.fields["agent_1"].queryset = agents_qs
+        self.fields["agent_2"].queryset = agents_qs
+        self.fields["agent_3"].queryset = agents_qs
+
+        if not self.instance.pk and not self.initial.get("date"):
+            self.fields["date"].initial = timezone.localdate()
+        if not self.instance.pk:
+            self.fields["depart"].initial = "05:00"
 
 
 class HeuresManuellesForm(forms.ModelForm):

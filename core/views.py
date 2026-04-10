@@ -22,10 +22,11 @@ from .forms import (
     ItineraireForm,
     VehiculeForm,
     CollecteForm,
+    CollectPrevForm,
     HeuresManuellesForm,
     TacheForm,
 )
-from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, HeuresManuelles, Tache
+from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, CollectPrev, HeuresManuelles, Tache
 
 
 def home(request):
@@ -1197,6 +1198,179 @@ def statistiques_agents(request):
             "selected_date": selected_date,
             "grouped_services": grouped_services,
             "total_agents": len(prepared_rows),
+        },
+    )
+
+
+def previsions_semaines(request):
+    def _parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    def _format_date_fr_upper(dt):
+        weekdays = [
+            "LUNDI",
+            "MARDI",
+            "MERCREDI",
+            "JEUDI",
+            "VENDREDI",
+            "SAMEDI",
+            "DIMANCHE",
+        ]
+        months = {
+            1: "JANVIER",
+            2: "FEVRIER",
+            3: "MARS",
+            4: "AVRIL",
+            5: "MAI",
+            6: "JUIN",
+            7: "JUILLET",
+            8: "AOUT",
+            9: "SEPTEMBRE",
+            10: "OCTOBRE",
+            11: "NOVEMBRE",
+            12: "DECEMBRE",
+        }
+        return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
+
+    selected_date = _parse_date(request.GET.get("date"), timezone.localdate())
+    dates = [selected_date + timedelta(days=offset) for offset in range(5)]
+
+    rows_queryset = (
+        CollectPrev.objects.select_related(
+            "itineraire",
+            "vehicule",
+            "flux",
+            "agent_1",
+            "agent_2",
+            "agent_3",
+        )
+        .filter(date__range=(dates[0], dates[-1]))
+        .order_by("date", "classement", "id")
+    )
+
+    rows_by_date = defaultdict(list)
+    for obj in rows_queryset:
+        rows_by_date[obj.date].append(obj)
+
+    day_groups = []
+    for index, dt in enumerate(dates):
+        day_groups.append(
+            {
+                "slot": f"j{index}",
+                "date": dt,
+                "date_label": _format_date_fr_upper(dt),
+                "rows": rows_by_date.get(dt, []),
+            }
+        )
+
+    def _safe_hex_color(raw_value, fallback):
+        value = (raw_value or "").strip()
+        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
+            return value
+        return fallback
+
+    weekday_short_fr = {
+        0: "lun",
+        1: "mar",
+        2: "mer",
+        3: "jeu",
+        4: "ven",
+        5: "sam",
+        6: "dim",
+    }
+    info_date_headers = [
+        {
+            "date": dt,
+            "label": weekday_short_fr.get(dt.weekday(), ""),
+        }
+        for dt in dates
+    ]
+
+    abs_sql = """
+        SELECT
+            id_agent,
+            qualification,
+            nom,
+            prenom,
+            date,
+            background_color,
+            pres
+        FROM stat_heures
+        WHERE type = 'manuelles_abs'
+          AND date BETWEEN %s AND %s
+        ORDER BY qualification, nom, prenom, date;
+    """
+
+    info_rows_by_agent = {}
+    with connection.cursor() as cursor:
+        cursor.execute(abs_sql, [dates[0], dates[-1]])
+        columns = [col[0] for col in cursor.description]
+        for db_row in cursor.fetchall():
+            item = dict(zip(columns, db_row))
+            agent_id = item.get("id_agent")
+            if agent_id not in info_rows_by_agent:
+                info_rows_by_agent[agent_id] = {
+                    "qualification": item.get("qualification") or "-",
+                    "nom": item.get("nom") or "-",
+                    "cells": {
+                        dt: {
+                            "pres": "",
+                            "background_color": "#ffffff",
+                        }
+                        for dt in dates
+                    },
+                }
+
+            stat_date = item.get("date")
+            if stat_date in info_rows_by_agent[agent_id]["cells"]:
+                info_rows_by_agent[agent_id]["cells"][stat_date] = {
+                    "pres": item.get("pres") or "",
+                    "background_color": _safe_hex_color(item.get("background_color"), "#f8f8f8"),
+                }
+
+    info_table_rows = []
+    for _, row in sorted(
+        info_rows_by_agent.items(),
+        key=lambda pair: (
+            (pair[1].get("qualification") or "").lower(),
+            (pair[1].get("nom") or "").lower(),
+        ),
+    ):
+        cells = [row["cells"][dt] for dt in dates]
+        info_table_rows.append(
+            {
+                "qualification": row["qualification"],
+                "nom": row["nom"],
+                "cells": cells,
+            }
+        )
+
+    info = {
+        "selected_date": selected_date,
+        "date_fin": dates[-1],
+        "total_rows": sum(len(group["rows"]) for group in day_groups),
+        "date_headers": info_date_headers,
+        "table_rows": info_table_rows,
+    }
+    iso_week = selected_date.isocalendar().week
+    prev_week_date = selected_date - timedelta(days=7)
+    next_week_date = selected_date + timedelta(days=7)
+
+    return render(
+        request,
+        "core/previsions_semaines.html",
+        {
+            "selected_date": selected_date,
+            "day_groups": day_groups,
+            "info": info,
+            "iso_week": iso_week,
+            "prev_week_date": prev_week_date,
+            "next_week_date": next_week_date,
         },
     )
 

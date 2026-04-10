@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Agent, Collecte, HeuresManuelles, Tache
+from .models import Agent, Collecte, CollectPrev, HeuresManuelles, Tache
 @admin.register(Agent)
 class AgentAdmin(admin.ModelAdmin):
     list_display = ("id", "nom", "prenom", "service", "employeur", "tel")
@@ -19,6 +19,13 @@ class HeuresManuellesAdmin(admin.ModelAdmin):
     list_display = ("date", "agent", "heure_debut", "heure_fin", "presence", "motif_heures_sup")
     list_filter = ("date", "presence")
     search_fields = ("agent__nom", "agent__prenom", "motif_heures_sup")
+
+
+@admin.register(CollectPrev)
+class CollectPrevAdmin(admin.ModelAdmin):
+    list_display = ("date", "classement", "itineraire", "vehicule", "relais", "depart")
+    list_filter = ("date", "itineraire", "flux")
+    search_fields = ("classement", "infos")
 
 
 @admin.register(Tache)

@@ -201,6 +201,71 @@ class Collecte(models.Model):
         return f"Collecte {self.id_collecte}"
 
 
+class CollectPrev(models.Model):
+    date = models.DateField(default=timezone.localdate)
+    classement = models.CharField(max_length=50)
+    itineraire = models.ForeignKey(
+        Itineraire,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_itineraire",
+    )
+    vehicule = models.ForeignKey(
+        Vehicule,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_vehicule",
+    )
+    relais = models.ForeignKey(
+        Vehicule,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_relais",
+    )
+    flux = models.ForeignKey(
+        Flux,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs",
+    )
+    agent_1 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_agent_1",
+    )
+    agent_2 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_agent_2",
+    )
+    agent_3 = models.ForeignKey(
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="collect_prevs_agent_3",
+    )
+    infos = models.CharField(max_length=255, blank=True, default="")
+    depart = models.TimeField(null=True, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "collect_prev"
+        ordering = ["date", "classement", "id"]
+
+    def __str__(self):
+        return f"{self.date} - {self.classement}"
+
+
 class HeuresManuelles(models.Model):
     date = models.DateField(default=timezone.localdate)
     agent = models.ForeignKey(
