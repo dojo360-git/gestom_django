@@ -1275,6 +1275,9 @@ def previsions_semaines(request):
         }
         return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]}"
 
+    def _format_date_fr_long_with_year(dt):
+        return f"{_format_date_fr_long(dt)} {dt.year}"
+
     today = timezone.localdate()
     default_monday = today - timedelta(days=today.weekday())
     selected_date = _parse_date(request.GET.get("date"), default_monday)
@@ -1456,6 +1459,27 @@ def previsions_jour(request):
             12: "dec",
         }
         return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
+
+    def _format_date_fr_long(dt):
+        weekdays = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+        months = {
+            1: "janvier",
+            2: "fevrier",
+            3: "mars",
+            4: "avril",
+            5: "mai",
+            6: "juin",
+            7: "juillet",
+            8: "aout",
+            9: "septembre",
+            10: "octobre",
+            11: "novembre",
+            12: "decembre",
+        }
+        return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]}"
+
+    def _format_date_fr_long_with_year(dt):
+        return f"{_format_date_fr_long(dt)} {dt.year}"
 
     def _filters_query_string(day_value, compare_value):
         return urlencode(
@@ -1684,7 +1708,10 @@ def previsions_jour(request):
         {
             "date_jour": date_jour,
             "date_compar": date_compar,
+            "today_label": _format_date_fr_long(today),
+            "today_iso_week": today.isocalendar().week,
             "date_jour_label": _format_date_fr_short(date_jour),
+            "date_jour_label_long": _format_date_fr_long_with_year(date_jour),
             "date_compar_label": _format_date_fr_short(date_compar),
             "prev_date_jour": date_jour - timedelta(days=1),
             "next_date_jour": date_jour + timedelta(days=1),
