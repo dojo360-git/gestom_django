@@ -305,6 +305,15 @@ a{ color: inherit; text-decoration: none; }
 }
 .btn--primary:hover{ background: var(--primary-2); }
 
+.btn--nav-blue{
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+.btn--nav-blue:hover{
+  background: #1d4ed8;
+}
+
 .btn--ghost{
   background: var(--surface);
 }

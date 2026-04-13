@@ -47,11 +47,6 @@
     <div class="nav__actions" id="main-nav-menu">
         <div class="nav__group nav__group--main">
           <a class="btn btn--ghost" href="{% url 'core:home' %}">Accueil</a>
-          <a class="btn btn--primary" href="{% url 'core:collecte_list' %}">Collectes</a>
-          <a class="btn btn--primary" href="{% url 'core:previsions_jour' %}">Jour</a>
-          <a class="btn btn--primary" href="{% url 'core:previsions_semaines' %}">Semaine</a>
-          <a class="btn btn--primary" href="{% url 'core:planning' %}">Planning</a>
-          <a class="btn btn--primary" href="{% url 'core:calendrier' %}">Calendrier</a>
           <details class="nav__dropdown">
             <summary class="btn btn--ghost nav__dropdown-toggle">
               Stats <span class="nav__caret" aria-hidden="true">▼</span>
@@ -64,7 +59,10 @@
               <a class="nav__dropdown-item" href="{% url 'core:statistiques_agents' %}">Agents</a>
             </div>
           </details>
-
+          <a class="btn btn--primary" href="{% url 'core:planning' %}">Planning</a>
+          <a class="btn btn--primary" href="{% url 'core:collecte_list' %}">Collectes</a>
+          <a class="btn btn--primary btn--nav-blue" href="{% url 'core:previsions_semaines' %}">Semaine</a>
+          <a class="btn btn--primary btn--nav-blue" href="{% url 'core:previsions_jour' %}">Jour</a>
           <details class="nav__dropdown">
             <summary class="btn btn--ghost nav__dropdown-toggle">
               Ressources <span class="nav__caret" aria-hidden="true">▼</span>
@@ -78,6 +76,7 @@
               <a class="nav__dropdown-item" href="{% url 'core:presence_motif_list' %}">Presences</a>
             </div>
           </details>
+          <a class="btn btn--primary" href="{% url 'core:calendrier' %}">Calendrier</a>
          
         </div>
 
