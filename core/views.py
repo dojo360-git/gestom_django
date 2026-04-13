@@ -1,5 +1,6 @@
-from django.db import connection, DatabaseError
+from django.db import connection, DatabaseError, transaction
 from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models.functions import Cast
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -1279,6 +1280,12 @@ def previsions_semaines(request):
     selected_date = _parse_date(request.GET.get("date"), default_monday)
     dates = [selected_date + timedelta(days=offset) for offset in range(5)]
 
+    def _safe_hex_color(raw_value, fallback):
+        value = (raw_value or "").strip()
+        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
+            return value
+        return fallback
+
     rows_queryset = (
         CollectPrev.objects.select_related(
             "itineraire",
@@ -1289,11 +1296,22 @@ def previsions_semaines(request):
             "agent_3",
         )
         .filter(date__range=(dates[0], dates[-1]))
-        .order_by("date", "classement", "id")
+        .annotate(
+            classement_num=Case(
+                When(classement__regex=r"^\d+$", then=Cast("classement", IntegerField())),
+                default=Value(2147483647),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("date", "classement_num", "classement", "id")
     )
 
     rows_by_date = defaultdict(list)
     for obj in rows_queryset:
+        obj.flux_bg_color = _safe_hex_color(
+            getattr(getattr(obj, "flux", None), "couleur_flux", ""),
+            "#ffffff",
+        )
         rows_by_date[obj.date].append(obj)
 
     day_groups = []
@@ -1306,12 +1324,6 @@ def previsions_semaines(request):
                 "rows": rows_by_date.get(dt, []),
             }
         )
-
-    def _safe_hex_color(raw_value, fallback):
-        value = (raw_value or "").strip()
-        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
-            return value
-        return fallback
 
     weekday_short_fr = {
         0: "lun",
@@ -1526,6 +1538,36 @@ def previsions_jour(request):
             row_obj.delete()
             return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
 
+        elif action == "copy_prev":
+            # Evite de vider les previsions si les deux dates sont identiques.
+            if date_jour == date_compar:
+                return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+
+            source_rows = list(
+                CollectPrev.objects.filter(date=date_compar).order_by("classement", "id")
+            )
+            clones = [
+                CollectPrev(
+                    date=date_jour,
+                    classement=item.classement,
+                    itineraire_id=item.itineraire_id,
+                    vehicule_id=item.vehicule_id,
+                    relais_id=item.relais_id,
+                    flux_id=item.flux_id,
+                    agent_1_id=item.agent_1_id,
+                    agent_2_id=item.agent_2_id,
+                    agent_3_id=item.agent_3_id,
+                    infos=item.infos,
+                    depart=item.depart,
+                )
+                for item in source_rows
+            ]
+            with transaction.atomic():
+                CollectPrev.objects.filter(date=date_jour).delete()
+                if clones:
+                    CollectPrev.objects.bulk_create(clones)
+            return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+
     rows_queryset = (
         CollectPrev.objects.select_related(
             "itineraire",
@@ -1542,6 +1584,10 @@ def previsions_jour(request):
 
     rows_by_date = defaultdict(list)
     for obj in rows_queryset:
+        obj.flux_bg_color = _safe_hex_color(
+            getattr(getattr(obj, "flux", None), "couleur_flux", ""),
+            "#ffffff",
+        )
         rows_by_date[obj.date].append(obj)
 
     day_rows = sorted(rows_by_date.get(date_jour, []), key=_classement_sort_key)

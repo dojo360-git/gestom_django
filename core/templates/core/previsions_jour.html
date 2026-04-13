@@ -86,6 +86,10 @@
     padding: 0;
   }
 
+  .jour-table td.flux-cell select {
+    background: transparent;
+  }
+
   .jour-table th:nth-child(1),
   .jour-table td:nth-child(1) { width: 8%; }
   .jour-table th:nth-child(2),
@@ -168,6 +172,16 @@
         </div>
         <button class="btn btn--primary" type="submit">Afficher</button>
       </form>
+      <form
+        method="post"
+        onsubmit="return confirm('Etes-vous sur de remplacer les previsions de {{ date_jour|date:'d/m/Y' }} par {{ date_compar|date:'d/m/Y' }} ?');"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="action" value="copy_prev">
+        <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+        <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+        <button class="btn btn--ghost" type="submit">Copier les prev</button>
+      </form>
     </div>
 
     <div class="jour-layout">
@@ -234,7 +248,7 @@
                     placeholder="Relais"
                   >
                 </td>
-                <td>
+                <td class="flux-cell" style="background-color: {{ row.obj.flux_bg_color }};">
                   <select name="row-{{ row.obj.pk }}-flux" form="update-row-{{ row.obj.pk }}">
                     <option value=""></option>
                     {% for option in row.form.fields.flux.queryset %}
@@ -476,7 +490,7 @@
                 <td>{{ row.itineraire|default:"" }}</td>
                 <td>{{ row.vehicule|default:"" }}</td>
                 <td>{{ row.relais|default:"" }}</td>
-                <td>{{ row.flux|default:"" }}</td>
+                <td class="flux-cell" style="background-color: {{ row.flux_bg_color }};">{{ row.flux|default:"" }}</td>
                 <td>{% if row.agent_1 %}{{ row.agent_1.nom|default:"" }}{% endif %}</td>
                 <td>{% if row.agent_2 %}{{ row.agent_2.nom|default:"" }}{% endif %}</td>
                 <td>{% if row.agent_3 %}{{ row.agent_3.nom|default:"" }}{% endif %}</td>

@@ -196,7 +196,7 @@
             <tr>
               <td>{{ row.itineraire|default:"" }}</td>
               <td>{{ row.vehicule|default:"" }}</td>
-              <td>{{ row.flux|default:"" }}</td>
+              <td style="background-color: {{ row.flux_bg_color }};">{{ row.flux|default:"" }}</td>
               <td>{% if row.agent_1 %}{{ row.agent_1.nom|default:"" }}{% endif %}</td>
               <td>{% if row.agent_2 %}{{ row.agent_2.nom|default:"" }}{% endif %}</td>
               <td>{% if row.agent_3 %}{{ row.agent_3.nom|default:"" }}{% endif %}</td>
