@@ -3,6 +3,7 @@
 {% block title %}Previsions semaines{% endblock %}
 
 {% block content %}
+{% include "core/_previsions_shared_styles.html" %}
 <style>
   .semaine {
     margin: 0;
@@ -68,69 +69,8 @@
     padding: 0;
   }
 
-  .jour {
-    margin: 8px 0 0;
-    padding: 2px;
-  }
-
-  .jour h2 {
-    margin: 0;
-    padding: 0;
-    font-size: 14px;
-    text-align: center;
-  }
-
-  .jour table {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  .jour th,
-  .jour td {
-    margin: 0;
-    padding: 0;
-    border: 1px solid #d1d5db;
-    font-size: 14px;
-    vertical-align: middle;
-    text-align: center;
-    word-wrap: break-word;
-  }
-
-  .jour .empty {
-    text-align: center;
-    color: #6b7280;
-  }
-
-  .info-card {
-    margin: 0;
-    padding: 0;
-  }
-
-  .info-card .body {
-    margin: 0;
-    padding: 8px;
-    font-size: 13px;
-  }
-
-  .info-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    margin: 8px 0 0;
-    padding: 0;
-  }
-
-  .info-table th,
-  .info-table td {
-    border: 1px solid #d1d5db;
-    margin: 0;
-    padding: 0;
-    font-size: 12px;
-    vertical-align: middle;
-    text-align: center;
+  .jour[data-day-url] {
+    cursor: pointer;
   }
 
   .info-col-poste {
@@ -143,43 +83,6 @@
 
   .info-col-day {
     width: 11.2%;
-  }
-
-  .info-cell {
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  .info-pres {
-    margin: 0;
-    padding: 2px 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    height: fit-content;
-    border-radius: 3px;
-    text-align: center;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  .filter-row {
-    margin: 0 0 10px;
-    padding: 0;
-    display: flex;
-    align-items: end;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .header-actions {
-    margin: 0 0 10px;
-    padding: 0;
-    display: flex;
-    align-items: end;
-    gap: 8px;
-    flex-wrap: wrap;
   }
 
   @media (max-width: 1200px) {
@@ -239,7 +142,7 @@
 <div class="card">
   <div class="card__pad">
     <div class="header" style="margin:0 0 10px;">
-      <h1 class="h1">Previsions semaines</h1>
+      <h1 class="h1">Aujourd'hui {{ today_label }} - S{{ today_iso_week }}</h1>
     </div>
 
     <div class="header-actions">
@@ -254,7 +157,7 @@
 
     <div class="semaine" id="previsions-v2-semaine">
       <div class="semaine-titre semaine-titre--primary">
-        <h1 class="semaine-titre-text">Planning prévisionnel de la semaine {{ iso_week }}</h1>
+        <h1 class="semaine-titre-text">Planning previsionnel de la semaine {{ iso_week }}</h1>
         <div class="semaine-nav">
           <button
             class="btn btn--ghost"
@@ -274,7 +177,7 @@
       </div>
 
       {% for group in day_groups %}
-      <div class="jour {{ group.slot }}">
+      <div class="jour {{ group.slot }}" data-day-url="{% url 'core:previsions_jour' %}?date_jour={{ group.date|date:'Y-m-d' }}">
         <h2>{{ group.date_label }}</h2>
         <table>
           <thead>
@@ -294,9 +197,9 @@
               <td>{{ row.itineraire|default:"" }}</td>
               <td>{{ row.vehicule|default:"" }}</td>
               <td>{{ row.flux|default:"" }}</td>
-              <td>{{ row.agent_1|default:"" }}</td>
-              <td>{{ row.agent_2|default:"" }}</td>
-              <td>{{ row.agent_3|default:"" }}</td>
+              <td>{% if row.agent_1 %}{{ row.agent_1.nom|default:"" }}{% endif %}</td>
+              <td>{% if row.agent_2 %}{{ row.agent_2.nom|default:"" }}{% endif %}</td>
+              <td>{% if row.agent_3 %}{{ row.agent_3.nom|default:"" }}{% endif %}</td>
               <td>{{ row.depart|time:"H:i"|default:"" }}</td>
             </tr>
             {% empty %}
@@ -391,6 +294,15 @@
         window.print();
       });
     }
+
+    document.querySelectorAll(".jour[data-day-url]").forEach(function (card) {
+      card.addEventListener("click", function (event) {
+        if (event.target.closest("a, button, input, select, textarea, form")) return;
+        var url = card.getAttribute("data-day-url");
+        if (!url) return;
+        window.location.href = url;
+      });
+    });
   })();
 </script>
 {% endblock %}

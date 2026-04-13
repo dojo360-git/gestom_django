@@ -1,0 +1,504 @@
+{% extends "core/base.html" %}
+
+{% block title %}Previsions jour{% endblock %}
+
+{% block content %}
+{% include "core/_previsions_shared_styles.html" %}
+<style>
+  .jour-layout {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 3.4fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+
+  .jour-title {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: rgba(22, 163, 74, 0.6);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .jour-title h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 20px;
+  }
+
+  .jour-nav {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .jour-table-wrap {
+    overflow-x: hidden;
+    background: #ffffff;
+  }
+
+  .jour-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .jour-table th,
+  .jour-table td {
+    padding: 2px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .jour-table td {
+    padding: 0;
+  }
+
+  .jour-table input,
+  .jour-table select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 0;
+  }
+
+  .jour-table input {
+    border: none;
+    box-shadow: none;
+  }
+
+  .jour-table select {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .jour-table th:nth-child(1),
+  .jour-table td:nth-child(1) { width: 8%; }
+  .jour-table th:nth-child(2),
+  .jour-table td:nth-child(2) { width: 13%; }
+  .jour-table th:nth-child(3),
+  .jour-table td:nth-child(3) { width: 9%; }
+  .jour-table th:nth-child(4),
+  .jour-table td:nth-child(4) { width: 9%; }
+  .jour-table th:nth-child(5),
+  .jour-table td:nth-child(5) { width: 7%; }
+  .jour-table th:nth-child(6),
+  .jour-table td:nth-child(6),
+  .jour-table th:nth-child(7),
+  .jour-table td:nth-child(7),
+  .jour-table th:nth-child(8),
+  .jour-table td:nth-child(8) { width: 9%; }
+  .jour-table th:nth-child(9),
+  .jour-table td:nth-child(9) { width: 8%; }
+  .jour-table th:nth-child(10),
+  .jour-table td:nth-child(10) { width: 9%; }
+  .jour-table th:nth-child(11),
+  .jour-table td:nth-child(11) { width: 10%; }
+
+  .jour-table .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .jour-table .actions form {
+    margin: 0;
+  }
+
+  .jour-table .actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 1px 6px;
+    line-height: 1;
+    border-radius: 0;
+    border: none;
+  }
+
+  .jour-info .info-col-poste {
+    width: 22%;
+  }
+
+  .jour-info .info-col-nom {
+    width: 22%;
+  }
+
+  .jour-info .info-col-day {
+    width: 28%;
+  }
+
+  @media (max-width: 1024px) {
+    .jour-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="card">
+  <div class="card__pad">
+    <div class="header" style="margin:0 0 10px;">
+      <h1 class="h1">Previsions jour</h1>
+    </div>
+
+    <div class="header-actions">
+      <form method="get" class="filter-row">
+        <div class="field" style="margin:0;">
+          <label for="date_jour">date_jour</label>
+          <input type="date" id="date_jour" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+        </div>
+        <div class="field" style="margin:0;">
+          <label for="date_compar">date_compar</label>
+          <input type="date" id="date_compar" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+        </div>
+        <button class="btn btn--primary" type="submit">Afficher</button>
+      </form>
+    </div>
+
+    <div class="jour-layout">
+      <div class="jour-title">
+        <h1>Planning previsionnel du {{ date_jour_label }}</h1>
+        <div class="jour-nav">
+          <a
+            class="btn btn--ghost"
+            href="{% url 'core:previsions_jour' %}?date_jour={{ prev_date_jour|date:'Y-m-d' }}&date_compar={{ prev_date_compar|date:'Y-m-d' }}"
+          >&lt;</a>
+          <a
+            class="btn btn--ghost"
+            href="{% url 'core:previsions_jour' %}?date_jour={{ next_date_jour|date:'Y-m-d' }}&date_compar={{ next_date_compar|date:'Y-m-d' }}"
+          >&gt;</a>
+        </div>
+      </div>
+
+      <div class="jour">
+        <h2>{{ date_jour_label }}</h2>
+        <div class="jour-table-wrap">
+          <table class="jour-table">
+            <thead>
+              <tr>
+                <th>class.</th>
+                <th>iten.</th>
+                <th>veh.</th>
+                <th>relais</th>
+                <th>flux</th>
+                <th>agent1</th>
+                <th>agent2</th>
+                <th>agent3</th>
+                <th>depart</th>
+                <th>infos</th>
+                <th>actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in row_forms_day %}
+              <tr>
+                <td><input type="text" name="row-{{ row.obj.pk }}-classement" value="{{ row.form.classement.value|default_if_none:'' }}" form="update-row-{{ row.obj.pk }}"></td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-itineraire" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.itineraire.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.itineraire.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-vehicule" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.vehicule.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.vehicule.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    name="row-{{ row.obj.pk }}-relais_text"
+                    list="relais-options"
+                    value="{{ row.relais_text|default:'' }}"
+                    form="update-row-{{ row.obj.pk }}"
+                    placeholder="Relais"
+                  >
+                </td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-flux" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.flux.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.flux.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-agent_1" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.agent_1.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.agent_1.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-agent_2" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.agent_2.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.agent_2.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="row-{{ row.obj.pk }}-agent_3" form="update-row-{{ row.obj.pk }}">
+                    <option value=""></option>
+                    {% for option in row.form.fields.agent_3.queryset %}
+                    <option value="{{ option.pk }}" {% if row.form.agent_3.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td><input type="time" name="row-{{ row.obj.pk }}-depart" value="{{ row.form.depart.value|default_if_none:'' }}" form="update-row-{{ row.obj.pk }}"></td>
+                <td><input type="text" name="row-{{ row.obj.pk }}-infos" value="{{ row.form.infos.value|default_if_none:'' }}" form="update-row-{{ row.obj.pk }}"></td>
+                <td>
+                  <div class="actions">
+                    <form id="update-row-{{ row.obj.pk }}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="update">
+                      <input type="hidden" name="target" value="jour">
+                      <input type="hidden" name="id_collect_prev" value="{{ row.obj.pk }}">
+                      <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+                      <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+                      <input type="hidden" name="row-{{ row.obj.pk }}-date" value="{{ date_jour|date:'Y-m-d' }}">
+                      <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
+                    </form>
+                    <form method="post" onsubmit="return confirm('Supprimer cette ligne ?');">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="target" value="jour">
+                      <input type="hidden" name="id_collect_prev" value="{{ row.obj.pk }}">
+                      <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+                      <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+                      <button class="btn btn--sm btn--ghost" type="submit" title="Supprimer" aria-label="Supprimer">🗑️</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% if row.form.errors %}
+              <tr>
+                <td colspan="11">
+                  <ul class="errorlist">
+                    {% for field in row.form %}
+                      {% for error in field.errors %}
+                      <li>{{ field.label }}: {{ error }}</li>
+                      {% endfor %}
+                    {% endfor %}
+                    {% for error in row.form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% endif %}
+              {% empty %}
+              <tr>
+                <td colspan="11" class="empty">Aucune prevision</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <td><input type="text" name="create-jour-classement" value="{{ create_form_day.classement.value|default_if_none:'' }}" form="create-jour-form"></td>
+                <td>
+                  <select name="create-jour-itineraire" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.itineraire.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.itineraire.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="create-jour-vehicule" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.vehicule.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.vehicule.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    name="create-jour-relais_text"
+                    value="{{ create_relais_text|default_if_none:'' }}"
+                    form="create-jour-form"
+                    placeholder="Relais"
+                  >
+                </td>
+                <td>
+                  <select name="create-jour-flux" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.flux.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.flux.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="create-jour-agent_1" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.agent_1.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.agent_1.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="create-jour-agent_2" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.agent_2.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.agent_2.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <select name="create-jour-agent_3" form="create-jour-form">
+                    <option value=""></option>
+                    {% for option in create_form_day.fields.agent_3.queryset %}
+                    <option value="{{ option.pk }}" {% if create_form_day.agent_3.value|stringformat:'s' == option.pk|stringformat:'s' %}selected{% endif %}>{{ option.nom }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td><input type="time" name="create-jour-depart" value="{{ create_form_day.depart.value|default_if_none:'' }}" form="create-jour-form"></td>
+                <td><input type="text" name="create-jour-infos" value="{{ create_form_day.infos.value|default_if_none:'' }}" form="create-jour-form"></td>
+                <td>
+                  <div class="actions">
+                    <form id="create-jour-form" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="create">
+                      <input type="hidden" name="target" value="jour">
+                      <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+                      <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+                      <input type="hidden" name="create-jour-date" value="{{ date_jour|date:'Y-m-d' }}">
+                      <button class="btn btn--sm btn--ghost" type="submit" title="Ajouter" aria-label="Ajouter">➕</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% if create_form_day.errors %}
+              <tr>
+                <td colspan="11">
+                  <ul class="errorlist">
+                    {% for field in create_form_day %}
+                      {% for error in field.errors %}
+                      <li>{{ field.label }}: {{ error }}</li>
+                      {% endfor %}
+                    {% endfor %}
+                    {% for error in create_form_day.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="jour jour-info">
+        <h2>INFO</h2>
+        <div class="info-card">
+          <div class="body">
+            <table class="info-table">
+              <colgroup>
+                <col class="info-col-poste">
+                <col class="info-col-nom">
+                <col class="info-col-day">
+                <col class="info-col-day">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Poste</th>
+                  <th>Nom</th>
+                  <th>date_jour</th>
+                  <th>date_compar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in info_table_rows %}
+                <tr>
+                  <td>{{ row.qualification }}</td>
+                  <td>{{ row.nom }}</td>
+                  {% for cell in row.cells %}
+                  <td class="info-cell">
+                    <div class="info-pres" style="background-color: {{ cell.background_color }};">{{ cell.pres }}</div>
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="empty">Aucune ligne manuelles_abs</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="jour">
+        <h2>{{ date_compar_label }}</h2>
+        <div class="jour-table-wrap">
+          <table class="jour-table">
+            <thead>
+              <tr>
+                <th>class.</th>
+                <th>iten.</th>
+                <th>veh.</th>
+                <th>relais</th>
+                <th>flux</th>
+                <th>agent1</th>
+                <th>agent2</th>
+                <th>agent3</th>
+                <th>depart</th>
+                <th>infos</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in compare_rows %}
+              <tr>
+                <td>{{ row.classement|default:"" }}</td>
+                <td>{{ row.itineraire|default:"" }}</td>
+                <td>{{ row.vehicule|default:"" }}</td>
+                <td>{{ row.relais|default:"" }}</td>
+                <td>{{ row.flux|default:"" }}</td>
+                <td>{% if row.agent_1 %}{{ row.agent_1.nom|default:"" }}{% endif %}</td>
+                <td>{% if row.agent_2 %}{{ row.agent_2.nom|default:"" }}{% endif %}</td>
+                <td>{% if row.agent_3 %}{{ row.agent_3.nom|default:"" }}{% endif %}</td>
+                <td>{{ row.depart|time:"H:i"|default:"" }}</td>
+                <td>{{ row.infos|default:"" }}</td>
+                <td></td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="11" class="empty">Aucune prevision</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<datalist id="relais-options">
+  {% for vehicule in relais_vehicules %}
+  <option value="{{ vehicule.nom_vehicule }}"></option>
+  {% endfor %}
+</datalist>
+{% endblock %}

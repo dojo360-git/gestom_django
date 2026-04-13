@@ -10,6 +10,7 @@ import json
 import re
 from collections import defaultdict
 from datetime import datetime, date, timedelta
+from urllib.parse import urlencode
 from urllib.request import urlopen
 
 import pandas as pd
@@ -1237,6 +1238,42 @@ def previsions_semaines(request):
         }
         return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
 
+    def _format_date_fr_short(dt):
+        weekdays = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
+        months = {
+            1: "janv",
+            2: "fevr",
+            3: "mars",
+            4: "avr",
+            5: "mai",
+            6: "juin",
+            7: "juil",
+            8: "aout",
+            9: "sept",
+            10: "oct",
+            11: "nov",
+            12: "dec",
+        }
+        return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
+
+    def _format_date_fr_long(dt):
+        weekdays = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+        months = {
+            1: "janvier",
+            2: "fevrier",
+            3: "mars",
+            4: "avril",
+            5: "mai",
+            6: "juin",
+            7: "juillet",
+            8: "aout",
+            9: "septembre",
+            10: "octobre",
+            11: "novembre",
+            12: "decembre",
+        }
+        return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]}"
+
     today = timezone.localdate()
     default_monday = today - timedelta(days=today.weekday())
     selected_date = _parse_date(request.GET.get("date"), default_monday)
@@ -1360,6 +1397,7 @@ def previsions_semaines(request):
         "table_rows": info_table_rows,
     }
     iso_week = selected_date.isocalendar().week
+    today_iso_week = today.isocalendar().week
     prev_week_date = selected_date - timedelta(days=7)
     next_week_date = selected_date + timedelta(days=7)
 
@@ -1371,8 +1409,249 @@ def previsions_semaines(request):
             "day_groups": day_groups,
             "info": info,
             "iso_week": iso_week,
+            "today_iso_week": today_iso_week,
+            "today_label": _format_date_fr_long(today),
+            "selected_filter_label": _format_date_fr_long(selected_date),
             "prev_week_date": prev_week_date,
             "next_week_date": next_week_date,
+        },
+    )
+
+
+def previsions_jour(request):
+    def _parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    def _format_date_fr_short(dt):
+        weekdays = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
+        months = {
+            1: "janv",
+            2: "fevr",
+            3: "mars",
+            4: "avr",
+            5: "mai",
+            6: "juin",
+            7: "juil",
+            8: "aout",
+            9: "sept",
+            10: "oct",
+            11: "nov",
+            12: "dec",
+        }
+        return f"{weekdays[dt.weekday()]} {dt.day:02d} {months[dt.month]} {dt.year}"
+
+    def _filters_query_string(day_value, compare_value):
+        return urlencode(
+            {
+                "date_jour": day_value.strftime("%Y-%m-%d"),
+                "date_compar": compare_value.strftime("%Y-%m-%d"),
+            }
+        )
+
+    def _safe_hex_color(raw_value, fallback):
+        value = (raw_value or "").strip()
+        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
+            return value
+        return fallback
+
+    def _classement_sort_key(item):
+        raw = (getattr(item, "classement", "") or "").strip()
+        match = re.search(r"\d+", raw)
+        if match:
+            return (0, int(match.group(0)), raw.lower())
+        return (1, float("inf"), raw.lower())
+
+    def _apply_relais_text(post_data, prefix):
+        relais_text = (post_data.get(f"{prefix}-relais_text") or "").strip()
+        relais_key = f"{prefix}-relais"
+        if not relais_text:
+            post_data[relais_key] = ""
+            return
+        relais_obj = Vehicule.objects.filter(nom_vehicule__iexact=relais_text, archive=False).first()
+        post_data[relais_key] = str(relais_obj.pk) if relais_obj else ""
+
+    today = timezone.localdate()
+    date_jour = _parse_date(request.GET.get("date_jour"), today)
+    default_compare = date_jour - timedelta(days=7)
+    date_compar = _parse_date(request.GET.get("date_compar"), default_compare)
+
+    invalid_create_target = None
+    invalid_create_form = None
+    invalid_update_id = None
+    invalid_update_form = None
+
+    if request.method == "POST":
+        date_jour = _parse_date(request.POST.get("date_jour"), date_jour)
+        date_compar = _parse_date(request.POST.get("date_compar"), date_compar)
+        action = request.POST.get("action")
+        target = request.POST.get("target") or "jour"
+
+        if action == "create":
+            target_date = date_jour if target == "jour" else date_compar
+            create_data = request.POST.copy()
+            _apply_relais_text(create_data, f"create-{target}")
+            create_form = CollectPrevForm(create_data, prefix=f"create-{target}")
+            if create_form.is_valid():
+                new_item = create_form.save(commit=False)
+                if not new_item.date:
+                    new_item.date = target_date
+                new_item.save()
+                return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+            invalid_create_target = target
+            invalid_create_form = create_form
+
+        elif action == "update":
+            row_id = request.POST.get("id_collect_prev")
+            row_obj = get_object_or_404(CollectPrev, pk=row_id)
+            update_data = request.POST.copy()
+            _apply_relais_text(update_data, f"row-{row_obj.pk}")
+            update_form = CollectPrevForm(update_data, instance=row_obj, prefix=f"row-{row_obj.pk}")
+            if update_form.is_valid():
+                updated = update_form.save(commit=False)
+                if not updated.date:
+                    updated.date = date_jour if target == "jour" else date_compar
+                updated.save()
+                return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+            invalid_update_id = row_obj.pk
+            invalid_update_form = update_form
+
+        elif action == "delete":
+            row_id = request.POST.get("id_collect_prev")
+            row_obj = get_object_or_404(CollectPrev, pk=row_id)
+            row_obj.delete()
+            return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+
+    rows_queryset = (
+        CollectPrev.objects.select_related(
+            "itineraire",
+            "vehicule",
+            "relais",
+            "flux",
+            "agent_1",
+            "agent_2",
+            "agent_3",
+        )
+        .filter(date__in=[date_jour, date_compar])
+        .order_by("date", "classement", "id")
+    )
+
+    rows_by_date = defaultdict(list)
+    for obj in rows_queryset:
+        rows_by_date[obj.date].append(obj)
+
+    day_rows = sorted(rows_by_date.get(date_jour, []), key=_classement_sort_key)
+    compare_rows = sorted(rows_by_date.get(date_compar, []), key=_classement_sort_key)
+
+    def _build_row_forms(rows):
+        output = []
+        for item in rows:
+            if invalid_update_id == item.pk and invalid_update_form is not None:
+                form = invalid_update_form
+                relais_text = (form.data.get(f"row-{item.pk}-relais_text") or "").strip()
+            else:
+                form = CollectPrevForm(instance=item, prefix=f"row-{item.pk}", initial={"date": item.date})
+                relais_text = str(item.relais or "")
+            output.append({"obj": item, "form": form, "relais_text": relais_text})
+        return output
+
+    row_forms_day = _build_row_forms(day_rows)
+    row_forms_compare = _build_row_forms(compare_rows)
+
+    if invalid_create_target == "jour" and invalid_create_form is not None:
+        create_form_day = invalid_create_form
+        create_relais_text = (invalid_create_form.data.get("create-jour-relais_text") or "").strip()
+    else:
+        create_form_day = CollectPrevForm(prefix="create-jour", initial={"date": date_jour})
+        create_relais_text = ""
+
+    if invalid_create_target == "compar" and invalid_create_form is not None:
+        create_form_compare = invalid_create_form
+    else:
+        create_form_compare = CollectPrevForm(prefix="create-compar", initial={"date": date_compar})
+
+    info_dates = [date_jour, date_compar]
+    abs_sql = """
+        SELECT
+            id_agent,
+            qualification,
+            nom,
+            prenom,
+            date,
+            background_color,
+            pres
+        FROM stat_heures
+        WHERE type = 'manuelles_abs'
+          AND date IN (%s, %s)
+        ORDER BY qualification, nom, prenom, date;
+    """
+
+    info_rows_by_agent = {}
+    with connection.cursor() as cursor:
+        cursor.execute(abs_sql, info_dates)
+        columns = [col[0] for col in cursor.description]
+        for db_row in cursor.fetchall():
+            item = dict(zip(columns, db_row))
+            agent_id = item.get("id_agent")
+            if agent_id not in info_rows_by_agent:
+                info_rows_by_agent[agent_id] = {
+                    "qualification": item.get("qualification") or "-",
+                    "nom": item.get("nom") or "-",
+                    "cells": {
+                        dt: {
+                            "pres": "",
+                            "background_color": "#ffffff",
+                        }
+                        for dt in info_dates
+                    },
+                }
+            stat_date = item.get("date")
+            if stat_date in info_rows_by_agent[agent_id]["cells"]:
+                info_rows_by_agent[agent_id]["cells"][stat_date] = {
+                    "pres": item.get("pres") or "",
+                    "background_color": _safe_hex_color(item.get("background_color"), "#f8f8f8"),
+                }
+
+    info_table_rows = []
+    for _, row in sorted(
+        info_rows_by_agent.items(),
+        key=lambda pair: (
+            (pair[1].get("qualification") or "").lower(),
+            (pair[1].get("nom") or "").lower(),
+        ),
+    ):
+        info_table_rows.append(
+            {
+                "qualification": row["qualification"],
+                "nom": row["nom"],
+                "cells": [row["cells"][dt] for dt in info_dates],
+            }
+        )
+
+    return render(
+        request,
+        "core/previsions_jour.html",
+        {
+            "date_jour": date_jour,
+            "date_compar": date_compar,
+            "date_jour_label": _format_date_fr_short(date_jour),
+            "date_compar_label": _format_date_fr_short(date_compar),
+            "prev_date_jour": date_jour - timedelta(days=1),
+            "next_date_jour": date_jour + timedelta(days=1),
+            "prev_date_compar": date_compar - timedelta(days=1),
+            "next_date_compar": date_compar + timedelta(days=1),
+            "create_form_day": create_form_day,
+            "create_relais_text": create_relais_text,
+            "create_form_compare": create_form_compare,
+            "row_forms_day": row_forms_day,
+            "row_forms_compare": row_forms_compare,
+            "compare_rows": compare_rows,
+            "relais_vehicules": Vehicule.objects.filter(archive=False).order_by("nom_vehicule"),
+            "info_table_rows": info_table_rows,
         },
     )
 
