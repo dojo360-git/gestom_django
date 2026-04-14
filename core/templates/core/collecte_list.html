@@ -106,7 +106,7 @@
                     </td>
                     <td title="{{ row.km_title }}">{% if row.km is not None %}{{ row.km|floatformat:1 }}{% else %}-{% endif %}</td>
                     <td title="{{ row.hs_title }}">{% if row.hs is not None %}{{ row.hs|floatformat:1 }}{% else %}-{% endif %}</td>
-                    <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:1 }}{% else %}-{% endif %}</td>
+                    <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:2 }}{% else %}-{% endif %}</td>
                     <td>
                       <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         {% if row.obj.consignes %}

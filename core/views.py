@@ -1916,6 +1916,30 @@ class AgentUpdateView(UpdateView):
     template_name = "core/agent_form.html"
     success_url = reverse_lazy("core:agents2")
 
+    def _get_next_url(self):
+        next_url = (
+            self.request.POST.get("next")
+            or self.request.GET.get("next")
+            or self.request.META.get("HTTP_REFERER", "")
+        )
+        if not next_url:
+            return ""
+        if not url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return ""
+        return next_url
+
+    def get_success_url(self):
+        return self._get_next_url() or str(self.success_url)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["next_url"] = self._get_next_url()
+        return ctx
+
 
 class AgentDeleteView(DeleteView):
     model = Agent

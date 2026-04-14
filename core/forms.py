@@ -190,7 +190,9 @@ class CollecteForm(forms.ModelForm):
             "tonnage1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
             "tonnage2": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
             "tonnage3": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "6 400"}),
-            "energie_qte_1": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "45"}),
+            "energie_qte_1": forms.TextInput(
+                attrs={"inputmode": "decimal", "autocomplete": "off", "placeholder": "45,50"}
+            ),
             "km_depart": forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "off", "placeholder": "60 000"}),
             "consignes": forms.Textarea(
                 attrs={
@@ -267,7 +269,10 @@ class CollecteForm(forms.ModelForm):
         return self._clean_integer_numeric_field("tonnage3")
 
     def clean_energie_qte_1(self):
-        return self._clean_integer_numeric_field("energie_qte_1")
+        value = self.cleaned_data.get("energie_qte_1")
+        if value is None:
+            return value
+        return round(float(value), 2)
 
 
 class CollectPrevForm(forms.ModelForm):
@@ -324,7 +329,12 @@ class HeuresManuellesForm(forms.ModelForm):
             "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "heure_debut": forms.TimeInput(attrs={"type": "time"}),
             "heure_fin": forms.TimeInput(attrs={"type": "time"}),
-            "motif_heures_sup": forms.TextInput(attrs={"list": "motif-heures-sup-options"}),
+            "motif_heures_sup": forms.TextInput(
+                attrs={
+                    "list": "motif-heures-sup-options",
+                    "placeholder": "Remplir si heures sup",
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -360,11 +370,22 @@ class HeuresManuellesForm(forms.ModelForm):
 
         if not self.instance.pk and not self.is_bound:
             self.fields["date"].initial = selected_date
-            first_agent = agent_qs.first()
-            if first_agent:
-                self.fields["agent"].initial = first_agent.pk
-                self.fields["heure_debut"].initial = first_agent.hds_defaut
-                self.fields["heure_fin"].initial = first_agent.hfs_defaut
+            selected_agent = None
+            initial_agent = self.initial.get("agent")
+            if initial_agent:
+                initial_agent_id = getattr(initial_agent, "pk", initial_agent)
+                try:
+                    selected_agent = agent_qs.filter(pk=int(initial_agent_id)).first()
+                except (TypeError, ValueError):
+                    selected_agent = None
+
+            if not selected_agent:
+                selected_agent = agent_qs.first()
+
+            if selected_agent:
+                self.fields["agent"].initial = selected_agent.pk
+                self.fields["heure_debut"].initial = selected_agent.hds_defaut
+                self.fields["heure_fin"].initial = selected_agent.hfs_defaut
 
     def clean(self):
         cleaned_data = super().clean()

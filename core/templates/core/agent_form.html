@@ -89,6 +89,9 @@
 
     <form method="post" class="form agent-form">
       {% csrf_token %}
+      {% if next_url %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      {% endif %}
       {{ form.non_field_errors }}
 
       <div class="agent-form-sections">
@@ -185,7 +188,7 @@
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>
-        <a href="{% url 'core:agents2' %}" class="btn btn--ghost">Annuler</a>
+        <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'core:agents2' %}{% endif %}" class="btn btn--ghost">Annuler</a>
       </div>
     </form>
 

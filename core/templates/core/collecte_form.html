@@ -291,6 +291,9 @@
 
       <div class="actions">
         <button class="btn btn--primary" type="submit">Enregistrer</button>
+        {% if object and object.pk %}
+          <a href="{% url 'core:collecte_delete' object.pk %}" class="btn btn--danger">Supprimer la collecte</a>
+        {% endif %}
         <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Annuler</a>
       </div>
     </form>
@@ -324,17 +327,17 @@
       hrDepotRetour.addEventListener("input", syncHrFin);
     }
 
-    const numericIds = [
+    const integerIds = [
       "id_km_depart",
       "id_km_retour",
       "id_tonnage1",
       "id_tonnage2",
       "id_tonnage3",
-      "id_energie_qte_1",
     ];
-    const inputs = numericIds
+    const integerInputs = integerIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
+    const energieInput = document.getElementById("id_energie_qte_1");
 
     function normalizeInteger(value) {
       const raw = (value || "").replace(/\s+/g, "").replace(",", ".");
@@ -356,7 +359,7 @@
       return digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     }
 
-    inputs.forEach((input) => {
+    integerInputs.forEach((input) => {
       input.addEventListener("focus", function () {
         input.value = normalizeInteger(input.value);
       });
@@ -368,12 +371,57 @@
       }
     });
 
+    function normalizeDecimalRaw(value) {
+      return (value || "").replace(/\s+/g, "").replace(",", ".");
+    }
+
+    function normalizeDecimalSubmit(value) {
+      const raw = normalizeDecimalRaw(value);
+      if (!raw) {
+        return "";
+      }
+      const parsed = Number.parseFloat(raw);
+      if (Number.isNaN(parsed)) {
+        return raw;
+      }
+      return parsed.toFixed(2);
+    }
+
+    function formatDecimalDisplay(value) {
+      const normalized = normalizeDecimalSubmit(value);
+      if (!normalized) {
+        return "";
+      }
+      const parsed = Number.parseFloat(normalized);
+      if (Number.isNaN(parsed)) {
+        return value;
+      }
+      const [integerPart, decimalPart] = parsed.toFixed(2).split(".");
+      const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      return `${groupedInteger},${decimalPart}`;
+    }
+
+    if (energieInput) {
+      energieInput.addEventListener("focus", function () {
+        energieInput.value = normalizeDecimalRaw(energieInput.value);
+      });
+      energieInput.addEventListener("blur", function () {
+        energieInput.value = formatDecimalDisplay(energieInput.value);
+      });
+      if (energieInput.value) {
+        energieInput.value = formatDecimalDisplay(energieInput.value);
+      }
+    }
+
     const form = document.querySelector("form.collecte-form");
     if (form) {
       form.addEventListener("submit", function () {
-        inputs.forEach((input) => {
+        integerInputs.forEach((input) => {
           input.value = normalizeInteger(input.value);
         });
+        if (energieInput) {
+          energieInput.value = normalizeDecimalSubmit(energieInput.value);
+        }
       });
     }
   });

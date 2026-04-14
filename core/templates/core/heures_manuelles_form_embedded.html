@@ -7,7 +7,7 @@
   <input type="hidden" name="embedded" value="1">
   {% endif %}
 
-  <div class="hm-form-row">
+  <div class="hm-form-row hm-form-row--three">
     <div class="field">
       {{ form.date.label_tag }}
       {{ form.date }}
@@ -18,27 +18,14 @@
       {{ form.agent }}
       {{ form.agent.errors }}
     </div>
-  </div>
-
-  <div class="hm-form-row">
-    <div class="field">
-      {{ form.heure_debut.label_tag }}
-      {{ form.heure_debut }}
-      {{ form.heure_debut.errors }}
-    </div>
-    <div class="field">
-      {{ form.heure_fin.label_tag }}
-      {{ form.heure_fin }}
-      {{ form.heure_fin.errors }}
-    </div>
-  </div>
-
-  <div class="hm-form-row">
     <div class="field">
       {{ form.presence.label_tag }}
       {{ form.presence }}
       {{ form.presence.errors }}
     </div>
+  </div>
+
+  <div class="hm-form-row hm-form-row--three">
     <div class="field">
       {{ form.motif_heures_sup.label_tag }}
       {{ form.motif_heures_sup }}
@@ -50,6 +37,16 @@
         <option value="GDV"></option>
       </datalist>
       {{ form.motif_heures_sup.errors }}
+    </div>
+    <div class="field">
+      {{ form.heure_debut.label_tag }}
+      {{ form.heure_debut }}
+      {{ form.heure_debut.errors }}
+    </div>
+    <div class="field">
+      {{ form.heure_fin.label_tag }}
+      {{ form.heure_fin }}
+      {{ form.heure_fin.errors }}
     </div>
   </div>
 
