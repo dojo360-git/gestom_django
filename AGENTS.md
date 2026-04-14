@@ -9,3 +9,6 @@ ne change jamais le back end : modele ou base de donnée sans me demander confir
 
 voici la commande pour lancer les migrations
 docker exec -it app2_django python manage.py migrate
+
+
+quand je demande un backup bdd ecrit le sous la forme bbd_regie_yyyy-mm-dd-hhmm.sql dans le dossier backups
