@@ -60,6 +60,8 @@
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+    border: none;
+    border-bottom: 1px solid #d1d5db;
   }
 
   .jour-table td {
@@ -75,17 +77,21 @@
     font-size: 12px;
     padding: 2px 4px;
     border-radius: 0;
+    text-align: center;
+    text-align-last: center;
   }
 
   .jour-table input {
     border: none;
     box-shadow: none;
+    min-height: 22px;
   }
 
   .jour-table select {
     border: none;
     box-shadow: none;
     padding: 0;
+    min-height: 22px;
   }
 
   .jour-table td.flux-cell select {
@@ -260,7 +266,6 @@
                     name="row-{{ row.obj.pk }}-relais_text"
                     value="{{ row.relais_text|default:'' }}"
                     form="update-row-{{ row.obj.pk }}"
-                    placeholder="Relais"
                   >
                 </td>
                 <td class="flux-cell" style="background-color: {{ row.obj.flux_bg_color }};">
@@ -366,7 +371,6 @@
                     name="create-jour-relais_text"
                     value="{{ create_relais_text|default_if_none:'' }}"
                     form="create-jour-form"
-                    placeholder="Relais"
                   >
                 </td>
                 <td>
