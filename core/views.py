@@ -932,6 +932,186 @@ def statistiques_heure_sup(request):
     )
 
 
+def statistiques_hercule(request):
+    today = timezone.localdate()
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    default_date_fin = today.replace(day=19)
+    date_fin = parse_date(request.GET.get("date_fin"), default_date_fin)
+
+    if date_fin.month == 1:
+        default_date_debut = date_fin.replace(year=date_fin.year - 1, month=12, day=20)
+    else:
+        default_date_debut = date_fin.replace(month=date_fin.month - 1, day=20)
+
+    date_debut = parse_date(request.GET.get("date_debut"), default_date_debut)
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    days = [date_debut + timedelta(days=offset) for offset in range((date_fin - date_debut).days + 1)]
+
+    def _safe_hex_color(raw_value, fallback):
+        value = (raw_value or "").strip()
+        if re.fullmatch(r"#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?", value):
+            return value
+        return fallback
+
+    req_stat_hr_hercule_entre_date_debut_date_fin = """
+        SELECT
+            id_agent,
+            date,
+            id_stat,
+            type,
+            id_flux,
+            id_itineraire,
+            is_heures_sup,
+            hr_debut,
+            hr_fin,
+            motif_hs,
+            presence_id,
+            stat_planning2 stat_planning,
+            nom,
+            employeur,
+            qualification,
+            service,
+            background_color,
+            border_color
+        FROM stat_heures
+        WHERE date BETWEEN %s AND %s
+          AND type IN ('collecte', 'manuelles','manuelles_abs')
+          AND employeur = 'HERCULE'
+        ORDER BY id_agent, date, stat_planning;
+    """
+
+    entries_map = defaultdict(list)
+    agents_map = {}
+
+    with connection.cursor() as cursor:
+        cursor.execute(req_stat_hr_hercule_entre_date_debut_date_fin, [date_debut, date_fin])
+        columns = [col[0] for col in cursor.description]
+        for row in cursor.fetchall():
+            item = dict(zip(columns, row))
+            agent_id = item.get("id_agent")
+            entry_date = item.get("date")
+            stat_label = item.get("stat_planning") or ""
+            stat_label_with_breaks = (
+                str(stat_label)
+                .replace("</br>", "\n")
+                .replace("<br/>", "\n")
+                .replace("<br>", "\n")
+            )
+
+            if agent_id is None or entry_date is None:
+                continue
+
+            if agent_id not in agents_map:
+                agents_map[agent_id] = {
+                    "id": agent_id,
+                    "nom": item.get("nom") or "-",
+                    "employeur": item.get("employeur") or "-",
+                    "qualification": item.get("qualification") or "-",
+                    "service": item.get("service") or "-",
+                }
+
+            entries_map[(agent_id, entry_date)].append(
+                {
+                    "id_stat": item.get("id_stat"),
+                    "type": item.get("type") or "",
+                    "stat_planning2": stat_label_with_breaks,
+                    "background_color": _safe_hex_color(item.get("background_color"), "#F1F1F1"),
+                    "border_color": _safe_hex_color(item.get("border_color"), "#666666"),
+                }
+            )
+
+    agents = sorted(
+        agents_map.values(),
+        key=lambda a: (
+            (a.get("service") or "").lower(),
+            (a.get("qualification") or "").lower(),
+            (a.get("employeur") or "").lower(),
+            (a.get("nom") or "").lower(),
+        ),
+    )
+
+    table_rows = []
+    current_service = None
+    current_service_start_index = None
+    current_service_count = 0
+    current_qualification = None
+    current_qualification_start_index = None
+    current_qualification_count = 0
+
+    for agent in agents:
+        service_value = agent.get("service") or "-"
+        qualification_value = agent.get("qualification") or "-"
+        day_cells = [
+            {
+                "day": day,
+                "entries": entries_map.get((agent["id"], day), []),
+            }
+            for day in days
+        ]
+
+        if service_value != current_service:
+            if current_service_start_index is not None:
+                table_rows[current_service_start_index]["service_rowspan"] = current_service_count
+            current_service = service_value
+            current_service_start_index = len(table_rows)
+            current_service_count = 1
+            show_service_cell = True
+        else:
+            current_service_count += 1
+            show_service_cell = False
+
+        if qualification_value != current_qualification:
+            if current_qualification_start_index is not None:
+                table_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+            current_qualification = qualification_value
+            current_qualification_start_index = len(table_rows)
+            current_qualification_count = 1
+            show_qualification_cell = True
+        else:
+            current_qualification_count += 1
+            show_qualification_cell = False
+
+        table_rows.append(
+            {
+                "agent": agent,
+                "day_cells": day_cells,
+                "service_value": service_value,
+                "show_service_cell": show_service_cell,
+                "service_rowspan": 1,
+                "qualification_value": qualification_value,
+                "show_qualification_cell": show_qualification_cell,
+                "qualification_rowspan": 1,
+            }
+        )
+
+    if current_service_start_index is not None:
+        table_rows[current_service_start_index]["service_rowspan"] = current_service_count
+    if current_qualification_start_index is not None:
+        table_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+
+    return render(
+        request,
+        "core/statistiques_hercule.html",
+        {
+            "today": today,
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "days": days,
+            "rows": table_rows,
+        },
+    )
+
+
 def statistiques_hpne(request):
     today = timezone.localdate()
 

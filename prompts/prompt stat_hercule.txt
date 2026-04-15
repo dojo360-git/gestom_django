@@ -1,0 +1,44 @@
+créé la page statistiques_hercule : 
+(tu peux t'inspirer de statistiques_collecte/)
+
+filtres
+date_debut 
+date_fin 
+
+le bouton filtrer permet de filtrer les date de début et de fin 
+
+utilise la requete suivante: 
+    req_stat_hr_hercule_entre_date_debut_date_fin = """
+        SELECT
+            id_agent,
+            date,
+            id_stat,
+            type,
+            id_flux,
+            id_itineraire,
+            is_heures_sup,
+            hr_debut,
+            hr_fin,
+            motif_hs,
+            presence_id,
+            stat_planning2,
+            nom,
+            employeur,
+            qualification,
+            service,
+            background_color,
+            border_color
+        FROM stat_heures 
+        where (date between date_debut et date_fin) et type in ('collecte', 'manuelles') and employeur = "HERCULE"
+        ORDER BY id_agent, date, stat_planning2;
+    """
+
+sur la page statistiques_hercule/ reproduit les colonnes tableau Serv.	Qual.	Empl.	Agent de la page planning/
+
+liste les agents de req_stat_hr_hercule_entre_date_debut_date_fin
+ajoute les les colonne toutes les dates entre ddd </br> dd </br> mmm  
+comme valeurs ajoute une div avec comme valeur stat_planning2 pour chaque agent et date correspondant
+
+
+
+

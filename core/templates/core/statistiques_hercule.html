@@ -1,0 +1,170 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques Hercule{% endblock %}
+
+{% block content %}
+<div class="planning">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques Hercule</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get" id="statistiquesHerculeForm">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+        <div class="planning__control">
+          <button class="btn btn--ghost" type="button" id="prevMonthBtn">Mois precedent</button>
+        </div>
+        <div class="planning__control">
+          <button class="btn btn--ghost" type="button" id="nextMonthBtn">Mois suivant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="table-wrap planning__wrap">
+        <table class="table planning__table planning3__table">
+          <thead>
+            <tr>
+              <th class="planning__sticky planning3__sticky--service">Serv.</th>
+              <th class="planning__sticky planning3__sticky--qualif">Qual.</th>
+              <th class="planning__sticky planning3__sticky--employeur">Empl.</th>
+              <th class="planning__sticky planning3__sticky--nom">Agent</th>
+              {% for day in days %}
+                <th class="planning__cell" data-day-col="{{ forloop.counter0 }}">
+                  {{ day|date:"D" }} <br> {{ day|date:"d" }} <br> {{ day|date:"M" }}
+                </th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                {% if row.show_service_cell %}
+                  <td class="planning__sticky planning3__sticky--service" rowspan="{{ row.service_rowspan }}">
+                    {% with service_short=row.service_value|slice:":4" %}
+                      {% if service_short == "Coll" %}Coll.{% elif service_short == "Prec" or service_short == "PrÃ©c" %}Prec.{% elif service_short == "Prop" %}Prop.{% else %}{{ service_short }}{% endif %}
+                    {% endwith %}
+                  </td>
+                {% endif %}
+                {% if row.show_qualification_cell %}
+                  <td class="planning__sticky planning3__sticky--qualif" rowspan="{{ row.qualification_rowspan }}">
+                    {% if row.qualification_value == "Encadrement" %}Encad.{% elif row.qualification_value == "Coordinateur" %}Coord.{% else %}{{ row.qualification_value }}{% endif %}
+                  </td>
+                {% endif %}
+                <td class="planning__sticky planning3__sticky--employeur">{{ row.agent.employeur|default:"-"|slice:":4" }}</td>
+                <td class="planning__sticky planning3__sticky--nom">{{ row.agent.nom }}</td>
+                {% for cell in row.day_cells %}
+                  <td
+                    class="planning__cell planning3__cell cell_jour {% if cell.day == today %}planning3__cell--today{% endif %} {% if cell.day|date:'w' == '0' or cell.day|date:'w' == '6' %}planning3__cell--weekend{% endif %}"
+                    data-agent-id="{{ row.agent.id }}"
+                    data-date="{{ cell.day|date:'Y-m-d' }}"
+                    data-day-col="{{ forloop.counter0 }}"
+                  >
+                    {% for e in cell.entries %}
+                      <div
+                        class="planning3__entry"
+                        data-id-stat="{{ e.id_stat }}"
+                        data-type="{{ e.type }}"
+                        style="background-color: {{ e.background_color }}; border: 3px solid {{ e.border_color }};"
+                      >
+                        {{ e.stat_planning2|linebreaksbr }}
+                      </div>
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{{ days|length|add:'4' }}" class="sub">Aucun agent HERCULE sur la periode</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const form = document.getElementById("statistiquesHerculeForm");
+    const dateDebutInput = document.getElementById("date_debut");
+    const dateFinInput = document.getElementById("date_fin");
+    const prevBtn = document.getElementById("prevMonthBtn");
+    const nextBtn = document.getElementById("nextMonthBtn");
+
+    function parseDate(value) {
+      if (!value) return null;
+      const [y, m, d] = value.split("-").map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
+    }
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function shiftMonth(date, deltaMonths) {
+      const day = date.getDate();
+      const shifted = new Date(date.getFullYear(), date.getMonth() + deltaMonths, 1);
+      const lastDay = new Date(shifted.getFullYear(), shifted.getMonth() + 1, 0).getDate();
+      shifted.setDate(Math.min(day, lastDay));
+      return shifted;
+    }
+
+    function shiftRange(deltaMonths) {
+      if (!form || !dateDebutInput || !dateFinInput) return;
+      const start = parseDate(dateDebutInput.value);
+      const end = parseDate(dateFinInput.value);
+      if (!start || !end) return;
+
+      dateDebutInput.value = formatDate(shiftMonth(start, deltaMonths));
+      dateFinInput.value = formatDate(shiftMonth(end, deltaMonths));
+      form.submit();
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
+        shiftRange(-1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        shiftRange(1);
+      });
+    }
+  })();
+</script>
+{% endblock %}

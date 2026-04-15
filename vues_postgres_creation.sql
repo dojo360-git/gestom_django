@@ -222,7 +222,15 @@ SELECT
 				when 'manuelles_abs' then pres
 				when 'manuelles_hs' then ROUND(duree) || 'h'
 				else '⚠️'
-			end as stat_planning
+			end as stat_planning,
+			case type
+				when 'collecte' then TO_CHAR(hr_debut, 'HH24:MI') || ' </br>' || TO_CHAR(hr_fin, 'HH24:MI')
+				when 'collecte_hs' then ROUND(duree) || 'h'
+				when 'manuelles' then TO_CHAR(hr_debut, 'HH24:MI') || ' </br>' || TO_CHAR(hr_fin, 'HH24:MI')
+				when 'manuelles_abs' then pres
+				when 'manuelles_hs' then ROUND(duree) || 'h'
+				else '⚠️'
+			end as stat_planning2
 from heures hr
 WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
 ;
