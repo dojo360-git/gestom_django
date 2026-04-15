@@ -1,0 +1,8 @@
+
+créé un fichier python : 
+
+
+je veux creer 3 groupes : 
+grp_responsables 
+grp_directeurs 
+grp_coordinateur 

@@ -1,0 +1,41 @@
+créé la page previsions-jour
+
+filtre date_jour 
+filtre date_compar par defaut = date_jour - 7 jours 
+
+styles communs entre previsions-jour et previsions-semaines
+
+je veux la meme structure de div 
+
+on va adapter 
+Planning prévisionnel de la semaine 15 devient date ddd dd mmm yyyy en fr fr 
+2 colonnes sur ordinateurs
+1 colonnes sur tablette et et telephone 
+
+
+3 div :
+- div jour date_jour 
+
+tableau formulaire des collect_prev
+classement  itineraire	vehicule    relais	flux	agent1	agent2	agent3	depart 	infos
+
+liste des collect_prev where date = date_compar order by classement 
+je veux pouvoir modifier, supprimer, ajouter une collect_prev
+
+a la validation d'un formulaire je veux conserver mon filtre date_jour et date_compar
+
+- div info-dates
+inspire toi de previsions-semaines mais avec date = date_jour ou date_compar
+INFO
+Poste	Nom	date_jour	date_compar			
+Chauffeur	HERTHE			FO	FO	
+Coordinateur	ANDRE_		CA			
+Ripeur	HOSSEIN				CSP	
+
+
+- div date_jour date_compar
+classement  itineraire	vehicule    relais	flux	agent1	agent2	agent3	depart 	infos
+
+liste des collect_prev where date = date_compar order by classement 
+
+

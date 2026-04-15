@@ -163,17 +163,17 @@ WITH
         	date,
         	id AS id_stat,
 			case 
-				when presence_id is null and motif_heures_sup is null then 'manuelles'
-				when presence_id is null and motif_heures_sup is not null then 'manuelles_hs'
-				when presence_id is not null and motif_heures_sup = '' then 'manuelles_abs'
+				when presence_id is null and (motif_heures_sup is null or motif_heures_sup = '') then 'manuelles'
+				when presence_id is null and not (motif_heures_sup is null or motif_heures_sup = '') then 'manuelles_hs'
+				when presence_id is not null and (motif_heures_sup is null or motif_heures_sup = '') then 'manuelles_abs'
 				else 'manuelles_err'
 			end as type,
 			null::int4 as id_flux,
 			null::int8 as id_itineraire,
 			case 
-				when presence_id is null and motif_heures_sup is null then false
-				when presence_id is null and motif_heures_sup is not null then true
-				when presence_id is not null and motif_heures_sup = '' then false
+				when presence_id is null and (motif_heures_sup is null or motif_heures_sup = '') then false
+				when presence_id is null and not (motif_heures_sup is null or motif_heures_sup = '') then true
+				when presence_id is not null and (motif_heures_sup is null or motif_heures_sup = '') then false
 				else NULL::boolean
 			end as is_heures_sup,
             heure_debut AS hr_debut,
