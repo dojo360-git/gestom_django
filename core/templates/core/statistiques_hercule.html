@@ -63,6 +63,8 @@
                   {{ day|date:"D" }} <br> {{ day|date:"d" }} <br> {{ day|date:"M" }}
                 </th>
               {% endfor %}
+              <th class="planning__cell">#Jours</th>
+              <th class="planning__cell">Heures</th>
             </tr>
           </thead>
           <tbody>
@@ -101,10 +103,12 @@
                     {% endfor %}
                   </td>
                 {% endfor %}
+                <td class="planning__cell">{{ row.nb_jours }}</td>
+                <td class="planning__cell">{{ row.nb_heures|floatformat:2 }}</td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="{{ days|length|add:'4' }}" class="sub">Aucun agent HERCULE sur la periode</td>
+                <td colspan="{{ days|length|add:'6' }}" class="sub">Aucun agent HERCULE sur la periode</td>
               </tr>
             {% endfor %}
           </tbody>

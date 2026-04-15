@@ -856,11 +856,17 @@ input[type="checkbox"]{
 
 /* 2 colonnes sticky */
 .planning .planning__sticky{
-  /*position: sticky;*/
+  position: sticky;
   background: #ffffff;
   z-index: 4;
   white-space: nowrap;
   font-size:12px;
+}
+.planning .planning__table tbody .planning__sticky{
+  z-index: 2;
+}
+.planning .planning__table thead .planning__sticky{
+  z-index: 5;
 }
 .planning .planning__sticky--qualif{
   left: 0;

@@ -977,6 +977,7 @@ def statistiques_hercule(request):
             motif_hs,
             presence_id,
             stat_planning2 stat_planning,
+            duree,
             nom,
             employeur,
             qualification,
@@ -992,6 +993,8 @@ def statistiques_hercule(request):
 
     entries_map = defaultdict(list)
     agents_map = {}
+    agent_line_counts = defaultdict(int)
+    agent_heures_totals = defaultdict(float)
 
     with connection.cursor() as cursor:
         cursor.execute(req_stat_hr_hercule_entre_date_debut_date_fin, [date_debut, date_fin])
@@ -1019,6 +1022,11 @@ def statistiques_hercule(request):
                     "qualification": item.get("qualification") or "-",
                     "service": item.get("service") or "-",
                 }
+
+            entry_type = (item.get("type") or "").strip().lower()
+            if entry_type in {"collecte", "manuelles"}:
+                agent_line_counts[agent_id] += 1
+                agent_heures_totals[agent_id] += float(item.get("duree") or 0)
 
             entries_map[(agent_id, entry_date)].append(
                 {
@@ -1084,6 +1092,8 @@ def statistiques_hercule(request):
         table_rows.append(
             {
                 "agent": agent,
+                "nb_jours": agent_line_counts.get(agent["id"], 0),
+                "nb_heures": agent_heures_totals.get(agent["id"], 0.0),
                 "day_cells": day_cells,
                 "service_value": service_value,
                 "show_service_cell": show_service_cell,
