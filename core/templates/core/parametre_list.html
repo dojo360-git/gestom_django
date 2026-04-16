@@ -1,0 +1,273 @@
+{% extends "core/base.html" %}
+
+{% block title %}Parametres{% endblock %}
+
+{% block content %}
+<style>
+  .param-card {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .param-visual {
+    margin: 18px 0 24px;
+    padding: 14px;
+    border: 1px solid #d7dce3;
+    border-radius: 10px;
+    background: #f8faf8;
+  }
+  .param-visual__times {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 12px;
+  }
+  .param-visual__time {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+  }
+  .param-visual__time input {
+    width: 130px;
+    text-align: center;
+    font-size: 17px;
+    line-height: 1;
+    padding: 8px 10px;
+    border: 2px solid #111;
+    border-radius: 4px;
+    background: #fff;
+  }
+  .param-visual__label {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .param-visual__bar-wrap {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .param-visual__midnight {
+    font-size: 22px;
+    line-height: 1;
+    color: #1b1b1b;
+  }
+  .param-visual__bar {
+    height: 54px;
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid #6bb44a;
+  }
+  .segment-night {
+    background: #48ab2e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+  }
+  .segment-day {
+    background: #9bc48f;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+  }
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px 10px;
+    align-items: center;
+    max-width: 670px;
+  }
+  .param-grid .field-label {
+    text-align: right;
+    font-size: 15px;
+  }
+  .param-grid .field-input input {
+    width: 160px;
+    font-size: 22px;
+    line-height: 1;
+    padding: 8px 10px;
+    border: 2px solid #111;
+    border-radius: 4px;
+    text-align: center;
+  }
+  .param-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .param-table {
+    margin-top: 20px;
+  }
+  @media (max-width: 900px) {
+    .param-visual__midnight {
+      font-size: 18px;
+    }
+    .param-grid .field-label {
+      text-align: left;
+      font-size: 14px;
+    }
+    .param-grid {
+      grid-template-columns: 1fr;
+    }
+    .param-grid .field-input input {
+      width: 100%;
+      max-width: 260px;
+      font-size: 18px;
+    }
+  }
+</style>
+
+<div class="card param-card">
+  <div class="card__pad">
+    <h1 class="h1">Parametres</h1>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="card" style="margin-top:10px;">
+          <div class="card__pad" style="color:#b91c1c;">
+            {{ form.non_field_errors }}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="param-visual">
+        <div class="param-visual__times">
+          <div class="param-visual__time">
+            <label class="param-visual__label" for="{{ form.heure_nuit_matin.id_for_label }}">heure_nuit_matin</label>
+            {{ form.heure_nuit_matin }}
+            {{ form.heure_nuit_matin.errors }}
+          </div>
+          <div></div>
+          <div class="param-visual__time">
+            <label class="param-visual__label" for="{{ form.heure_nuit_soir.id_for_label }}">heure_nuit_soir</label>
+            {{ form.heure_nuit_soir }}
+            {{ form.heure_nuit_soir.errors }}
+          </div>
+        </div>
+
+        <div class="param-visual__bar-wrap">
+          <div class="param-visual__midnight">00:00</div>
+          <div class="param-visual__bar">
+            <div id="night-left" class="segment-night">Nuit</div>
+            <div id="day-center" class="segment-day">Jour</div>
+            <div id="night-right" class="segment-night">Nuit</div>
+          </div>
+          <div class="param-visual__midnight">00:00</div>
+        </div>
+      </div>
+
+      <div class="param-grid">
+        <div class="field-label">
+          <label for="{{ form.cout_horaire.id_for_label }}">cout_horaire</label>
+        </div>
+        <div class="field-input">
+          {{ form.cout_horaire }}
+          {{ form.cout_horaire.errors }}
+        </div>
+
+        <div class="field-label">
+          <label for="{{ form.maj_heures_nuits.id_for_label }}">maj_heures_nuits</label>
+        </div>
+        <div class="field-input">
+          {{ form.maj_heures_nuits }}
+          {{ form.maj_heures_nuits.errors }}
+        </div>
+
+        <div class="field-label">
+          <label for="{{ form.majoration_dimanche_et_jours_feries.id_for_label }}">majoration_dimanche_et_jours_feries</label>
+        </div>
+        <div class="field-input">
+          {{ form.majoration_dimanche_et_jours_feries }}
+          {{ form.majoration_dimanche_et_jours_feries.errors }}
+        </div>
+      </div>
+
+      <div class="param-actions">
+        <button class="btn btn--primary" type="submit">Ajouter</button>
+      </div>
+    </form>
+
+    <div class="param-table table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>heure_nuit_matin</th>
+            <th>heure_nuit_soir</th>
+            <th>cout_horaire</th>
+            <th>maj_heures_nuits</th>
+            <th>majoration_dimanche_et_jours_feries</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in parametres %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.heure_nuit_matin|time:"H:i" }}</td>
+              <td>{{ p.heure_nuit_soir|time:"H:i" }}</td>
+              <td>{{ p.cout_horaire|floatformat:2 }}</td>
+              <td>{{ p.maj_heures_nuits|floatformat:2 }}</td>
+              <td>{{ p.majoration_dimanche_et_jours_feries|floatformat:2 }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="sub">Aucun parametre enregistre</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const morningInput = document.getElementById("id_heure_nuit_matin");
+    const eveningInput = document.getElementById("id_heure_nuit_soir");
+    const left = document.getElementById("night-left");
+    const center = document.getElementById("day-center");
+    const right = document.getElementById("night-right");
+
+    if (!morningInput || !eveningInput || !left || !center || !right) {
+      return;
+    }
+
+    function toMinutes(value) {
+      const parts = (value || "").split(":");
+      if (parts.length < 2) return null;
+      const h = Number(parts[0]);
+      const m = Number(parts[1]);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return (h * 60) + m;
+    }
+
+    function updateBar() {
+      const morning = toMinutes(morningInput.value);
+      const evening = toMinutes(eveningInput.value);
+      if (morning === null || evening === null) return;
+
+      const dayMinutes = evening >= morning
+        ? (evening - morning)
+        : ((24 * 60) - morning + evening);
+
+      const leftNightMinutes = morning;
+      const rightNightMinutes = (24 * 60) - evening;
+      const total = 24 * 60;
+
+      left.style.width = `${(leftNightMinutes / total) * 100}%`;
+      center.style.width = `${(dayMinutes / total) * 100}%`;
+      right.style.width = `${(rightNightMinutes / total) * 100}%`;
+    }
+
+    morningInput.addEventListener("input", updateBar);
+    eveningInput.addEventListener("input", updateBar);
+    updateBar();
+  })();
+</script>
+{% endblock %}

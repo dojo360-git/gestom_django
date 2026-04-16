@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+
+{% block title %}Acces refuse{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card__pad">
+    <div class="header">
+      <div>
+        <h1 class="h1">Acces refuse</h1>
+        {% if csrf_error %}
+        <p class="sub">La demande a ete refusee pour des raisons de securite (CSRF).</p>
+        {% else %}
+        <p class="sub">Vous n'avez pas les permissions necessaires pour réaliser cette action.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <ul class="list">
+      <li>Code erreur : 403</li>
+      {% if csrf_error %}
+      <li>Votre session a peut-etre expire, ou le formulaire a ete envoye depuis une page non valide.</li>
+      <li>Revenez a la page precedente, rechargez, puis reessayez.</li>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <li>Utilisateur connecte : {{ user.get_username }}</li>
+      {% endif %}
+      {% if csrf_error and csrf_reason %}
+      <li>Detail technique : {{ csrf_reason }}</li>
+      {% endif %}
+      <li>Si besoin, contactez un administrateur pour demander le droit d'acces.</li>
+    </ul>
+
+    <div class="actions">
+      {% if user.is_authenticated %}
+      <a href="{% url 'core:home' %}" class="btn btn--primary">Retour a l'accueil</a>
+      {% else %}
+      <a href="{% url 'login' %}" class="btn btn--primary">Se connecter</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

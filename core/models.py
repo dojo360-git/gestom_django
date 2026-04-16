@@ -316,3 +316,17 @@ class Tache(models.Model):
     def __str__(self):
         return f"{self.date} - {self.info}"
 
+
+class Parametre(models.Model):
+    cout_horaire = models.DecimalField(max_digits=10, decimal_places=2)
+    maj_heures_nuits = models.DecimalField(max_digits=10, decimal_places=2)
+    majoration_dimanche_et_jours_feries = models.DecimalField(max_digits=10, decimal_places=2)
+    heure_nuit_matin = models.TimeField()
+    heure_nuit_soir = models.TimeField()
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"Parametre #{self.pk}"
+

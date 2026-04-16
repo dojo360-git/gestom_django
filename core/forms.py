@@ -1,6 +1,7 @@
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
+from decimal import Decimal
 from .models import (
     Agent,
     Flux,
@@ -12,6 +13,7 @@ from .models import (
     Itineraire,
     HeuresManuelles,
     Tache,
+    Parametre,
 )
 
 
@@ -413,3 +415,43 @@ class TacheForm(forms.ModelForm):
                 ]
             ),
         }
+
+
+class ParametreForm(forms.ModelForm):
+    class Meta:
+        model = Parametre
+        fields = [
+            "heure_nuit_matin",
+            "heure_nuit_soir",
+            "cout_horaire",
+            "maj_heures_nuits",
+            "majoration_dimanche_et_jours_feries",
+        ]
+        widgets = {
+            "heure_nuit_matin": forms.TimeInput(attrs={"type": "time"}),
+            "heure_nuit_soir": forms.TimeInput(attrs={"type": "time"}),
+            "cout_horaire": forms.TextInput(attrs={"inputmode": "decimal", "placeholder": "21,04"}),
+            "maj_heures_nuits": forms.TextInput(attrs={"inputmode": "decimal", "placeholder": "1,25"}),
+            "majoration_dimanche_et_jours_feries": forms.TextInput(attrs={"inputmode": "decimal", "placeholder": "1,25"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_bound:
+            normalized = self.data.copy()
+            for field_name in [
+                "cout_horaire",
+                "maj_heures_nuits",
+                "majoration_dimanche_et_jours_feries",
+            ]:
+                value = normalized.get(field_name)
+                if isinstance(value, str):
+                    normalized[field_name] = value.replace(" ", "").replace(",", ".")
+            self.data = normalized
+
+        if not self.instance.pk:
+            self.fields["heure_nuit_matin"].initial = "05:30"
+            self.fields["heure_nuit_soir"].initial = "19:00"
+            self.fields["cout_horaire"].initial = Decimal("21.04")
+            self.fields["maj_heures_nuits"].initial = Decimal("1.25")
+            self.fields["majoration_dimanche_et_jours_feries"].initial = Decimal("1.25")

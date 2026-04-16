@@ -56,8 +56,6 @@
           <button class="btn btn--primary" type="submit">Filtrer</button>
           <a href="{% url 'core:collecte_create' %}" class="btn btn--primary">Nouvelle collecte</a>
         </form>
-
-        
       </div>
     </div>
 
@@ -65,82 +63,85 @@
       <div class="card" style="margin-top:14px;">
         <div class="card__pad">
           <h2 class="h2" style="margin-bottom:10px;">S{{ day_group.date|date:"W" }} - {{ day_group.date|date:"l d F Y" }}</h2>
-          <div class="table-wrap">
-            <table class="table collectes-day-table">
-              <thead>
-                <tr>
-                  <th>Itineraire</th>
-                  <th>Vehicule</th>
-                  <th>nom_agent_1</th>
-                  <th>nom_agent_2</th>
-                  <th>nom_agent_3</th>
-                  <th>tonnages</th>
-                  <th>km</th>
-                  <th>HS</th>
-                  <th>energie_qte</th>
-                  <th>infos</th>
-                  <th>actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in day_group.rows %}
+          {% for regie_group in day_group.regie_groups %}
+            <h3 class="h3" style="margin:14px 0 8px;">Regie: {{ regie_group.regie }}</h3>
+            <div class="table-wrap">
+              <table class="table collectes-day-table">
+                <thead>
                   <tr>
-                    <td>{{ row.itineraire }}</td>
-                    <td title="{{ row.vehicule_title }}">{{ row.vehicule }}</td>
-                    <td title="{{ row.agent_1_title }}">{{ row.agent_1 }}</td>
-                    <td title="{{ row.agent_2_title }}">{{ row.agent_2 }}</td>
-                    <td title="{{ row.agent_3_title }}">{{ row.agent_3 }}</td>
-                    <td>
-                      <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        {% for t in row.tonnages %}
-                          <div
-                            title="{{ t.flux_name }}"
-                            style="padding:4px 8px; border-radius:10px; border:1px solid #d1d5db; background:{{ t.background }};"
-                          >
-                            {{ t.value_tonnes|floatformat:1 }}
-                          </div>
-                        {% empty %}
-                          <span>-</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td title="{{ row.km_title }}">{% if row.km is not None %}{{ row.km|floatformat:1 }}{% else %}-{% endif %}</td>
-                    <td title="{{ row.hs_title }}">{% if row.hs is not None %}{{ row.hs|floatformat:1 }}{% else %}-{% endif %}</td>
-                    <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:2 }}{% else %}-{% endif %}</td>
-                    <td>
-                      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        {% if row.obj.consignes %}
-                          <div title="{{ row.obj.consignes }}">ℹ️</div>
-                        {% endif %}
-                        {% if row.obj.info_collecte %}
-                          <div title="{{ row.obj.info_collecte }}">🗑️</div>
-                        {% endif %}
-                        {% if row.obj.info_vehicule %}
-                          <div title="{{ row.obj.info_vehicule }}">🚛</div>
-                        {% endif %}
-                      </div>
-                    </td>
-                    <td>
-                      <div class="actions">
-                        <a
-                          href="{% url 'core:collecte_update' row.obj.pk %}"
-                          class="btn btn--sm btn--ghost"
-                          title="Modifier"
-                          aria-label="Modifier"
-                        >✏️</a>
-                        <a
-                          href="{% url 'core:collecte_delete' row.obj.pk %}"
-                          class="btn btn--sm btn--danger"
-                          title="Supprimer"
-                          aria-label="Supprimer"
-                        >🗑️</a>
-                      </div>
-                    </td>
+                    <th>Itineraire</th>
+                    <th>Vehicule</th>
+                    <th>nom_agent_1</th>
+                    <th>nom_agent_2</th>
+                    <th>nom_agent_3</th>
+                    <th>tonnages</th>
+                    <th>km</th>
+                    <th>HS</th>
+                    <th>energie_qte</th>
+                    <th>infos</th>
+                    <th>actions</th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {% for row in regie_group.rows %}
+                    <tr>
+                      <td>{{ row.itineraire }}</td>
+                      <td title="{{ row.vehicule_title }}">{{ row.vehicule }}</td>
+                      <td title="{{ row.agent_1_title }}">{{ row.agent_1 }}</td>
+                      <td title="{{ row.agent_2_title }}">{{ row.agent_2 }}</td>
+                      <td title="{{ row.agent_3_title }}">{{ row.agent_3 }}</td>
+                      <td>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                          {% for t in row.tonnages %}
+                            <div
+                              title="{{ t.flux_name }}"
+                              style="padding:4px 8px; border-radius:10px; border:1px solid #d1d5db; background:{{ t.background }};"
+                            >
+                              {{ t.value_tonnes|floatformat:1 }}
+                            </div>
+                          {% empty %}
+                            <span>-</span>
+                          {% endfor %}
+                        </div>
+                      </td>
+                      <td title="{{ row.km_title }}">{% if row.km is not None %}{{ row.km|floatformat:1 }}{% else %}-{% endif %}</td>
+                      <td title="{{ row.hs_title }}">{% if row.hs is not None %}{{ row.hs|floatformat:1 }}{% else %}-{% endif %}</td>
+                      <td>{% if row.energie_qte is not None %}{{ row.energie_qte|floatformat:2 }}{% else %}-{% endif %}</td>
+                      <td>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                          {% if row.obj.consignes %}
+                            <div title="{{ row.obj.consignes }}">&#8505;</div>
+                          {% endif %}
+                          {% if row.obj.info_collecte %}
+                            <div title="{{ row.obj.info_collecte }}">&#128465;</div>
+                          {% endif %}
+                          {% if row.obj.info_vehicule %}
+                            <div title="{{ row.obj.info_vehicule }}">&#128666;</div>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="actions">
+                          <a
+                            href="{% url 'core:collecte_update' row.obj.pk %}"
+                            class="btn btn--sm btn--ghost"
+                            title="Modifier"
+                            aria-label="Modifier"
+                          >&#9998;</a>
+                          <a
+                            href="{% url 'core:collecte_delete' row.obj.pk %}"
+                            class="btn btn--sm btn--danger"
+                            title="Supprimer"
+                            aria-label="Supprimer"
+                          >&#128465;</a>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endfor %}
         </div>
       </div>
     {% empty %}

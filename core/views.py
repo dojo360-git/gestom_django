@@ -1,10 +1,12 @@
 from django.db import connection, DatabaseError, transaction
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.db.models.functions import Cast
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 import calendar
 import json
@@ -27,8 +29,21 @@ from .forms import (
     CollectPrevForm,
     HeuresManuellesForm,
     TacheForm,
+    ParametreForm,
 )
-from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, CollectPrev, HeuresManuelles, Tache
+from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, CollectPrev, HeuresManuelles, Tache, Parametre
+
+
+def csrf_failure(request, reason=""):
+    return render(
+        request,
+        "403.html",
+        {
+            "csrf_error": True,
+            "csrf_reason": reason,
+        },
+        status=403,
+    )
 
 
 def home(request):
@@ -1718,6 +1733,8 @@ def previsions_jour(request):
         target = request.POST.get("target") or "jour"
 
         if action == "create":
+            if not request.user.has_perm("core.add_collectprev"):
+                raise PermissionDenied
             target_date = date_jour if target == "jour" else date_compar
             create_data = request.POST.copy()
             _apply_relais_text(create_data, f"create-{target}")
@@ -1732,6 +1749,8 @@ def previsions_jour(request):
             invalid_create_form = create_form
 
         elif action == "update":
+            if not request.user.has_perm("core.change_collectprev"):
+                raise PermissionDenied
             row_id = request.POST.get("id_collect_prev")
             row_obj = get_object_or_404(CollectPrev, pk=row_id)
             update_data = request.POST.copy()
@@ -1747,12 +1766,16 @@ def previsions_jour(request):
             invalid_update_form = update_form
 
         elif action == "delete":
+            if not request.user.has_perm("core.delete_collectprev"):
+                raise PermissionDenied
             row_id = request.POST.get("id_collect_prev")
             row_obj = get_object_or_404(CollectPrev, pk=row_id)
             row_obj.delete()
             return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
 
         elif action == "copy_prev":
+            if not (request.user.has_perm("core.delete_collectprev") and request.user.has_perm("core.add_collectprev")):
+                raise PermissionDenied
             # Evite de vider les previsions si les deux dates sont identiques.
             if date_jour == date_compar:
                 return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
@@ -1929,12 +1952,16 @@ def flux2(request):
         action = request.POST.get("action")
 
         if action == "create":
+            if not request.user.has_perm("core.add_flux"):
+                raise PermissionDenied
             create_form = FluxForm(request.POST, prefix="create")
             if create_form.is_valid():
                 create_form.save()
                 return redirect("core:flux2")
 
         elif action == "update":
+            if not request.user.has_perm("core.change_flux"):
+                raise PermissionDenied
             flux_id = request.POST.get("id_flux")
             flux_obj = get_object_or_404(Flux, pk=flux_id)
             update_form = FluxForm(request.POST, instance=flux_obj, prefix=f"row-{flux_obj.pk}")
@@ -1945,6 +1972,8 @@ def flux2(request):
             invalid_update_form = update_form
 
         elif action == "delete":
+            if not request.user.has_perm("core.delete_flux"):
+                raise PermissionDenied
             flux_id = request.POST.get("id_flux")
             flux_obj = get_object_or_404(Flux, pk=flux_id)
             flux_obj.delete()
@@ -2012,12 +2041,16 @@ def agents2(request):
         action = request.POST.get("action")
 
         if action == "create":
+            if not request.user.has_perm("core.add_agent"):
+                raise PermissionDenied
             create_form = AgentForm(request.POST, prefix="create")
             if create_form.is_valid():
                 create_form.save()
                 return redirect("core:agents2")
 
         elif action == "update":
+            if not request.user.has_perm("core.change_agent"):
+                raise PermissionDenied
             agent_id = request.POST.get("id_agent")
             agent_obj = get_object_or_404(Agent, pk=agent_id)
             update_form = AgentForm(request.POST, instance=agent_obj, prefix=f"row-{agent_obj.pk}")
@@ -2028,6 +2061,8 @@ def agents2(request):
             invalid_update_form = update_form
 
         elif action == "delete":
+            if not request.user.has_perm("core.delete_agent"):
+                raise PermissionDenied
             agent_id = request.POST.get("id_agent")
             agent_obj = get_object_or_404(Agent, pk=agent_id)
             agent_obj.delete()
@@ -2053,7 +2088,9 @@ def agents2(request):
     )
 
 
-class AgentListView(ListView):
+class AgentListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_agent"
+    raise_exception = True
     model = Agent
     template_name = "core/agent_list.html"
     context_object_name = "agents"
@@ -2087,20 +2124,26 @@ class AgentListView(ListView):
         return ctx
 
 
-class AgentDetailView(DetailView):
+class AgentDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_agent"
+    raise_exception = True
     model = Agent
     template_name = "core/agent_detail.html"
     context_object_name = "agent"
 
 
-class AgentCreateView(CreateView):
+class AgentCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_agent"
+    raise_exception = True
     model = Agent
     form_class = AgentForm
     template_name = "core/agent_form.html"
     success_url = reverse_lazy("core:agents2")
 
 
-class AgentUpdateView(UpdateView):
+class AgentUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_agent"
+    raise_exception = True
     model = Agent
     form_class = AgentForm
     template_name = "core/agent_form.html"
@@ -2131,25 +2174,33 @@ class AgentUpdateView(UpdateView):
         return ctx
 
 
-class AgentDeleteView(DeleteView):
+class AgentDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_agent"
+    raise_exception = True
     model = Agent
     template_name = "core/agent_confirm_delete.html"
     success_url = reverse_lazy("core:agents2")
 
 
-class FluxListView(ListView):
+class FluxListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_flux"
+    raise_exception = True
     model = Flux
     template_name = "core/flux_list.html"
     context_object_name = "fluxes"
 
 
-class FluxDetailView(DetailView):
+class FluxDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_flux"
+    raise_exception = True
     model = Flux
     template_name = "core/flux_detail.html"
     context_object_name = "flux"
 
 
-class FluxCreateView(CreateView):
+class FluxCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_flux"
+    raise_exception = True
     model = Flux
     form_class = FluxForm
     template_name = "core/flux_form.html"
@@ -2161,7 +2212,9 @@ class FluxCreateView(CreateView):
         return ctx
 
 
-class FluxUpdateView(UpdateView):
+class FluxUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_flux"
+    raise_exception = True
     model = Flux
     form_class = FluxForm
     template_name = "core/flux_form.html"
@@ -2173,25 +2226,33 @@ class FluxUpdateView(UpdateView):
         return ctx
 
 
-class FluxDeleteView(DeleteView):
+class FluxDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_flux"
+    raise_exception = True
     model = Flux
     template_name = "core/flux_confirm_delete.html"
     success_url = reverse_lazy("core:flux_list")
 
 
-class EnergieListView(ListView):
+class EnergieListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_energie"
+    raise_exception = True
     model = Energie
     template_name = "core/energie_list.html"
     context_object_name = "energies"
 
 
-class EnergieDetailView(DetailView):
+class EnergieDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_energie"
+    raise_exception = True
     model = Energie
     template_name = "core/energie_detail.html"
     context_object_name = "energie"
 
 
-class EnergieCreateView(CreateView):
+class EnergieCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_energie"
+    raise_exception = True
     model = Energie
     form_class = EnergieForm
     template_name = "core/energie_form.html"
@@ -2203,7 +2264,9 @@ class EnergieCreateView(CreateView):
         return ctx
 
 
-class EnergieUpdateView(UpdateView):
+class EnergieUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_energie"
+    raise_exception = True
     model = Energie
     form_class = EnergieForm
     template_name = "core/energie_form.html"
@@ -2215,25 +2278,33 @@ class EnergieUpdateView(UpdateView):
         return ctx
 
 
-class EnergieDeleteView(DeleteView):
+class EnergieDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_energie"
+    raise_exception = True
     model = Energie
     template_name = "core/energie_confirm_delete.html"
     success_url = reverse_lazy("core:energie_list")
 
 
-class PresenceMotifListView(ListView):
+class PresenceMotifListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_presencemotif"
+    raise_exception = True
     model = PresenceMotif
     template_name = "core/presence_motif_list.html"
     context_object_name = "presence_motifs"
 
 
-class PresenceMotifDetailView(DetailView):
+class PresenceMotifDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_presencemotif"
+    raise_exception = True
     model = PresenceMotif
     template_name = "core/presence_motif_detail.html"
     context_object_name = "presence_motif"
 
 
-class PresenceMotifCreateView(CreateView):
+class PresenceMotifCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_presencemotif"
+    raise_exception = True
     model = PresenceMotif
     form_class = PresenceMotifForm
     template_name = "core/presence_motif_form.html"
@@ -2245,7 +2316,9 @@ class PresenceMotifCreateView(CreateView):
         return ctx
 
 
-class PresenceMotifUpdateView(UpdateView):
+class PresenceMotifUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_presencemotif"
+    raise_exception = True
     model = PresenceMotif
     form_class = PresenceMotifForm
     template_name = "core/presence_motif_form.html"
@@ -2257,13 +2330,17 @@ class PresenceMotifUpdateView(UpdateView):
         return ctx
 
 
-class PresenceMotifDeleteView(DeleteView):
+class PresenceMotifDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_presencemotif"
+    raise_exception = True
     model = PresenceMotif
     template_name = "core/presence_motif_confirm_delete.html"
     success_url = reverse_lazy("core:presence_motif_list")
 
 
-class ItineraireListView(ListView):
+class ItineraireListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_itineraire"
+    raise_exception = True
     model = Itineraire
     template_name = "core/itineraire_list.html"
     context_object_name = "itineraires"
@@ -2272,13 +2349,17 @@ class ItineraireListView(ListView):
         return Itineraire.objects.order_by("regie", "itineraire")
 
 
-class ItineraireDetailView(DetailView):
+class ItineraireDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_itineraire"
+    raise_exception = True
     model = Itineraire
     template_name = "core/itineraire_detail.html"
     context_object_name = "itineraire"
 
 
-class ItineraireCreateView(CreateView):
+class ItineraireCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_itineraire"
+    raise_exception = True
     model = Itineraire
     form_class = ItineraireForm
     template_name = "core/itineraire_form.html"
@@ -2290,7 +2371,9 @@ class ItineraireCreateView(CreateView):
         return ctx
 
 
-class ItineraireUpdateView(UpdateView):
+class ItineraireUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_itineraire"
+    raise_exception = True
     model = Itineraire
     form_class = ItineraireForm
     template_name = "core/itineraire_form.html"
@@ -2302,13 +2385,17 @@ class ItineraireUpdateView(UpdateView):
         return ctx
 
 
-class ItineraireDeleteView(DeleteView):
+class ItineraireDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_itineraire"
+    raise_exception = True
     model = Itineraire
     template_name = "core/itineraire_confirm_delete.html"
     success_url = reverse_lazy("core:itineraire_list")
 
 
-class VehiculeListView(ListView):
+class VehiculeListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_vehicule"
+    raise_exception = True
     model = Vehicule
     template_name = "core/vehicule_list.html"
     context_object_name = "vehicules"
@@ -2335,13 +2422,17 @@ class VehiculeListView(ListView):
         return ctx
 
 
-class VehiculeDetailView(DetailView):
+class VehiculeDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_vehicule"
+    raise_exception = True
     model = Vehicule
     template_name = "core/vehicule_detail.html"
     context_object_name = "vehicule"
 
 
-class VehiculeCreateView(CreateView):
+class VehiculeCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_vehicule"
+    raise_exception = True
     model = Vehicule
     form_class = VehiculeForm
     template_name = "core/vehicule_form.html"
@@ -2353,7 +2444,9 @@ class VehiculeCreateView(CreateView):
         return ctx
 
 
-class VehiculeUpdateView(UpdateView):
+class VehiculeUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_vehicule"
+    raise_exception = True
     model = Vehicule
     form_class = VehiculeForm
     template_name = "core/vehicule_form.html"
@@ -2365,13 +2458,17 @@ class VehiculeUpdateView(UpdateView):
         return ctx
 
 
-class VehiculeDeleteView(DeleteView):
+class VehiculeDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_vehicule"
+    raise_exception = True
     model = Vehicule
     template_name = "core/vehicule_confirm_delete.html"
     success_url = reverse_lazy("core:vehicule_list")
 
 
-class CollecteListView(ListView):
+class CollecteListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_collecte"
+    raise_exception = True
     model = Collecte
     template_name = "core/collecte_list.html"
     context_object_name = "collectes"
@@ -2482,10 +2579,23 @@ class CollecteListView(ListView):
                 }
             )
 
-        grouped_days = [
-            {"date": day, "rows": rows}
-            for day, rows in collectes_by_day.items()
-        ]
+        grouped_days = []
+        for day, rows in collectes_by_day.items():
+            rows_by_regie = defaultdict(list)
+            for row in rows:
+                itineraire = row["obj"].id_itineraire
+                regie = "-"
+                if itineraire and itineraire.regie:
+                    regie = str(itineraire.get_regie_display() or itineraire.regie)
+                rows_by_regie[regie].append(row)
+
+            regie_groups = [
+                {"regie": regie, "rows": regie_rows}
+                for regie, regie_rows in rows_by_regie.items()
+            ]
+            regie_groups.sort(key=lambda item: item["regie"])
+            grouped_days.append({"date": day, "regie_groups": regie_groups})
+
         grouped_days.sort(key=lambda item: item["date"], reverse=True)
 
         ctx["date_debut"] = date_debut
@@ -2494,13 +2604,17 @@ class CollecteListView(ListView):
         return ctx
 
 
-class CollecteDetailView(DetailView):
+class CollecteDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_collecte"
+    raise_exception = True
     model = Collecte
     template_name = "core/collecte_detail.html"
     context_object_name = "collecte"
 
 
-class CollecteCreateView(CreateView):
+class CollecteCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_collecte"
+    raise_exception = True
     model = Collecte
     form_class = CollecteForm
     template_name = "core/collecte_form.html"
@@ -2512,7 +2626,9 @@ class CollecteCreateView(CreateView):
         return ctx
 
 
-class CollecteUpdateView(UpdateView):
+class CollecteUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_collecte"
+    raise_exception = True
     model = Collecte
     form_class = CollecteForm
     template_name = "core/collecte_form.html"
@@ -2550,13 +2666,17 @@ class CollecteUpdateView(UpdateView):
         return ctx
 
 
-class CollecteDeleteView(DeleteView):
+class CollecteDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_collecte"
+    raise_exception = True
     model = Collecte
     template_name = "core/collecte_confirm_delete.html"
     success_url = reverse_lazy("core:collecte_list")
 
 
-class HeuresManuellesListView(ListView):
+class HeuresManuellesListView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_heuresmanuelles"
+    raise_exception = True
     model = HeuresManuelles
     template_name = "core/heures_manuelles_list.html"
     context_object_name = "heures_manuelles"
@@ -2601,13 +2721,17 @@ class HeuresManuellesListView(ListView):
         return ctx
 
 
-class HeuresManuellesDetailView(DetailView):
+class HeuresManuellesDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = "core.view_heuresmanuelles"
+    raise_exception = True
     model = HeuresManuelles
     template_name = "core/heures_manuelles_detail.html"
     context_object_name = "heures_manuel"
 
 
-class HeuresManuellesCreateView(CreateView):
+class HeuresManuellesCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = "core.add_heuresmanuelles"
+    raise_exception = True
     model = HeuresManuelles
     form_class = HeuresManuellesForm
     template_name = "core/heures_manuelles_form.html"
@@ -2659,7 +2783,9 @@ class HeuresManuellesCreateView(CreateView):
         return ctx
 
 
-class HeuresManuellesUpdateView(UpdateView):
+class HeuresManuellesUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_heuresmanuelles"
+    raise_exception = True
     model = HeuresManuelles
     form_class = HeuresManuellesForm
     template_name = "core/heures_manuelles_form.html"
@@ -2698,7 +2824,9 @@ class HeuresManuellesUpdateView(UpdateView):
         return ctx
 
 
-class HeuresManuellesDeleteView(DeleteView):
+class HeuresManuellesDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = "core.delete_heuresmanuelles"
+    raise_exception = True
     model = HeuresManuelles
     template_name = "core/heures_manuelles_confirm_delete.html"
     success_url = reverse_lazy("core:heures_manuelles_list")
@@ -2719,7 +2847,9 @@ class HeuresManuellesDeleteView(DeleteView):
         return self._get_next_url() or str(self.success_url)
 
 
-class TacheUpdateView(UpdateView):
+class TacheUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = "core.change_tache"
+    raise_exception = True
     model = Tache
     form_class = TacheForm
     template_name = "core/tache_form.html"
@@ -2729,6 +2859,46 @@ class TacheUpdateView(UpdateView):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = "Modifier tache"
         return ctx
+
+
+class ParametreListCreateView(PermissionRequiredMixin, ListView):
+    permission_required = "core.view_parametre"
+    raise_exception = True
+    model = Parametre
+    template_name = "core/parametre_list.html"
+    context_object_name = "parametres"
+
+    def get_queryset(self):
+        return Parametre.objects.order_by("-id")
+
+    def _get_latest_initial(self):
+        latest = Parametre.objects.order_by("-id").first()
+        if not latest:
+            return {}
+        return {
+            "heure_nuit_matin": latest.heure_nuit_matin,
+            "heure_nuit_soir": latest.heure_nuit_soir,
+            "cout_horaire": latest.cout_horaire,
+            "maj_heures_nuits": latest.maj_heures_nuits,
+            "majoration_dimanche_et_jours_feries": latest.majoration_dimanche_et_jours_feries,
+        }
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["form"] = kwargs.get("form") or ParametreForm(initial=self._get_latest_initial())
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.has_perm("core.add_parametre"):
+            raise PermissionDenied
+
+        form = ParametreForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("core:parametre_list")
+
+        self.object_list = self.get_queryset()
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 def planning(request):
@@ -2908,6 +3078,8 @@ def calendrier(request):
     tache_form = TacheForm(initial={"jour_ferie": False, "etat": ""})
 
     if request.method == "POST":
+        if not request.user.has_perm("core.add_tache"):
+            raise PermissionDenied
         tache_form = TacheForm(request.POST)
         modal_open = True
         modal_date_value = request.POST.get("date", "")

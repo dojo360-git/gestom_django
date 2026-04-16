@@ -148,3 +148,6 @@ STATIC_URL = 'static/'
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "core:home"
 LOGOUT_REDIRECT_URL = "login"
+
+# Utilise la meme page 403 personnalisee pour les erreurs CSRF.
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
