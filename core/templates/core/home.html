@@ -9,46 +9,35 @@
   <div class="card__pad home-weather__pad">
     <div class="home-weather__head">
       <h1 class="home-weather__title">{{ meteo_current.station_name|default:"ST CDEA - Montaton" }}</h1>
-      <span class="home-weather__badge">Temps reel</span>
     </div>
 
     {% if weather_error %}
       <p class="home-weather__error">{{ weather_error }}</p>
     {% elif meteo_current %}
-      <p class="home-weather__datetime">{{ meteo_current.today_label }}</p>
 
       <div class="home-weather__hero">
-        <div class="home-weather__icon-wrap">
-          <img
-            class="home-weather__icon"
-            src="{{ meteo_current.icon_url }}"
-            alt="Icone meteo {{ meteo_current.condition }}"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
-          />
-          <span class="home-weather__icon-fallback">{{ meteo_current.icon_fallback }}</span>
-        </div>
-        <div class="home-weather__hero-metrics">
-          <div class="home-weather__hero-col home-weather__hero-col--main">
-            <div class="home-weather__metric-main">{{ meteo_current.temperature }}&deg;C</div>
-            <div class="home-weather__metric-sub">Temperature</div>
-            <div class="home-weather__condition">{{ meteo_current.condition }}</div>
+        <div class="home-weather__hero-row">
+          <div class="home-weather-digital-date-box">
+            <div class="home-weather-digital-date" id="home-weather-digital-date" aria-live="polite">----</div>
           </div>
-          <div class="home-weather__hero-col home-weather__hero-col--details">
-            <div class="home-weather__metric-sub">Temperature ressentie {{ meteo_current.apparent_temperature }}&deg;C</div>
-            <div class="home-weather__metric-sub">Humidite relative {{ meteo_current.relative_humidity }} {{ meteo_current.relative_humidity_unit }}</div>
-            <div class="home-weather__metric-sub">Vitesse du vent {{ meteo_current.wind_speed }} {{ meteo_current.wind_speed_unit }}</div>
-          </div>
-          <div class="home-weather__hero-col home-weather__hero-col--clock">
-            <div class="home-weather-clock" id="home-weather-clock" aria-label="Horloge analogique locale">
-              <span class="home-weather-clock__tick home-weather-clock__tick--12"></span>
-              <span class="home-weather-clock__tick home-weather-clock__tick--3"></span>
-              <span class="home-weather-clock__tick home-weather-clock__tick--6"></span>
-              <span class="home-weather-clock__tick home-weather-clock__tick--9"></span>
-              <span class="home-weather-clock__hand home-weather-clock__hand--hour" id="clock-hour"></span>
-              <span class="home-weather-clock__hand home-weather-clock__hand--minute" id="clock-minute"></span>
-              <span class="home-weather-clock__hand home-weather-clock__hand--second" id="clock-second"></span>
-              <span class="home-weather-clock__center"></span>
+          <div class="home-weather-digital-clock" id="home-weather-digital-clock" aria-live="polite">--:--</div>
+          <div class="home-weather__hero-main">
+            <div class="home-weather__icon-wrap">
+              <img
+                class="home-weather__icon"
+                src="{{ meteo_current.icon_url }}"
+                alt="Icone meteo {{ meteo_current.condition }}"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+              />
+              <span class="home-weather__icon-fallback">{{ meteo_current.icon_fallback }}</span>
             </div>
+            <div class="home-weather__hero-summary">
+              <div class="home-weather__metric-main">{{ meteo_current.temperature }}&deg;C</div>
+            </div>
+          </div>
+          <div class="home-weather__hero-details">
+            <div class="home-weather__metric-sub">Temperature ressentie {{ meteo_current.apparent_temperature }}&deg;C</div>
+            <div class="home-weather__metric-sub">Vitesse du vent {{ meteo_current.wind_speed }} {{ meteo_current.wind_speed_unit }}</div>
           </div>
         </div>
       </div>
@@ -91,28 +80,31 @@
 </section>
 <script>
   (function () {
-    var clock = document.getElementById("home-weather-clock");
-    var hourHand = document.getElementById("clock-hour");
-    var minuteHand = document.getElementById("clock-minute");
-    var secondHand = document.getElementById("clock-second");
+    var digitalClock = document.getElementById("home-weather-digital-clock");
+    var digitalDate = document.getElementById("home-weather-digital-date");
 
-    if (!clock || !hourHand || !minuteHand || !secondHand) {
+    if (!digitalClock || !digitalDate) {
       return;
     }
 
-    function setClock() {
+    function updateDigitalClockAndDate() {
       var now = new Date();
-      var seconds = now.getSeconds();
-      var minutes = now.getMinutes() + (seconds / 60);
-      var hours = (now.getHours() % 12) + (minutes / 60);
-
-      hourHand.style.transform = "translateX(-50%) rotate(" + (hours * 30) + "deg)";
-      minuteHand.style.transform = "translateX(-50%) rotate(" + (minutes * 6) + "deg)";
-      secondHand.style.transform = "translateX(-50%) rotate(" + (seconds * 6) + "deg)";
+      var time = now.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      var date = now.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long"
+      });
+      digitalClock.textContent = time;
+      digitalDate.textContent = date;
     }
 
-    setClock();
-    setInterval(setClock, 1000);
+    updateDigitalClockAndDate();
+    setInterval(updateDigitalClockAndDate, 1000);
   })();
 </script>
 {% endblock %}
