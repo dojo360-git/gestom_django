@@ -3145,6 +3145,9 @@ def calendrier(request):
         alerte_date = alerte.get("date")
         if not alerte_date:
             continue
+        value = str(alerte.get("value") or "").strip()
+        if not value:
+            continue
         categorie = str(alerte.get("categorie") or "").strip().lower()
         id_stat = alerte.get("id_stat")
         edit_url = ""
@@ -3162,7 +3165,7 @@ def calendrier(request):
                 "type": alerte.get("type") or "",
                 "id_stat": id_stat,
                 "title": alerte.get("title") or "",
-                "value": alerte.get("value") or "",
+                "value": value,
                 "edit_url": edit_url,
             }
         )

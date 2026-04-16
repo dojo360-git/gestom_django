@@ -212,7 +212,18 @@ WITH
 		left join core_presencemotif pm on pm.id = hr.presence_id
 		left join core_flux fl on fl.id_flux = hr.id_flux
 		left join core_agent ag on ag.id = hr.id_agent
-			)
+			),
+				params as (
+				SELECT     
+						id,
+					    cout_horaire,
+					    maj_heures_nuits,
+					    majoration_dimanche_et_jours_feries,
+					    heure_nuit_matin,
+					    heure_nuit_soir
+					FROM core_parametre
+					ORDER BY id DESC
+				LIMIT 1)
 SELECT 
 	*,
 			case type
@@ -308,7 +319,7 @@ incV as (
 		'🚚' value
 	from core_collecte co 
 	left join core_vehicule vh on vh.id = co.id_vehicule_id
-	where info_vehicule is not null 
+	where not (info_vehicule is  null or info_vehicule = '')
 ),
 alts as (
 	select * 
@@ -326,7 +337,8 @@ alts as (
 	order by date asc
 )
 select * from alts;
-select * from alertes
+select * from alertes;
+
 
 
         
