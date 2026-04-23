@@ -6,11 +6,13 @@ services:
     image: postgres:17
     ports:
       - "5432:5432"
+    env_file:
+      - .env_dev
     container_name: app2_postgres
-    environment:
-      POSTGRES_DB: bdd_regie
-      POSTGRES_USER: super_user
-      POSTGRES_PASSWORD: D@ta1sFeun!2026!
+#    environment:
+#      POSTGRES_DB: bdd_regie
+#      POSTGRES_USER: super_user
+#      POSTGRES_PASSWORD: D@ta1sFeun!2026!
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,6 +29,8 @@ services:
       context: .
       dockerfile: Dockerfile__dev__
     container_name: app2_django
+    env_file:
+      - .env_dev
     command: |
       sh -c "
       python manage.py migrate &&
@@ -63,14 +67,14 @@ services:
       - "8000:8000"
     expose: 
       - "8000"
-    environment:
-      SECRET_KEY: django-insecure-9=*+^pc%4$$*=z_w_#79@ukj=&o*rnu31-7*-=m-ezwwwzyu8v
-      DEBUG: "True"
-      DB_NAME: bdd_regie
-      DB_USER: super_user
-      DB_PASSWORD: D@ta1sFeun!2026!
-      DB_HOST: db_app2
-      DB_PORT: "5432"
+#    environment:
+#      SECRET_KEY: django-insecure-9=*+^pc%4$$*=z_w_#79@ukj=&o*rnu31-7*-=m-ezwwwzyu8v
+#      DEBUG: "True"
+#      DB_NAME: bdd_regie
+#      DB_USER: super_user
+#      DB_PASSWORD: D@ta1sFeun!2026!
+#      DB_HOST: db_app2
+#      DB_PORT: "5432"
     depends_on:
       db_app2:
         condition: service_healthy
@@ -88,3 +92,6 @@ networks:
 
   app2_regie_nw:
     name: app2_regie_nw
+
+
+#docker compose -f docker-compose__dev__.yml up -d --build
