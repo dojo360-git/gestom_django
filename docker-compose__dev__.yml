@@ -9,10 +9,6 @@ services:
     env_file:
       - .env_dev
     container_name: app2_postgres
-#    environment:
-#      POSTGRES_DB: bdd_regie
-#      POSTGRES_USER: super_user
-#      POSTGRES_PASSWORD: D@ta1sFeun!2026!
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -81,7 +77,6 @@ services:
     networks:
       - common_net
       - app2_regie_nw
-
 
 volumes:
   postgres_data:
