@@ -21,10 +21,11 @@ CREATE VIEW stat_tournees AS (
                 COALESCE(co.km_retour - co.km_depart, 0) AS km_tournee,
                 COALESCE(co.tonnage1, 0) + COALESCE(co.tonnage2, 0) + COALESCE(co.tonnage3, 0) AS tonnage_tournee,
                 COALESCE(hr_depot_retour, TIME '12:00') - COALESCE(hr_depot_depart, TIME '05:00')   AS duree_tournee,
-               	ve.energie,
+               	eg.energie,
                 co.energie_qte_1 AS energie_qte_tournee
             FROM core_collecte co
             LEFT JOIN core_vehicule ve on co.id_vehicule_id = ve.id
+            LEFT JOIN core_energie eg ON ve.energie_id = eg.id
             left join core_itineraire it on it.id =co.id_itineraire_id  
 );
 CREATE VIEW stat_vidages AS 

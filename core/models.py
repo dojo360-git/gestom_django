@@ -44,7 +44,7 @@ class Flux(models.Model):
 
 
 class Energie(models.Model):
-    energie = models.CharField(max_length=150)
+    energie = models.CharField(max_length=150, unique=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
 
@@ -96,7 +96,14 @@ class Itineraire(models.Model):
 class Vehicule(models.Model):
     nom_vehicule = models.CharField(max_length=150)
     type = models.CharField(max_length=150)
-    energie = models.CharField(max_length=150, blank=True, default="")
+    energie = models.ForeignKey(
+        Energie,
+        null=True,
+        blank=True,
+        default=None,
+        on_delete=models.SET_NULL,
+        related_name="vehicules",
+    )
     archive = models.BooleanField(default=False)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)

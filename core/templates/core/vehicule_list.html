@@ -66,7 +66,7 @@
               <select name="energie" form="create-vehicule-form">
                 <option value="">---------</option>
                 {% for energie_value in energie_options %}
-                <option value="{{ energie_value }}">{{ energie_value }}</option>
+                <option value="{{ energie_value.pk }}">{{ energie_value.energie }}</option>
                 {% endfor %}
               </select>
             </td>
@@ -111,13 +111,10 @@
               <select id="vehicule-{{ v.pk }}-energie">
                 <option value="">---------</option>
                 {% for energie_value in energie_options %}
-                <option value="{{ energie_value }}" {% if v.energie == energie_value %}selected{% endif %}>
-                  {{ energie_value }}
+                <option value="{{ energie_value.pk }}" {% if v.energie_id == energie_value.pk %}selected{% endif %}>
+                  {{ energie_value.energie }}
                 </option>
                 {% endfor %}
-                {% if v.energie and v.energie not in energie_options %}
-                <option value="{{ v.energie }}" selected>{{ v.energie }}</option>
-                {% endif %}
               </select>
             </td>
             <td>
@@ -133,7 +130,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="nom_vehicule" value="{{ v.nom_vehicule|default_if_none:'' }}">
                   <input type="hidden" name="type" value="{{ v.type|default_if_none:'' }}">
-                  <input type="hidden" name="energie" value="{{ v.energie|default_if_none:'' }}">
+                  <input type="hidden" name="energie" value="{{ v.energie_id|default_if_none:'' }}">
                   <input type="hidden" name="archive" value="{% if v.archive %}on{% endif %}">
                   <button class="btn btn--sm btn--ghost" type="submit" title="Modifier" aria-label="Modifier">💾</button>
                 </form>

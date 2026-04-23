@@ -2415,8 +2415,6 @@ class VehiculeListView(PermissionRequiredMixin, ListView):
         ctx["energie_options"] = list(
             Energie.objects.exclude(energie__isnull=True)
             .exclude(energie__exact="")
-            .values_list("energie", flat=True)
-            .distinct()
             .order_by("energie")
         )
         return ctx

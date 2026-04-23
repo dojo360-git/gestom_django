@@ -3,7 +3,7 @@ from django.urls import reverse
 from datetime import date, timedelta
 from django.utils import timezone
 
-from .models import Flux, Agent, Vehicule
+from .models import Flux, Agent, Vehicule, Energie
 
 
 class FluxTests(TestCase):
@@ -172,10 +172,13 @@ class AgentTests(TestCase):
 
 class VehiculeTests(TestCase):
     def setUp(self):
+        self.energie_diesel = Energie.objects.create(energie="Diesel")
+        self.energie_electrique = Energie.objects.create(energie="Electrique")
+        self.energie_gnv = Energie.objects.create(energie="GNV")
         self.vehicule = Vehicule.objects.create(
             nom_vehicule="Camion 1",
             type="Camion",
-            energie="Diesel",
+            energie=self.energie_diesel,
             archive=False,
         )
 
@@ -192,7 +195,7 @@ class VehiculeTests(TestCase):
         Vehicule.objects.create(
             nom_vehicule="Camion archive",
             type="Camion",
-            energie="Diesel",
+            energie=self.energie_diesel,
             archive=True,
         )
 
@@ -205,7 +208,7 @@ class VehiculeTests(TestCase):
         Vehicule.objects.create(
             nom_vehicule="Camion archive",
             type="Camion",
-            energie="Diesel",
+            energie=self.energie_diesel,
             archive=True,
         )
 
@@ -224,7 +227,12 @@ class VehiculeTests(TestCase):
     def test_vehicule_create_view(self):
         response = self.client.post(
             reverse("core:vehicule_create"),
-            data={"nom_vehicule": "Fourgon 2", "type": "Fourgon", "energie": "Electrique", "archive": True},
+            data={
+                "nom_vehicule": "Fourgon 2",
+                "type": "Fourgon",
+                "energie": self.energie_electrique.pk,
+                "archive": True,
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Vehicule.objects.filter(nom_vehicule="Fourgon 2").exists())
@@ -232,12 +240,17 @@ class VehiculeTests(TestCase):
     def test_vehicule_update_view(self):
         response = self.client.post(
             reverse("core:vehicule_update", args=[self.vehicule.pk]),
-            data={"nom_vehicule": "Camion X", "type": "Camion", "energie": "GNV", "archive": True},
+            data={
+                "nom_vehicule": "Camion X",
+                "type": "Camion",
+                "energie": self.energie_gnv.pk,
+                "archive": True,
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.vehicule.refresh_from_db()
         self.assertEqual(self.vehicule.nom_vehicule, "Camion X")
-        self.assertEqual(self.vehicule.energie, "GNV")
+        self.assertEqual(self.vehicule.energie_id, self.energie_gnv.pk)
         self.assertTrue(self.vehicule.archive)
 
     def test_vehicule_delete_view(self):

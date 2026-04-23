@@ -130,20 +130,7 @@ class ItineraireForm(forms.ModelForm):
 class VehiculeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        energie_values = list(
-            Energie.objects.exclude(energie__isnull=True)
-            .exclude(energie__exact="")
-            .values_list("energie", flat=True)
-            .distinct()
-            .order_by("energie")
-        )
-        choices = [("", "---------")] + [(value, value) for value in energie_values]
-
-        current_value = (self.instance.energie or "").strip()
-        if current_value and current_value not in energie_values:
-            choices.append((current_value, current_value))
-
-        self.fields["energie"].widget = forms.Select(choices=choices)
+        self.fields["energie"].queryset = Energie.objects.order_by("energie")
 
     class Meta:
         model = Vehicule
