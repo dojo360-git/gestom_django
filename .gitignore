@@ -8,6 +8,6 @@ __pycache__/
 *.py[cod]
 
 
-exports_csv_appli_access/
+exports_csv_appli_access/*.csv
 seeds/
 backups/
