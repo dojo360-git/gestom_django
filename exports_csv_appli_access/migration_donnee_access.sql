@@ -1,15 +1,16 @@
 
 DROP TABLE IF EXISTS preprod_core_collecte;
-CREATE TABLE preprod_core_collecte AS
-SELECT *
-FROM core_collecte;
+--CREATE TABLE preprod_core_collecte AS
+--SELECT *
+--FROM core_collecte;
 
 DROP TABLE IF EXISTS preprod_core_heuresmanuelles;
 CREATE TABLE preprod_core_heuresmanuelles AS
 SELECT *
 FROM core_heuresmanuelles;
 
-
+CREATE TABLE preprod_core_collecte as 
+(
 with 
 
 agents as (
@@ -29,7 +30,7 @@ agents as (
 		--tel
 	FROM public.core_agent ag ),
 	
-collectes as (
+/*collectes as (
 	SELECT  
 		id_collecte, 
 		date_collecte, 
@@ -64,7 +65,8 @@ collectes as (
 		id_itineraire_id, 
 		id_vehicule_id
 	FROM public.core_collecte),
-	
+*/
+		
 tb_planning as (
 	SELECT 
 		"IdPlan", 
@@ -206,6 +208,5 @@ left join tb_planning tbp3 on tbp3.id_collecte = tbt."IdTou" and tbp3.ag = tbt."
 
 
 SELECT * 
-
-FROM  tb_planning
-;
+FROM  migr_collectes
+);
