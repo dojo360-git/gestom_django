@@ -1,3 +1,9 @@
+/*  
+ * 1_migration_donnee_access.sql
+ * migration des collectes 2026-05-28
+ */
+
+
 
 DROP TABLE IF EXISTS preprod_core_collecte;
 --CREATE TABLE preprod_core_collecte AS
@@ -12,6 +18,19 @@ FROM core_heuresmanuelles;
 CREATE TABLE preprod_core_collecte as 
 (
 with 
+
+veh as (
+SELECT 
+	max(id) id_vehicule, 
+	nom_vehicule 
+	--"type", archive, 
+	--date_creation, 
+	--date_modification, 
+	--energie_id
+FROM public.core_vehicule
+group by 2, nom_vehicule
+
+),
 
 agents as (
 	SELECT 
@@ -194,8 +213,8 @@ SELECT
 	fx."id_flux" 	id_flux2_id, 
 	fx."id_flux"	id_flux3_id, 
 	null::int8 id_itineraire_id,
-	1 id_vehicule_id,
-	tbt."FluxTou" test
+	veh.id_vehicule id_vehicule_id
+	--tbt."FluxTou" test
 FROM public."zzz_Tb_Tournee" tbt
 left join agents ag1 on ag1.nom = tbt."ChauffeurTou"
 left join agents ag2 on ag2.nom = tbt."Ripeur1Tou" 
@@ -204,6 +223,7 @@ left join fx  on fx.flux = tbt."FluxTou"
 left join tb_planning tbp1 on tbp1.id_collecte = tbt."IdTou" and tbp1.ag = tbt."ChauffeurTou"
 left join tb_planning tbp2 on tbp2.id_collecte = tbt."IdTou" and tbp2.ag = tbt."Ripeur1Tou" 
 left join tb_planning tbp3 on tbp3.id_collecte = tbt."IdTou" and tbp3.ag = tbt."Ripeur2Tou"
+left join veh on veh.nom_vehicule =  tbt."VehiculeTou"
 )
 
 
