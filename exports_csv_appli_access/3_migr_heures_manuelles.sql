@@ -3,6 +3,15 @@
  * migration des collectes 2026-05-28
  */
 
+DROP TABLE IF EXISTS preprod_core_heuresmanuelles;
+CREATE TABLE preprod_core_heuresmanuelles AS
+--SELECT *
+--FROM core_heuresmanuelles;
+--TRUNCATE TABLE core_heuresmanuelles RESTART IDENTITY;
+
+
+CREATE TABLE preprod_core_heuresmanuelles as 
+(
 
 with  agents as (
 	SELECT 
@@ -53,22 +62,37 @@ tb_planning as (
 	ON ag.nom = tbp."NomAgentPlan"),
 	
 	
+	
+	
+	
 	tb_planning_abs AS (
-	SELECT *
+	SELECT 
+	*,
+	'manuelles_abs' type
 	FROM tb_planning tbp
 	WHERE NOT  ("MotifAbsPlan" is null or "MotifAbsPlan" = '')),
 	
 	
-	tb_planning_heuresmanuelles AS (
-	SELECT *
+	tb_planning_manuelles AS (
+	SELECT *,
+	'manuelles' type
 	FROM tb_planning tbp
-	WHERE   id_collecte is null and "HFSAgentPlan" = '00:00:00'::time
+	WHERE   id_collecte is null and ("MotifAbsPlan" is null or "MotifAbsPlan" = '') 
 	),
+	
+	tb_planning_manuelles_hs AS (
+	SELECT *,
+	'manuelles_hs' type
+	FROM tb_planning tbp
+	WHERE   id_collecte is null and "HSupAgentPlan" > '00:00:00'
+	),
+	
+	
 	
 	
 	migr_heuresmanuelles_abs as (
 	SELECT 
-		--id, 
+		"IdPlan" id_old, 
 		tbp."DatePlan" "date", 
 		"HDebutPlan" heure_debut, 
 		"HFSAgentPlan" heure_fin, 
@@ -76,9 +100,64 @@ tb_planning as (
 		tbp."DatePlan" date_creation, 
 		tbp."DatePlan" date_modification, 
 		id_agent agent_id, 
-		id_motif_pres presence_id
+		id_motif_pres presence_id,
+		type
 	FROM tb_planning_abs tbp
+),
+	
+	migr_heuresmanuelles_manuelles as (
+	SELECT 
+		"IdPlan" id_old, 
+		tbp."DatePlan" "date", 
+		"HDebutPlan" heure_debut, 
+		"HFSAgentPlan" heure_fin, 
+		'' motif_heures_sup, 
+		tbp."DatePlan" date_creation, 
+		tbp."DatePlan" date_modification, 
+		id_agent agent_id, 
+		id_motif_pres presence_id,
+		type
+		FROM tb_planning_manuelles tbp
+),
+	
+
+	migr_heuresmanuelles_manuelles_hs as (
+	SELECT 
+		"IdPlan" id_old, 
+		tbp."DatePlan" "date", 
+		"HDebutPlan" heure_debut, 
+		"HFSAgentPlan" heure_fin, 
+		'' motif_heures_sup, 
+		tbp."DatePlan" date_creation, 
+		tbp."DatePlan" date_modification, 
+		id_agent agent_id, 
+		id_motif_pres presence_id,
+		type
+		FROM tb_planning_manuelles_hs tbp
+),
+
+
+migr_heuresmanuelles AS (
+
+    SELECT *
+    FROM (
+        SELECT * FROM migr_heuresmanuelles_abs
+        UNION ALL
+        SELECT * FROM migr_heuresmanuelles_manuelles
+        UNION ALL
+        SELECT * FROM migr_heuresmanuelles_manuelles_hs
+    ) t
+    -- WHERE id_old IN (21310, 21355, 24938, 26459) collecte erreur 
+    ORDER BY id_old
+
 )
 	
 	
-	select * from tb_planning_heuresmanuelles
+	
+
+	select * 
+	 from migr_heuresmanuelles
+
+
+
+)
