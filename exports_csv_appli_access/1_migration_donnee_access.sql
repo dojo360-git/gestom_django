@@ -190,7 +190,7 @@ SELECT
 	tbp2."HFSAgentPlan"	a2_hr_fin, 
 	tbp3."HDebutPlan"	a3_hr_debut, 
 	tbp3."HFSAgentPlan"	a3_hr_fin, 
-	tbt."MotifHSupTou"	motif_heures_sup, 
+	NULLIF(tbt."MotifHSupTou", '')	motif_heures_sup, 
 	'12:00:00'::time hr_sup_debut, 
 	'12:00:00'::time + "HSupTou"::interval hr_sup_fin, 
 	0	km_depart, 

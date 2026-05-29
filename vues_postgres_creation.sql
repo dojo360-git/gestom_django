@@ -244,7 +244,7 @@ SELECT
 				else '⚠️'
 			end as stat_planning2
 from heures hr
-WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null)
+WHERE not (id_agent IS null or hr_debut IS null or hr_fin IS null or (type like '%_hs' and duree = 0))
 ;
 CREATE VIEW stat_heures_sup_cdea AS 
 select 
