@@ -37,7 +37,7 @@ SELECT DISTINCT ON (id_collecte)
     hr_sup_debut, hr_sup_fin,
     km_depart, km_retour,
     hr_depot_depart, hr_depot_retour,
-    tonnage1*1000 tonnage1, tonnage2*1000 tonnage2, tonnage3*1000 tonnage3,
+    tonnage1*10 tonnage1, tonnage2*10 tonnage2, tonnage3*10 tonnage3,
     energie_qte_1,
     COALESCE(consignes, ''),
     COALESCE(info_vehicule, ''),

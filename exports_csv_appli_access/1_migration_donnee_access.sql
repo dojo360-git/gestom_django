@@ -10,10 +10,7 @@ DROP TABLE IF EXISTS preprod_core_collecte;
 --SELECT *
 --FROM core_collecte;
 
-DROP TABLE IF EXISTS preprod_core_heuresmanuelles;
-CREATE TABLE preprod_core_heuresmanuelles AS
-SELECT *
-FROM core_heuresmanuelles;
+
 
 CREATE TABLE preprod_core_collecte as 
 (
@@ -155,7 +152,7 @@ fx as (
 	FROM public.core_flux),
 
 
-
+/*
 migr_heuresmanuelles as (
 	SELECT 
 		id, 
@@ -170,7 +167,7 @@ migr_heuresmanuelles as (
 	FROM public.preprod_core_heuresmanuelles
 
 ),
-
+*/
 
 
 migr_abs as (
@@ -194,13 +191,13 @@ SELECT
 	'12:00:00'::time hr_sup_debut, 
 	'12:00:00'::time + "HSupTou"::interval hr_sup_fin, 
 	0	km_depart, 
-	tbt."KmTou" km_retour, 
+	tbt."KmTou"/100 km_retour, 
 	tbp1."HDebutPlan"	hr_depot_depart, 
 	tbp1."HFSAgentPlan"	hr_depot_retour, 
 	tbt."T1Tou" tonnage1, 
 	tbt."T2Tou" tonnage2, 
 	tbt."T3Tou" tonnage3, 
-	"QCarbTou" energie_qte_1, 
+	"QCarbTou"/100 energie_qte_1, 
 	null::varchar  consignes, 
 	null::varchar info_vehicule, 
 	null::varchar info_collecte, 
