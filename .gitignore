@@ -11,3 +11,5 @@ __pycache__/
 exports_csv_appli_access/*.csv
 seeds/
 backups/
+
+*pgdump_dev.sh
