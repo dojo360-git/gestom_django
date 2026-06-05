@@ -13,3 +13,6 @@ seeds/
 backups/
 
 *pgdump_dev.sh
+
+
+readme-backup-pgdump.md

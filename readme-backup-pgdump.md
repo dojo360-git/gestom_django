@@ -1,11 +1,13 @@
 
 Envoyer 
 
-scp backup_postgres_pgdump_dev.sh  debian@91.134.255.131:/usr/local/bin/
 
 
+sudo nano /usr/local/bin/backup_postgres_pgdump_dev.sh
 
-
+backup_postgres_pgdump_dev.sh
+sudo chmod +x /usr/local/bin/backup_postgres_pgdump_dev.sh
+env -i /usr/local/bin/backup_postgres_pgdump_dev.sh
 
 
 
@@ -22,7 +24,7 @@ Le script comprend le code à exécuter pour faire le dump de la base de donnée
 
 Créer/éditer le fichier backup_postgres.sh (control + o pour enregister)
 ```bash
-sudo nano /usr/local/bin/backup_postgres.sh  
+sudo nano /usr/local/bin/backup_postgres_pgdump_dev.sh
 ```
 
 Contenu du fichier backup_postgres.sh

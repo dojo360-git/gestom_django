@@ -5,12 +5,7 @@
 
 DROP TABLE IF EXISTS preprod_core_heuresmanuelles;
 CREATE TABLE preprod_core_heuresmanuelles AS
---SELECT *
---FROM core_heuresmanuelles;
---TRUNCATE TABLE core_heuresmanuelles RESTART IDENTITY;
 
-
-CREATE TABLE preprod_core_heuresmanuelles as 
 (
 
 with  agents as (
