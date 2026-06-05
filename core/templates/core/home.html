@@ -4,6 +4,27 @@
 {% block title %}Regie de collecte{% endblock %}
 
 {% block content %}
+<style>
+  body{
+    position: relative;
+    background-image: url("https://storage.googleapis.com/dojo360-public/cdea/gestom/camions_1800.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .main{
+    position: relative;
+    z-index: 1;
+  }
+</style>
 
 <section class="card home-weather" style="margin-top: 16px;">
   <div class="card__pad home-weather__pad">
