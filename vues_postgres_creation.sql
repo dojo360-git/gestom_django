@@ -57,7 +57,7 @@ CREATE VIEW stat_vidages AS
 	                id_flux2_id AS id_flux, 
 	                tonnage2 AS tonnage
                 FROM core_collecte
-                WHERE tonnage2 IS NOT null
+                WHERE NOT (tonnage2 IS null or tonnage2 = 0)
                 UNION ALL
                 SELECT 
 	                id_collecte, 
@@ -66,7 +66,7 @@ CREATE VIEW stat_vidages AS
 	                id_flux3_id AS id_flux, 
 	                tonnage3 AS tonnage
                 FROM core_collecte
-                WHERE tonnage3 IS NOT null
+                WHERE NOT (tonnage3 IS null OR tonnage3 = 0)
             ) t
         ),
         vidages2 AS (
