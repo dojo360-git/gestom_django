@@ -38,7 +38,7 @@
               <th class="planning__sticky planning3__sticky--employeur">Empl.</th>
               <th class="planning__sticky planning3__sticky--nom">Agent</th>
               {% for day in days %}
-                <th class="planning__cell" data-day-col="{{ forloop.counter0 }}">{{ day|date:"D" }} <br> {{ day|date:"d" }}</th>
+                <th class="planning__cell" data-day-col="{{ forloop.counter0 }}">{{ day|date:"D" }} <br> {{ day|date:"d" }} <br> {{ day|date:"M" }}</th> 
               {% endfor %}
             </tr>
           </thead>
@@ -329,33 +329,6 @@
       collecteModalSubtitle.textContent = `Collecte #${id} (${typeValue || "collecte"})`;
     }
     await loadCollecteForm(`${editUrl}?next=${encodeURIComponent(collecteReturnUrl)}&embedded=1`);
-  }
-
-  function clearDateColumnHover() {
-    if (!planningTable) return;
-    planningTable
-      .querySelectorAll(".planning3__col-hover")
-      .forEach((el) => el.classList.remove("planning3__col-hover"));
-  }
-
-  function setDateColumnHover(dayCol) {
-    if (!planningTable || dayCol === null || dayCol === undefined || dayCol === "") return;
-    clearDateColumnHover();
-    planningTable
-      .querySelectorAll(`[data-day-col="${dayCol}"]`)
-      .forEach((el) => el.classList.add("planning3__col-hover"));
-  }
-
-  if (planningTable) {
-    planningTable.addEventListener("mouseover", (event) => {
-      const dayCell = event.target.closest("[data-day-col]");
-      if (!dayCell || !planningTable.contains(dayCell)) return;
-      setDateColumnHover(dayCell.dataset.dayCol);
-    });
-
-    planningTable.addEventListener("mouseleave", () => {
-      clearDateColumnHover();
-    });
   }
 
   document.addEventListener("keydown", (event) => {
