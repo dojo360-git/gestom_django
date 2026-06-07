@@ -1,0 +1,8 @@
+créé la page statistiques_vehicules/
+tu peux t'inspirer de ce qui a été fait pour https://regie.app-coeuressonne.fr/statistiques_hercule/
+input date_debut par defaut debut_mois(aujourdhui)
+date_fin = aujourdhui
+
+
+utilise stat_tournees where date_collecte between date_debut and date_fin
+kpi km_tournee tonnage_tournee
