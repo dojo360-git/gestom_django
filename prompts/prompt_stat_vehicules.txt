@@ -5,4 +5,14 @@ date_fin = aujourdhui
 
 
 utilise stat_tournees where date_collecte between date_debut and date_fin
-kpi km_tournee tonnage_tournee
+regroupr par année-mois  yyyy-mm
+
+kpi : debut = min(date_collecte) fin = date_collecte   distance parcourue = sum(km_tournee) tonnage = sum(tonnage_tournee) 
+
+
+affiche un tableau par regie : 
+
+ligne : type de vehicule , nom du vehicule 
+colonne : année-mois
+distance parcourue
+
