@@ -394,6 +394,27 @@ body:not(.page-planning3) .table tr:hover td,
   background: #FAFAFA;
 }
 .table .right{ text-align: right; }
+.table--stat-vehicules .stat-vehicules__cell.niveau1{
+  padding-left: 8px;
+}
+.table--stat-vehicules .stat-vehicules__cell.niveau2{
+  padding-left: 24px;
+}
+.table--stat-vehicules .stat-vehicules__cell.niveau3{
+  padding-left: 40px;
+}
+.table--stat-vehicules .stat-vehicules__row--subtotal th{
+  background: #f1f5f9;
+}
+.table--stat-vehicules .stat-vehicules__row--total th{
+  background: #e2e8f0;
+}
+.table--stat-vehicules .stat-vehicules__row--regie-spacer td{
+  height: 14px;
+  padding: 0;
+  border-bottom: 0;
+  background: #ffffff;
+}
 .actions{ display:flex; justify-content:flex-end; gap: 8px; flex-wrap: wrap; }
 
 /* Agents2 quick edit table */

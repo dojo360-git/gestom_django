@@ -1137,6 +1137,147 @@ def statistiques_hercule(request):
     )
 
 
+def statistiques_vehicules(request):
+    today = timezone.localdate()
+    first_day_of_month = today.replace(day=1)
+
+    def parse_date(value, default):
+        if not value:
+            return default
+        try:
+            return timezone.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return default
+
+    date_debut = parse_date(request.GET.get("date_debut"), first_day_of_month)
+    date_fin = parse_date(request.GET.get("date_fin"), today)
+
+    if date_debut > date_fin:
+        date_debut, date_fin = date_fin, date_debut
+
+    req_stats_vehicules = """
+        SELECT
+            COALESCE(it.regie, '-') AS regie,
+            COALESCE(st.type_vehicule, '-') AS type_vehicule,
+            COALESCE(st.nom_vehicule, '-') AS nom_vehicule,
+            TO_CHAR(co.date_collecte, 'YYYY-MM') AS annee_mois,
+            SUM(COALESCE(st.km_tournee, 0)) AS distance_parcourue
+        FROM stat_tournees st
+        LEFT JOIN core_collecte co ON co.id_collecte = st.id_collecte
+        LEFT JOIN core_itineraire it ON it.id = st.id_itineraire_id
+        WHERE co.date_collecte BETWEEN %s AND %s
+        GROUP BY regie, type_vehicule, nom_vehicule, annee_mois
+        ORDER BY regie, type_vehicule, nom_vehicule, annee_mois
+    """
+
+    req_kpis = """
+        SELECT
+            MIN(co.date_collecte) AS date_debut_reelle,
+            MAX(co.date_collecte) AS date_fin_reelle,
+            SUM(COALESCE(st.km_tournee, 0)) AS distance_parcourue,
+            SUM(COALESCE(st.tonnage_tournee, 0)) AS tonnage
+        FROM stat_tournees st
+        LEFT JOIN core_collecte co ON co.id_collecte = st.id_collecte
+        WHERE co.date_collecte BETWEEN %s AND %s
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(req_stats_vehicules, [date_debut, date_fin])
+        columns = [col[0] for col in cursor.description]
+        rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        cursor.execute(req_kpis, [date_debut, date_fin])
+        kpi_row = cursor.fetchone()
+
+    months = sorted({row["annee_mois"] for row in rows if row.get("annee_mois")})
+    column_totals = {month: 0.0 for month in months}
+    grand_total = 0.0
+    grouped_map = defaultdict(lambda: defaultdict(dict))
+
+    for row in rows:
+        regie = row.get("regie") or "-"
+        type_vehicule = row.get("type_vehicule") or "-"
+        nom_vehicule = row.get("nom_vehicule") or "-"
+        month = row.get("annee_mois")
+        distance = float(row.get("distance_parcourue") or 0)
+
+        if not month:
+            continue
+
+        grouped_map[regie][type_vehicule][nom_vehicule] = (
+            grouped_map[regie][type_vehicule].get(nom_vehicule, {})
+        )
+        grouped_map[regie][type_vehicule][nom_vehicule][month] = distance
+        column_totals[month] += distance
+        grand_total += distance
+
+    regie_groups = []
+    for regie in sorted(grouped_map.keys()):
+        type_groups = []
+        for type_vehicule in sorted(grouped_map[regie].keys()):
+            vehicule_rows = []
+            for nom_vehicule in sorted(grouped_map[regie][type_vehicule].keys()):
+                values_by_month = grouped_map[regie][type_vehicule][nom_vehicule]
+                cells = [values_by_month.get(month, 0.0) for month in months]
+                vehicule_rows.append(
+                    {
+                        "nom_vehicule": nom_vehicule,
+                        "cells": cells,
+                        "total": sum(cells),
+                    }
+                )
+
+            type_totals = [
+                sum(row["cells"][index] for row in vehicule_rows)
+                for index, _month in enumerate(months)
+            ]
+            type_groups.append(
+                {
+                    "type_vehicule": type_vehicule,
+                    "rows": vehicule_rows,
+                    "rowspan": len(vehicule_rows),
+                    "totals": type_totals,
+                    "total": sum(type_totals),
+                }
+            )
+
+        regie_totals = [
+            sum(type_group["totals"][index] for type_group in type_groups)
+            for index, _month in enumerate(months)
+        ]
+        regie_body_rowspan = sum(type_group["rowspan"] + 1 for type_group in type_groups)
+        regie_groups.append(
+            {
+                "regie": regie,
+                "type_groups": type_groups,
+                "body_rowspan": regie_body_rowspan,
+                "totals": regie_totals,
+                "total": sum(regie_totals),
+            }
+        )
+
+    kpis = {
+        "debut": kpi_row[0] if kpi_row else None,
+        "fin": kpi_row[1] if kpi_row else None,
+        "distance_parcourue": float(kpi_row[2] or 0) if kpi_row else 0.0,
+        "tonnage": float(kpi_row[3] or 0) if kpi_row else 0.0,
+    }
+
+    return render(
+        request,
+        "core/statistiques_vehicules.html",
+        {
+            "date_debut": date_debut,
+            "date_fin": date_fin,
+            "months": months,
+            "regie_groups": regie_groups,
+            "column_totals": [column_totals[month] for month in months],
+            "grand_total": grand_total,
+            "kpis": kpis,
+        },
+    )
+
+
 def statistiques_hpne(request):
     today = timezone.localdate()
 

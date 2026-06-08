@@ -1,0 +1,151 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistiques vehicules{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <div class="header header--controls-left">
+        <div>
+          <h1 class="h1">Statistiques vehicules</h1>
+        </div>
+      </div>
+
+      <form class="planning__controls" method="get">
+        <div class="planning__control">
+          <label class="planning__label" for="date_debut">Date debut</label>
+          <input
+            class="input"
+            type="date"
+            id="date_debut"
+            name="date_debut"
+            value="{{ date_debut|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <label class="planning__label" for="date_fin">Date fin</label>
+          <input
+            class="input"
+            type="date"
+            id="date_fin"
+            name="date_fin"
+            value="{{ date_fin|date:'Y-m-d' }}"
+          />
+        </div>
+
+        <div class="planning__control">
+          <button class="btn btn--primary" type="submit">Filtrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="dashboard__kpis" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Debut</div>
+        <div class="h2">{% if kpis.debut %}{{ kpis.debut|date:"d/m/Y" }}{% else %}-{% endif %}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Fin</div>
+        <div class="h2">{% if kpis.fin %}{{ kpis.fin|date:"d/m/Y" }}{% else %}-{% endif %}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Distance parcourue</div>
+        <div class="h2">{{ kpis.distance_parcourue|floatformat:0 }} km</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__pad">
+        <div class="sub">Tonnage</div>
+        <div class="h2">{{ kpis.tonnage|floatformat:0 }} T</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <div class="card__pad">
+      <h2 class="h2">Distance parcourue par vehicule</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table table--stat-vehicules">
+        <thead>
+          <tr>
+            <th>Regie</th>
+            <th>Type vehicule</th>
+            <th>Vehicule</th>
+            {% for month in months %}
+              <th>{{ month }}</th>
+            {% endfor %}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for regie_group in regie_groups %}
+            {% for type_group in regie_group.type_groups %}
+              {% for row in type_group.rows %}
+                <tr class="stat-vehicules__row stat-vehicules__row--nom-vehicule niveau3">
+                  {% if forloop.parentloop.first and forloop.first %}
+                    <th class="stat-vehicules__cell stat-vehicules__cell--regie niveau1" rowspan="{{ regie_group.body_rowspan }}">{{ regie_group.regie }}</th>
+                  {% endif %}
+                  {% if forloop.first %}
+                    <th class="stat-vehicules__cell stat-vehicules__cell--type-vehicule niveau2" rowspan="{{ type_group.rowspan }}">{{ type_group.type_vehicule }}</th>
+                  {% endif %}
+                  <td class="stat-vehicules__cell stat-vehicules__cell--nom-vehicule niveau3">{{ row.nom_vehicule }}</td>
+                  {% for cell in row.cells %}
+                    <td>{{ cell|floatformat:0 }}</td>
+                  {% endfor %}
+                  <td>{{ row.total|floatformat:0 }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="stat-vehicules__row stat-vehicules__row--total-type-vehicule stat-vehicules__row--subtotal niveau2">
+                <th class="stat-vehicules__cell stat-vehicules__cell--total-type-vehicule stat-vehicules__cell--subtotal niveau2">Total {{ type_group.type_vehicule }}</th>
+                <td></td>
+                {% for total in type_group.totals %}
+                  <th>{{ total|floatformat:0 }}</th>
+                {% endfor %}
+                <th>{{ type_group.total|floatformat:0 }}</th>
+              </tr>
+            {% endfor %}
+            <tr class="stat-vehicules__row stat-vehicules__row--total-regie stat-vehicules__row--total niveau1">
+              <th class="stat-vehicules__cell stat-vehicules__cell--total-regie stat-vehicules__cell--total niveau1">Total {{ regie_group.regie }}</th>
+              <td></td>
+              <td></td>
+              {% for total in regie_group.totals %}
+                <th>{{ total|floatformat:0 }}</th>
+              {% endfor %}
+              <th>{{ regie_group.total|floatformat:0 }}</th>
+            </tr>
+            <tr class="stat-vehicules__row stat-vehicules__row--regie-spacer">
+              <td colspan="{{ months|length|add:'4' }}"></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ months|length|add:'4' }}">Aucune donnee pour la periode.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        {% if regie_groups %}
+          <tfoot>
+            <tr class="stat-vehicules__row stat-vehicules__row--total-general stat-vehicules__row--total niveau1">
+              <th class="stat-vehicules__cell stat-vehicules__cell--total-general stat-vehicules__cell--total niveau1">Total general</th>
+              <td></td>
+              <td></td>
+              {% for total in column_totals %}
+                <th>{{ total|floatformat:0 }}</th>
+              {% endfor %}
+              <th>{{ grand_total|floatformat:0 }}</th>
+            </tr>
+          </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

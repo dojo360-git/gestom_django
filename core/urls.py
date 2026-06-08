@@ -29,6 +29,7 @@ urlpatterns = [
     path("", login_required(views.home), name="home"),
     path("statistiques_collecte/", login_required(views.statistiques_collecte), name="statistiques_collecte"),
     path("statistiques_hercule/", login_required(views.statistiques_hercule), name="statistiques_hercule"),
+    path("statistiques_vehicules/", login_required(views.statistiques_vehicules), name="statistiques_vehicules"),
     path("statistiques_absences/", login_required(views.statistiques_absences), name="statistiques_absences"),
     path("statistiques_heure_sup/", login_required(views.statistiques_heure_sup), name="statistiques_heure_sup"),
     path("statistiques_hpne/", login_required(views.statistiques_hpne), name="statistiques_hpne"),
