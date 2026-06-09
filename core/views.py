@@ -48,6 +48,13 @@ def csrf_failure(request, reason=""):
 
 def home(request):
     today = timezone.localdate()
+    selected_date = today
+    date_str = request.GET.get("date")
+    if date_str:
+        try:
+            selected_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
 
     df_details = []
     df_semaine = []
@@ -357,6 +364,7 @@ def home(request):
             "meteo_current": meteo_current,
             "meteo_forecast_cards": meteo_forecast_cards,
             "weather_error": weather_error,
+            "selected_date": selected_date,
         },
     )
 
