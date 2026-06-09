@@ -2239,6 +2239,38 @@ def previsions_jour(request):
                     CollectPrev.objects.bulk_create(clones)
             return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
 
+        elif action == "init_collectes":
+            if not (request.user.has_perm("core.delete_collecte") and request.user.has_perm("core.add_collecte")):
+                raise PermissionDenied
+
+            source_rows = list(
+                CollectPrev.objects.filter(date=date_jour).order_by("classement", "id")
+            )
+            collectes = [
+                Collecte(
+                    date_collecte=item.date,
+                    a1_hr_debut=item.depart,
+                    a2_hr_debut=item.depart,
+                    a3_hr_debut=item.depart,
+                    consignes=item.infos,
+                    id_agent_1_id=item.agent_1_id,
+                    id_agent_2_id=item.agent_2_id,
+                    id_agent_3_id=item.agent_3_id,
+                    id_flux1_id=item.flux_id,
+                    id_flux2_id=item.flux_id,
+                    id_flux3_id=item.flux_id,
+                    tonnage1=0,
+                    id_itineraire_id=item.itineraire_id,
+                    id_vehicule_id=item.vehicule_id,
+                )
+                for item in source_rows
+            ]
+            with transaction.atomic():
+                Collecte.objects.filter(date_collecte=date_jour).delete()
+                if collectes:
+                    Collecte.objects.bulk_create(collectes)
+            return redirect(f"{reverse('core:previsions_jour')}?{_filters_query_string(date_jour, date_compar)}")
+
     rows_queryset = (
         CollectPrev.objects.select_related(
             "itineraire",

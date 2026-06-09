@@ -193,17 +193,28 @@
           <input type="date" id="date_compar" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
         </div>
         <button class="btn btn--primary btn--nav-blue" type="submit">Afficher</button>
-        <button class="btn btn--ghost" type="submit">Copier les prev</button>
       </form>
       <form
         method="post"
+        class="filter-row"
         onsubmit="return confirm('Etes-vous sur de remplacer les previsions de {{ date_jour|date:'d/m/Y' }} par {{ date_compar|date:'d/m/Y' }} ?');"
       >
         {% csrf_token %}
         <input type="hidden" name="action" value="copy_prev">
         <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
         <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
-        
+        <button class="btn btn--ghost" type="submit">Copier les prev</button>
+      </form>
+      <form
+        method="post"
+        class="filter-row"
+        onsubmit="return confirm('Supprimer et creer les collectes du date_jour à partir des prévisions ?');"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="action" value="init_collectes">
+        <input type="hidden" name="date_jour" value="{{ date_jour|date:'Y-m-d' }}">
+        <input type="hidden" name="date_compar" value="{{ date_compar|date:'Y-m-d' }}">
+        <button class="btn btn--ghost" type="submit">Initialiser les collectes</button>
       </form>
     </div>
 
