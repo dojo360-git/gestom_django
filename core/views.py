@@ -64,6 +64,8 @@ def home(request):
     meteo_forecast_cards = []
     weather_error = ""
     workforce_rows = []
+    collecte_rows = []
+    collecte_energy_columns = []
 
     service_order = ["Collecte", "Precollecte", "Proprete"]
     service_rank = {value: index for index, value in enumerate(service_order)}
@@ -200,6 +202,88 @@ def home(request):
 
     if current_qualification_start_index is not None:
         workforce_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+
+    requete_collecte_regie = """
+        SELECT
+            sv.id_collecte,
+            sv.id_vidage,
+            sv.flux,
+            sv.tonnage,
+            sv.km,
+            sv.energie,
+            sv.energie_qte
+        FROM stat_vidages sv
+        LEFT JOIN core_itineraire it ON it.id = sv.id_itineraire_id
+        WHERE sv.date_collecte = %s
+          AND COALESCE(sv.tonnage, 0) > 0
+          AND COALESCE(it.regie, '') = %s
+        ORDER BY sv.flux, sv.id_collecte, sv.id_vidage
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(requete_collecte_regie, [selected_date, "Collecte"])
+        columns = [col[0] for col in cursor.description]
+        collecte_source_rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    collecte_map = {}
+    energy_labels = set()
+    for row in collecte_source_rows:
+        flux_label = normalize_text(row.get("flux"))
+        collecte_entry = collecte_map.setdefault(
+            flux_label,
+            {
+                "flux": flux_label,
+                "tournee_ids": set(),
+                "vidage_ids": set(),
+                "tonnage_total_raw": 0.0,
+                "km_raw": 0.0,
+                "energies_raw": defaultdict(float),
+            },
+        )
+
+        id_collecte = row.get("id_collecte")
+        if id_collecte is not None:
+            collecte_entry["tournee_ids"].add(id_collecte)
+
+        id_vidage = row.get("id_vidage")
+        if id_vidage is not None:
+            collecte_entry["vidage_ids"].add(id_vidage)
+
+        collecte_entry["tonnage_total_raw"] += float(row.get("tonnage") or 0)
+        collecte_entry["km_raw"] += float(row.get("km") or 0)
+
+        energie_label = normalize_text(row.get("energie"))
+        energie_qte = float(row.get("energie_qte") or 0)
+        collecte_entry["energies_raw"][energie_label] += energie_qte
+        energy_labels.add(energie_label)
+
+    collecte_energy_columns = sorted(energy_labels, key=str.lower)
+
+    def format_decimal(value, digits=2):
+        return f"{float(value):.{digits}f}".replace(".", ",")
+
+    for flux_label in sorted(collecte_map.keys(), key=str.lower):
+        entry = collecte_map[flux_label]
+        nb_tournees = len(entry["tournee_ids"])
+        nb_vidages = len(entry["vidage_ids"])
+        tonnage_total = entry["tonnage_total_raw"]
+        km_total = entry["km_raw"]
+
+        collecte_rows.append(
+            {
+                "flux": flux_label,
+                "nb_tournees": nb_tournees,
+                "tonnage_total": format_decimal(tonnage_total),
+                "tonnage_par_tournee": format_decimal(tonnage_total / nb_tournees if nb_tournees else 0),
+                "nb_vidages": nb_vidages,
+                "tonnage_par_vidage": format_decimal(tonnage_total / nb_vidages if nb_vidages else 0),
+                "km": format_decimal(km_total),
+                "energies": [
+                    format_decimal(entry["energies_raw"].get(energy_label, 0))
+                    for energy_label in collecte_energy_columns
+                ],
+            }
+        )
 
     try:
         weather_code_map = {
@@ -502,6 +586,8 @@ def home(request):
             "meteo_forecast_cards": meteo_forecast_cards,
             "weather_error": weather_error,
             "workforce_rows": workforce_rows,
+            "collecte_rows": collecte_rows,
+            "collecte_energy_columns": collecte_energy_columns,
             "selected_date": selected_date,
         },
     )

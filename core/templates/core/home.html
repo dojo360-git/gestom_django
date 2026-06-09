@@ -153,6 +153,50 @@
         </table>
       </div>
     </div>
+
+    <div class="home-workforce">
+      <div class="home-workforce__head">
+        <h2 class="h2">Regie de Collectes</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="table home-workforce__table">
+          <thead>
+            <tr>
+              <th>Flux</th>
+              <th>Nbre de tournees</th>
+              <th>Tonnage total</th>
+              <th>Tonnage par tournee</th>
+              <th>Nbre de vidages</th>
+              <th>Tonnage par vidage</th>
+              <th>Km</th>
+              {% for energy_label in collecte_energy_columns %}
+                <th>{{ energy_label }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in collecte_rows %}
+              <tr>
+                <td>{{ row.flux }}</td>
+                <td>{{ row.nb_tournees }}</td>
+                <td>{{ row.tonnage_total }}</td>
+                <td>{{ row.tonnage_par_tournee }}</td>
+                <td>{{ row.nb_vidages }}</td>
+                <td>{{ row.tonnage_par_vidage }}</td>
+                <td>{{ row.km }}</td>
+                {% for energy_value in row.energies %}
+                  <td>{{ energy_value }}</td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="{{ collecte_energy_columns|length|add:'7' }}" class="sub">Aucune donnee collecte pour la date selectionnee.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>
 <script>
