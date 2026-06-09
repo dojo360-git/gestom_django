@@ -1324,6 +1324,29 @@ input[type="checkbox"]{
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 10px;
 }
+.home-workforce{
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+}
+.home-workforce__head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.home-workforce__table{
+  min-width: 760px;
+}
+.home-workforce__table th{
+  white-space: nowrap;
+}
+.home-workforce__table td{
+  font-weight: 600;
+}
 .home-weather__item{
   margin: 0;
   padding: 12px 12px 10px;

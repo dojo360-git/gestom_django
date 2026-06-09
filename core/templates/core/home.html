@@ -30,16 +30,6 @@
   <div class="card__pad home-weather__pad">
     <div class="home-weather__head">
       <h1 class="home-weather__title">{{ meteo_current.station_name|default:"CDEA\\PGD - Les Montatons" }}</h1>
-      <form class="home-weather__date-form" method="get">
-        <div class="home-weather__date-nav">
-          <button class="btn btn--ghost home-weather__date-button" type="button" data-date-step="-1">&lt;</button>
-          <label class="home-weather__date-control">
-            <span class="home-weather__date-label">Date</span>
-            <input class="input home-weather__date-input" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
-          </label>
-          <button class="btn btn--ghost home-weather__date-button" type="button" data-date-step="1">&gt;</button>
-        </div>
-      </form>
     </div>
 
     {% if weather_error %}
@@ -104,9 +94,65 @@
           </article>
         {% endfor %}
       </div>
+
     {% else %}
       <p class="home-weather__error">Les donnees meteo sont indisponibles pour le moment.</p>
     {% endif %}
+  </div>
+</section>
+
+<section class="card" style="margin-top: 16px;">
+  <div class="card__pad">
+    <form class="home-weather__date-form" method="get">
+      <div class="home-weather__date-nav">
+        <button class="btn btn--ghost home-weather__date-button" type="button" data-date-step="-1">&lt;</button>
+        <label class="home-weather__date-control">
+          <span class="home-weather__date-label">Date</span>
+          <input class="input home-weather__date-input" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+        </label>
+        <button class="btn btn--ghost home-weather__date-button" type="button" data-date-step="1">&gt;</button>
+      </div>
+    </form>
+
+    <div class="home-workforce">
+      <div class="home-workforce__head">
+        <h2 class="h2">Disponibilite agents</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="table home-workforce__table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Qualification</th>
+              <th>Employeur</th>
+              <th>Agents en contrat</th>
+              <th>Non disponibles</th>
+              <th>Disponibles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in workforce_rows %}
+              <tr>
+                {% if row.show_service_cell %}
+                  <td rowspan="{{ row.service_rowspan }}">{{ row.service }}</td>
+                {% endif %}
+                {% if row.show_qualification_cell %}
+                  <td rowspan="{{ row.qualification_rowspan }}">{{ row.qualification }}</td>
+                {% endif %}
+                <td>{{ row.employeur }}</td>
+                <td>{{ row.agents_en_contrat }}</td>
+                <td>{{ row.non_disponibles }}</td>
+                <td>{{ row.disponibles }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="sub">Aucune donnee pour la date selectionnee.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>
 <script>

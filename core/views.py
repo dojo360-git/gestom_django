@@ -1,5 +1,5 @@
 from django.db import connection, DatabaseError, transaction
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, Count
 from django.db.models.functions import Cast
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
@@ -63,6 +63,143 @@ def home(request):
     meteo_current = {}
     meteo_forecast_cards = []
     weather_error = ""
+    workforce_rows = []
+
+    service_order = ["Collecte", "Precollecte", "Proprete"]
+    service_rank = {value: index for index, value in enumerate(service_order)}
+
+    def normalize_service(value):
+        raw_value = (value or "").strip()
+        lowered = raw_value.lower()
+        if lowered == "collecte":
+            return "Collecte"
+        if lowered in {"precollecte", "pre-collecte", "pre collecte"}:
+            return "Precollecte"
+        if lowered in {"proprete", "proprete "}:
+            return "Proprete"
+        return raw_value or "Non renseigne"
+
+    def normalize_text(value):
+        return (value or "").strip() or "-"
+
+    contracted_filter = (
+        (Q(arrivee__isnull=True) | Q(arrivee__lte=selected_date))
+        & (Q(depart__isnull=True) | Q(depart__gte=selected_date))
+    )
+
+    contracted_rows = (
+        Agent.objects.filter(contracted_filter)
+        .values("service", "qualification", "employeur")
+        .annotate(agents_en_contrat=Count("id", distinct=True))
+    )
+
+    unavailable_rows = (
+        HeuresManuelles.objects.filter(date=selected_date, presence__isnull=False)
+        .filter(
+            (Q(agent__arrivee__isnull=True) | Q(agent__arrivee__lte=selected_date))
+            & (Q(agent__depart__isnull=True) | Q(agent__depart__gte=selected_date))
+        )
+        .values("agent__service", "agent__qualification", "agent__employeur")
+        .annotate(non_disponibles=Count("agent_id", distinct=True))
+    )
+
+    workforce_map = {}
+
+    for row in contracted_rows:
+        key = (
+            normalize_service(row.get("service")),
+            normalize_text(row.get("qualification")),
+            normalize_text(row.get("employeur")),
+        )
+        workforce_map[key] = {
+            "service": key[0],
+            "qualification": key[1],
+            "employeur": key[2],
+            "agents_en_contrat": int(row.get("agents_en_contrat") or 0),
+            "non_disponibles": 0,
+            "disponibles": 0,
+        }
+
+    for row in unavailable_rows:
+        key = (
+            normalize_service(row.get("agent__service")),
+            normalize_text(row.get("agent__qualification")),
+            normalize_text(row.get("agent__employeur")),
+        )
+        workforce_entry = workforce_map.setdefault(
+            key,
+            {
+                "service": key[0],
+                "qualification": key[1],
+                "employeur": key[2],
+                "agents_en_contrat": 0,
+                "non_disponibles": 0,
+                "disponibles": 0,
+            },
+        )
+        workforce_entry["non_disponibles"] = int(row.get("non_disponibles") or 0)
+
+    workforce_rows = sorted(
+        workforce_map.values(),
+        key=lambda row: (
+            service_rank.get(row["service"], len(service_order)),
+            row["service"].lower(),
+            row["qualification"].lower(),
+            row["employeur"].lower(),
+        ),
+    )
+
+    for row in workforce_rows:
+        row["disponibles"] = row["agents_en_contrat"] - row["non_disponibles"]
+
+    current_service = None
+    current_service_start_index = None
+    current_service_count = 0
+    for index, row in enumerate(workforce_rows):
+        row["show_service_cell"] = False
+        row["service_rowspan"] = 0
+        row["show_qualification_cell"] = False
+        row["qualification_rowspan"] = 0
+        if row["service"] != current_service:
+            if current_service_start_index is not None:
+                workforce_rows[current_service_start_index]["service_rowspan"] = current_service_count
+            current_service = row["service"]
+            current_service_start_index = index
+            current_service_count = 1
+            row["show_service_cell"] = True
+            row["service_rowspan"] = 1
+        else:
+            current_service_count += 1
+
+    if current_service_start_index is not None:
+        workforce_rows[current_service_start_index]["service_rowspan"] = current_service_count
+
+    current_group_service = None
+    current_qualification = None
+    current_qualification_start_index = None
+    current_qualification_count = 0
+    for index, row in enumerate(workforce_rows):
+        if row["service"] != current_group_service:
+            if current_qualification_start_index is not None:
+                workforce_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+            current_group_service = row["service"]
+            current_qualification = None
+            current_qualification_start_index = None
+            current_qualification_count = 0
+
+        if row["qualification"] != current_qualification:
+            if current_qualification_start_index is not None:
+                workforce_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
+            current_qualification = row["qualification"]
+            current_qualification_start_index = index
+            current_qualification_count = 1
+            row["show_qualification_cell"] = True
+            row["qualification_rowspan"] = 1
+        else:
+            current_qualification_count += 1
+
+    if current_qualification_start_index is not None:
+        workforce_rows[current_qualification_start_index]["qualification_rowspan"] = current_qualification_count
 
     try:
         weather_code_map = {
@@ -364,6 +501,7 @@ def home(request):
             "meteo_current": meteo_current,
             "meteo_forecast_cards": meteo_forecast_cards,
             "weather_error": weather_error,
+            "workforce_rows": workforce_rows,
             "selected_date": selected_date,
         },
     )
