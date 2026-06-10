@@ -1384,7 +1384,6 @@ def statistiques_vehicules(request):
 
     req_stats_vehicules = """
         SELECT
-            COALESCE(it.regie, '-') AS regie,
             COALESCE(st.type_vehicule, '-') AS type_vehicule,
             COALESCE(st.nom_vehicule, '-') AS nom_vehicule,
             COALESCE(st.energie, '-') AS energie,
@@ -1393,10 +1392,9 @@ def statistiques_vehicules(request):
             SUM(COALESCE(st.energie_qte_tournee, 0)) AS qte_energie
         FROM stat_tournees st
         LEFT JOIN core_collecte co ON co.id_collecte = st.id_collecte
-        LEFT JOIN core_itineraire it ON it.id = st.id_itineraire_id
         WHERE co.date_collecte BETWEEN %s AND %s
-        GROUP BY regie, type_vehicule, nom_vehicule, energie, annee_mois
-        ORDER BY regie, type_vehicule, nom_vehicule, energie, annee_mois
+        GROUP BY type_vehicule, nom_vehicule, energie, annee_mois
+        ORDER BY type_vehicule, nom_vehicule, energie, annee_mois
     """
 
     req_kpis = """
@@ -1424,11 +1422,10 @@ def statistiques_vehicules(request):
     energy_column_totals = {month: 0.0 for month in months}
     grand_total = 0.0
     energy_grand_total = 0.0
-    grouped_map = defaultdict(lambda: defaultdict(dict))
-    energy_grouped_map = defaultdict(lambda: defaultdict(dict))
+    grouped_map = defaultdict(dict)
+    energy_grouped_map = defaultdict(dict)
 
     for row in rows:
-        regie = row.get("regie") or "-"
         type_vehicule = row.get("type_vehicule") or "-"
         nom_vehicule = row.get("nom_vehicule") or "-"
         energie = row.get("energie") or "-"
@@ -1440,96 +1437,45 @@ def statistiques_vehicules(request):
         if not month:
             continue
 
-        grouped_map[regie][type_vehicule][vehicule_key] = (
-            grouped_map[regie][type_vehicule].get(vehicule_key, {})
-        )
-        grouped_map[regie][type_vehicule][vehicule_key][month] = distance
-        energy_grouped_map[regie][type_vehicule][vehicule_key] = (
-            energy_grouped_map[regie][type_vehicule].get(vehicule_key, {})
-        )
-        energy_grouped_map[regie][type_vehicule][vehicule_key][month] = qte_energie
+        grouped_map[type_vehicule][vehicule_key] = grouped_map[type_vehicule].get(vehicule_key, {})
+        grouped_map[type_vehicule][vehicule_key][month] = distance
+        energy_grouped_map[type_vehicule][vehicule_key] = energy_grouped_map[type_vehicule].get(vehicule_key, {})
+        energy_grouped_map[type_vehicule][vehicule_key][month] = qte_energie
         column_totals[month] += distance
         energy_column_totals[month] += qte_energie
         grand_total += distance
         energy_grand_total += qte_energie
 
-    regie_groups = []
-    for regie in sorted(grouped_map.keys()):
-        type_groups = []
-        for type_vehicule in sorted(grouped_map[regie].keys()):
-            vehicule_rows = []
-            for nom_vehicule, energie in sorted(grouped_map[regie][type_vehicule].keys()):
-                values_by_month = grouped_map[regie][type_vehicule][(nom_vehicule, energie)]
-                energy_values_by_month = energy_grouped_map[regie][type_vehicule][(nom_vehicule, energie)]
-                cells = [values_by_month.get(month, 0.0) for month in months]
-                energy_cells = [energy_values_by_month.get(month, 0.0) for month in months]
-                consumption_cells = [
-                    (100 * energy_cells[index] / distance) if distance else 0.0
-                    for index, distance in enumerate(cells)
-                ]
-                vehicule_rows.append(
-                    {
-                        "nom_vehicule": nom_vehicule,
-                        "energie": energie,
-                        "cells": cells,
-                        "total": sum(cells),
-                        "energy_cells": energy_cells,
-                        "energy_total": sum(energy_cells),
-                        "consumption_cells": consumption_cells,
-                        "consumption_total": (100 * sum(energy_cells) / sum(cells)) if sum(cells) else 0.0,
-                    }
-                )
-
-            type_totals = [
-                sum(row["cells"][index] for row in vehicule_rows)
-                for index, _month in enumerate(months)
+    type_groups = []
+    for type_vehicule in sorted(grouped_map.keys()):
+        vehicule_rows = []
+        for nom_vehicule, energie in sorted(grouped_map[type_vehicule].keys()):
+            values_by_month = grouped_map[type_vehicule][(nom_vehicule, energie)]
+            energy_values_by_month = energy_grouped_map[type_vehicule][(nom_vehicule, energie)]
+            cells = [values_by_month.get(month, 0.0) for month in months]
+            energy_cells = [energy_values_by_month.get(month, 0.0) for month in months]
+            consumption_cells = [
+                (100 * energy_cells[index] / distance) if distance else 0.0
+                for index, distance in enumerate(cells)
             ]
-            energy_type_totals = [
-                sum(row["energy_cells"][index] for row in vehicule_rows)
-                for index, _month in enumerate(months)
-            ]
-            consumption_type_totals = [
-                (100 * energy_type_totals[index] / distance) if distance else 0.0
-                for index, distance in enumerate(type_totals)
-            ]
-            type_groups.append(
+            vehicule_rows.append(
                 {
-                    "type_vehicule": type_vehicule,
-                    "rows": vehicule_rows,
-                    "rowspan": len(vehicule_rows),
-                    "totals": type_totals,
-                    "total": sum(type_totals),
-                    "energy_totals": energy_type_totals,
-                    "energy_total": sum(energy_type_totals),
-                    "consumption_totals": consumption_type_totals,
-                    "consumption_total": (100 * sum(energy_type_totals) / sum(type_totals)) if sum(type_totals) else 0.0,
+                    "nom_vehicule": nom_vehicule,
+                    "energie": energie,
+                    "cells": cells,
+                    "total": sum(cells),
+                    "energy_cells": energy_cells,
+                    "energy_total": sum(energy_cells),
+                    "consumption_cells": consumption_cells,
+                    "consumption_total": (100 * sum(energy_cells) / sum(cells)) if sum(cells) else 0.0,
                 }
             )
 
-        regie_totals = [
-            sum(type_group["totals"][index] for type_group in type_groups)
-            for index, _month in enumerate(months)
-        ]
-        energy_regie_totals = [
-            sum(type_group["energy_totals"][index] for type_group in type_groups)
-            for index, _month in enumerate(months)
-        ]
-        consumption_regie_totals = [
-            (100 * energy_regie_totals[index] / distance) if distance else 0.0
-            for index, distance in enumerate(regie_totals)
-        ]
-        regie_body_rowspan = sum(type_group["rowspan"] + 1 for type_group in type_groups)
-        regie_groups.append(
+        type_groups.append(
             {
-                "regie": regie,
-                "type_groups": type_groups,
-                "body_rowspan": regie_body_rowspan,
-                "totals": regie_totals,
-                "total": sum(regie_totals),
-                "energy_totals": energy_regie_totals,
-                "energy_total": sum(energy_regie_totals),
-                "consumption_totals": consumption_regie_totals,
-                "consumption_total": (100 * sum(energy_regie_totals) / sum(regie_totals)) if sum(regie_totals) else 0.0,
+                "type_vehicule": type_vehicule,
+                "rows": vehicule_rows,
+                "rowspan": len(vehicule_rows),
             }
         )
 
@@ -1554,7 +1500,7 @@ def statistiques_vehicules(request):
             "date_debut": date_debut,
             "date_fin": date_fin,
             "months": months,
-            "regie_groups": regie_groups,
+            "type_groups": type_groups,
             "column_totals": [column_totals[month] for month in months],
             "grand_total": grand_total,
             "energy_column_totals": [energy_column_totals[month] for month in months],

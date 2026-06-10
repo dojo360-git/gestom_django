@@ -93,8 +93,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for regie_group in regie_groups %}
-            {% for type_group in regie_group.type_groups %}
+          {% for type_group in type_groups %}
               {% for row in type_group.rows %}
                 <tr class="stat-vehicules__row stat-vehicules__row--nom-vehicule niveau3">
                   {% if forloop.first %}
@@ -108,14 +107,13 @@
                   <td>{{ row.total|floatformat:0 }}</td>
                 </tr>
               {% endfor %}
-            {% endfor %}
           {% empty %}
             <tr>
               <td colspan="{{ months|length|add:'4' }}">Aucune donnee pour la periode.</td>
             </tr>
           {% endfor %}
         </tbody>
-        {% if regie_groups %}
+        {% if type_groups %}
           <tfoot>
             <tr class="stat-vehicules__row stat-vehicules__row--total-general stat-vehicules__row--total niveau1">
               <th class="stat-vehicules__cell stat-vehicules__cell--total-general stat-vehicules__cell--total niveau1">Total general</th>
@@ -150,8 +148,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for regie_group in regie_groups %}
-            {% for type_group in regie_group.type_groups %}
+          {% for type_group in type_groups %}
               {% for row in type_group.rows %}
                 <tr class="stat-vehicules__row stat-vehicules__row--nom-vehicule niveau3">
                   {% if forloop.first %}
@@ -165,14 +162,13 @@
                   <td>{{ row.energy_total|floatformat:0 }}</td>
                 </tr>
               {% endfor %}
-            {% endfor %}
           {% empty %}
             <tr>
               <td colspan="{{ months|length|add:'4' }}">Aucune donnee pour la periode.</td>
             </tr>
           {% endfor %}
         </tbody>
-        {% if regie_groups %}
+        {% if type_groups %}
           <tfoot>
             <tr class="stat-vehicules__row stat-vehicules__row--total-general stat-vehicules__row--total niveau1">
               <th class="stat-vehicules__cell stat-vehicules__cell--total-general stat-vehicules__cell--total niveau1">Total general</th>
@@ -207,8 +203,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for regie_group in regie_groups %}
-            {% for type_group in regie_group.type_groups %}
+          {% for type_group in type_groups %}
               {% for row in type_group.rows %}
                 <tr class="stat-vehicules__row stat-vehicules__row--nom-vehicule niveau3">
                   {% if forloop.first %}
@@ -222,14 +217,13 @@
                   <td>{{ row.consumption_total|floatformat:2 }}</td>
                 </tr>
               {% endfor %}
-            {% endfor %}
           {% empty %}
             <tr>
               <td colspan="{{ months|length|add:'4' }}">Aucune donnee pour la periode.</td>
             </tr>
           {% endfor %}
         </tbody>
-        {% if regie_groups %}
+        {% if type_groups %}
           <tfoot>
             <tr class="stat-vehicules__row stat-vehicules__row--total-general stat-vehicules__row--total niveau1">
               <th class="stat-vehicules__cell stat-vehicules__cell--total-general stat-vehicules__cell--total niveau1">Total general</th>
