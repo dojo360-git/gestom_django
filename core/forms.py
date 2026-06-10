@@ -202,7 +202,7 @@ class CollecteForm(forms.ModelForm):
             "info_collecte": forms.Textarea(
                 attrs={
                     "autocomplete": "off",
-                    "placeholder": "Rattrapages et infos",
+                    "placeholder": "Non conformité, incident ou remarque concernant la collecte",
                     "rows": 3,
                     "style": "resize: vertical;",
                 }

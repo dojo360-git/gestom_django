@@ -1190,14 +1190,9 @@ def statistiques_hercule(request):
         except ValueError:
             return default
 
-    default_date_fin = today.replace(day=19)
+    default_date_debut = today.replace(day=1)
+    default_date_fin = today.replace(day=calendar.monthrange(today.year, today.month)[1])
     date_fin = parse_date(request.GET.get("date_fin"), default_date_fin)
-
-    if date_fin.month == 1:
-        default_date_debut = date_fin.replace(year=date_fin.year - 1, month=12, day=20)
-    else:
-        default_date_debut = date_fin.replace(month=date_fin.month - 1, day=20)
-
     date_debut = parse_date(request.GET.get("date_debut"), default_date_debut)
     if date_debut > date_fin:
         date_debut, date_fin = date_fin, date_debut

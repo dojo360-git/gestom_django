@@ -208,7 +208,7 @@
       <form
         method="post"
         class="filter-row"
-        onsubmit="return confirm('Supprimer et creer les collectes du date_jour à partir des prévisions ?');"
+        onsubmit="return confirm('Supprimer et creer les collectes du {{ date_jour|date:'d/m/Y' }} à partir des prévisions ?');"
       >
         {% csrf_token %}
         <input type="hidden" name="action" value="init_collectes">
