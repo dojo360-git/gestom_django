@@ -82,6 +82,7 @@
             <th>Date</th>
             <th>Motif (obligatoire)</th>
             <th>Heures supplementaires de ... à ...</th>
+            <th>Nb heures sup</th>
           </tr>
         </thead>
         <tbody>
@@ -93,6 +94,7 @@
                 <td>{{ row.date|date:"d/m/Y" }}</td>
                 <td>{{ row.motif_hs|default:"-" }}</td>
                 <td>{{ row.hr_debut_label }} à {{ row.hr_fin_label }}</td>
+                <td>{{ row.duree|floatformat:2 }}</td>
               </tr>
             {% endfor %}
           {% endfor %}

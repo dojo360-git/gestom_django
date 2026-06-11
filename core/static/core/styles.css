@@ -337,7 +337,7 @@ a{ color: inherit; text-decoration: none; }
   min-width: 620px;
 }
 .table--heures-sup{
-  min-width: 1200px;
+  min-width: 900px;
   table-layout: fixed;
 }
 .table--heures-sup th,
@@ -346,29 +346,27 @@ a{ color: inherit; text-decoration: none; }
 }
 .table--heures-sup th:nth-child(1),
 .table--heures-sup td:nth-child(1){
-  width: 110px;
+  width: 130px;
 }
 .table--heures-sup th:nth-child(2),
 .table--heures-sup td:nth-child(2){
-  width: 260px;
+  width: 150px;
 }
 .table--heures-sup th:nth-child(3),
 .table--heures-sup td:nth-child(3){
-  width: 170px;
+  width: 120px;
 }
 .table--heures-sup th:nth-child(4),
-.table--heures-sup td:nth-child(4),
-.table--heures-sup th:nth-child(5),
-.table--heures-sup td:nth-child(5),
-.table--heures-sup th:nth-child(6),
-.table--heures-sup td:nth-child(6),
-.table--heures-sup th:nth-child(7),
-.table--heures-sup td:nth-child(7){
-  width: 140px;
+.table--heures-sup td:nth-child(4){
+  width: 320px;
 }
-.table--heures-sup th:nth-child(8),
-.table--heures-sup td:nth-child(8){
-  width: 96px;
+.table--heures-sup th:nth-child(5),
+.table--heures-sup td:nth-child(5){
+  width: 170px;
+}
+.table--heures-sup th:nth-child(6),
+.table--heures-sup td:nth-child(6){
+  width: 110px;
   text-align: center;
 }
 .table--home-compact{
