@@ -1,17 +1,26 @@
 <style>
   .jour {
-    margin: 8px 0 0;
-    padding: 2px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
   }
 
   .jour h2 {
     margin: 0;
-    padding: 0;
-    font-size: 14px;
+    padding: 7px 10px;
+    font-size: 18px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0;
     text-align: center;
-    background: rgba(22, 163, 74, 0.3);
-    color: #000000;
-    border-radius: 2px 2px 0 0;
+    text-transform: uppercase;
+    background: #2563eb;
+    color: #ffffff;
+    border-bottom: 1px solid #1d4ed8;
   }
 
   .jour table {
@@ -25,12 +34,25 @@
   .jour th,
   .jour td {
     margin: 0;
-    padding: 0;
+    padding: 6px 7px;
     border: 1px solid #d1d5db;
     font-size: 14px;
+    line-height: 1.18;
     vertical-align: middle;
     text-align: center;
     word-wrap: break-word;
+  }
+
+  .jour th {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .jour td {
+    color: #111827;
+    font-weight: 400;
   }
 
   .jour .empty {

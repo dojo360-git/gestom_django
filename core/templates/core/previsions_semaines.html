@@ -7,13 +7,13 @@
 <style>
   .semaine {
     margin: 0;
-    padding: 0;
-    background: #ffffff;
+    padding: 6px;
+    background: #f8fafc;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-auto-rows: max-content;
     align-content: start;
-    gap: 0;
+    gap: 10px;
   }
 
   .semaine.is-fullscreen {
@@ -73,12 +73,86 @@
 
   .jour[data-day-url] {
     cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  }
+
+  .jour[data-day-url]:hover {
+    border-color: #2563eb;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.16);
+    transform: translateY(-1px);
   }
 
   .semaine .jour th,
   .semaine .jour td {
     border: none;
-    border-bottom: 1px solid #d1d5db;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .semaine .jour th {
+    background: #2563eb;
+    color: #ffffff;
+    border-right: 1px solid rgba(255, 255, 255, 0.28);
+  }
+
+  .semaine .jour th:last-child {
+    border-right: none;
+  }
+
+  .semaine .jour tbody tr {
+    box-shadow: inset 4px 0 0 var(--flux-color, #cbd5e1);
+  }
+
+  .semaine .jour tbody tr:nth-child(even) {
+    background: #f8fafc;
+  }
+
+  .semaine .jour tbody tr:hover {
+    background: #eff6ff;
+  }
+
+  .semaine .jour tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .semaine .jour td:first-child {
+    font-weight: 500;
+  }
+
+  .semaine .jour .flux-cell {
+    background: transparent !important;
+  }
+
+  .flux-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    max-width: 100%;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--flux-color, #e5e7eb);
+    color: #ffffff;
+    font-weight: 600;
+    line-height: 1.1;
+    text-shadow: 0 1px 1px rgba(15, 23, 42, 0.28);
+    box-shadow: inset 0 -8px 14px rgba(15, 23, 42, 0.12);
+  }
+
+  .depart-cell {
+    font-weight: 400;
+    color: #111827;
+    white-space: nowrap;
+  }
+
+  .depart-cell::before {
+    content: "";
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 5px;
+    border: 2px solid var(--flux-color, #2563eb);
+    border-radius: 50%;
+    vertical-align: -1px;
   }
 
   .info-col-poste {
@@ -201,14 +275,16 @@
           </thead>
           <tbody>
             {% for row in group.rows %}
-            <tr>
+            <tr style="--flux-color: {{ row.flux_bg_color|default:'#cbd5e1' }};">
               <td>{{ row.itineraire|default:"" }}</td>
               <td>{{ row.vehicule|default:"" }}</td>
-              <td style="background-color: {{ row.flux_bg_color }};">{{ row.flux|default:"" }}</td>
+              <td class="flux-cell">
+                {% if row.flux %}<span class="flux-badge">{{ row.flux }}</span>{% endif %}
+              </td>
               <td>{% if row.agent_1 %}{{ row.agent_1.nom|default:"" }}{% endif %}</td>
               <td>{% if row.agent_2 %}{{ row.agent_2.nom|default:"" }}{% endif %}</td>
               <td>{% if row.agent_3 %}{{ row.agent_3.nom|default:"" }}{% endif %}</td>
-              <td>{{ row.depart|time:"H:i"|default:"" }}</td>
+              <td class="depart-cell">{{ row.depart|time:"H:i"|default:"" }}</td>
             </tr>
             {% empty %}
             <tr>
