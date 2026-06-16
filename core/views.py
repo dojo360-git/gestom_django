@@ -1927,6 +1927,7 @@ def previsions_semaines(request):
             "agent2": obj.agent_2.nom if obj.agent_2 else "",
             "agent3": obj.agent_3.nom if obj.agent_3 else "",
             "depart": obj.depart.strftime("%H:%M") if obj.depart else "",
+            "infos": obj.infos or "",
         }
         for obj in copy_rows_queryset
     ]

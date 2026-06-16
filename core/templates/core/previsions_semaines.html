@@ -398,8 +398,8 @@
     }
 
     function toExcelTsv(rows) {
-      var columns = ["date", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart"];
-      var lines = [columns.join("\t")];
+      var columns = ["date", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart", "infos"];
+      var lines = [];
       rows.forEach(function (row) {
         lines.push(columns.map(function (column) {
           return String(row[column] || "").replace(/\t/g, " ").replace(/\r?\n/g, " ");
