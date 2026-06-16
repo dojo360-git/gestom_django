@@ -1862,6 +1862,7 @@ def previsions_semaines(request):
     default_monday = today - timedelta(days=today.weekday())
     selected_date = _parse_date(request.GET.get("date"), default_monday)
     dates = [selected_date + timedelta(days=offset) for offset in range(5)]
+    copy_dates = [selected_date + timedelta(days=offset) for offset in range(8)]
 
     def _safe_hex_color(raw_value, fallback):
         value = (raw_value or "").strip()
@@ -1896,6 +1897,39 @@ def previsions_semaines(request):
             "#ffffff",
         )
         rows_by_date[obj.date].append(obj)
+
+    copy_rows_queryset = (
+        CollectPrev.objects.select_related(
+            "itineraire",
+            "vehicule",
+            "flux",
+            "agent_1",
+            "agent_2",
+            "agent_3",
+        )
+        .filter(date__range=(copy_dates[0], copy_dates[-1]))
+        .annotate(
+            classement_num=Case(
+                When(classement__regex=r"^\d+$", then=Cast("classement", IntegerField())),
+                default=Value(2147483647),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("date", "classement_num", "classement", "id")
+    )
+    copy_rows = [
+        {
+            "date": obj.date.strftime("%Y-%m-%d") if obj.date else "",
+            "itineraire": str(obj.itineraire) if obj.itineraire else "",
+            "vehicule": str(obj.vehicule) if obj.vehicule else "",
+            "flux": str(obj.flux) if obj.flux else "",
+            "agent1": obj.agent_1.nom if obj.agent_1 else "",
+            "agent2": obj.agent_2.nom if obj.agent_2 else "",
+            "agent3": obj.agent_3.nom if obj.agent_3 else "",
+            "depart": obj.depart.strftime("%H:%M") if obj.depart else "",
+        }
+        for obj in copy_rows_queryset
+    ]
 
     day_groups = []
     for index, dt in enumerate(dates):
@@ -2002,6 +2036,7 @@ def previsions_semaines(request):
         {
             "selected_date": selected_date,
             "day_groups": day_groups,
+            "copy_rows": copy_rows,
             "info": info,
             "iso_week": iso_week,
             "today_iso_week": today_iso_week,

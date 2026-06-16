@@ -253,6 +253,12 @@
             id="previsions-v2-fullscreen-btn"
             aria-label="Activer le plein ecran"
           >Plein ecran</button>
+          <button
+            class="btn btn--ghost"
+            type="button"
+            id="previsions-v2-copy-btn"
+            aria-label="Copier les donnees pour Excel"
+          >Copier les donnees</button>
           <a class="btn btn--ghost" href="{% url 'core:previsions_semaines' %}?date={{ prev_week_date|date:'Y-m-d' }}">&lt;</a>
           <a class="btn btn--ghost" href="{% url 'core:previsions_semaines' %}?date={{ next_week_date|date:'Y-m-d' }}">&gt;</a>
         </div>
@@ -342,10 +348,12 @@
   </div>
 </div>
 
+{{ copy_rows|json_script:"previsions-copy-data" }}
 <script>
   (function () {
     var button = document.getElementById("previsions-v2-fullscreen-btn");
     var printButton = document.getElementById("previsions-v2-print-btn");
+    var copyButton = document.getElementById("previsions-v2-copy-btn");
     var target = document.getElementById("previsions-v2-semaine");
     if (!button || !target) return;
     var storageKey = "previsions_semaines_css_fullscreen";
@@ -376,6 +384,68 @@
     if (printButton) {
       printButton.addEventListener("click", function () {
         window.print();
+      });
+    }
+
+    function getCopyRows() {
+      var dataNode = document.getElementById("previsions-copy-data");
+      if (!dataNode) return [];
+      try {
+        return JSON.parse(dataNode.textContent) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function toExcelTsv(rows) {
+      var columns = ["date", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart"];
+      var lines = [columns.join("\t")];
+      rows.forEach(function (row) {
+        lines.push(columns.map(function (column) {
+          return String(row[column] || "").replace(/\t/g, " ").replace(/\r?\n/g, " ");
+        }).join("\t"));
+      });
+      return lines.join("\r\n");
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        document.execCommand("copy");
+        return Promise.resolve();
+      } catch (error) {
+        return Promise.reject(error);
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    if (copyButton) {
+      var copyButtonDefaultText = copyButton.textContent;
+      copyButton.addEventListener("click", function () {
+        var rows = getCopyRows();
+        copyText(toExcelTsv(rows)).then(function () {
+          copyButton.textContent = rows.length ? "Donnees copiees" : "Aucune donnee";
+          window.setTimeout(function () {
+            copyButton.textContent = copyButtonDefaultText;
+          }, 1800);
+        }).catch(function () {
+          copyButton.textContent = "Copie impossible";
+          window.setTimeout(function () {
+            copyButton.textContent = copyButtonDefaultText;
+          }, 2200);
+        });
       });
     }
 
