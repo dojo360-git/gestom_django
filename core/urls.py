@@ -98,6 +98,7 @@ urlpatterns = [
     path("parametres/", login_and_perm("core.view_parametre", ParametreListCreateView.as_view()), name="parametre_list"),
 
     # API
+    path("api/prevision/", views_api.prevision, name="prevision"),
     path("api/tonnages_json/", login_and_perm("core.view_collecte", views_api.tonnages_json), name="tonnages_json"),
 
 ]
