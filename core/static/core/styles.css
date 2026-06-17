@@ -1336,6 +1336,11 @@ input[type="checkbox"]{
   gap: 12px;
   margin-bottom: 12px;
 }
+.home-workforce__title{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
 .home-workforce__table{
   display: inline-table;
   width: auto;
@@ -1348,6 +1353,27 @@ input[type="checkbox"]{
 .home-workforce__table td{
   font-weight: 600;
   white-space: nowrap;
+}
+.home-workforce__qualification{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.home-workforce__chauffeur-icon{
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  background: #16a34a;
+  -webkit-mask: url("https://storage.googleapis.com/dojo360-public/cdea/gestom/icn-chauffeur.png") center / contain no-repeat;
+  mask: url("https://storage.googleapis.com/dojo360-public/cdea/gestom/icn-chauffeur.png") center / contain no-repeat;
+}
+.home-workforce__title-chauffeur-icon{
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: inline-block;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(43%) sepia(93%) saturate(503%) hue-rotate(93deg) brightness(92%) contrast(88%);
 }
 .home-weather__item{
   margin: 0;

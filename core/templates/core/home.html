@@ -116,7 +116,15 @@
 
     <div class="home-workforce">
       <div class="home-workforce__head">
-        <h2 class="h2">Disponibilite agents</h2>
+        <h2 class="h2 home-workforce__title">
+          Disponibilite agents
+          <img
+            class="home-workforce__title-chauffeur-icon"
+            src="https://storage.googleapis.com/dojo360-public/cdea/gestom/icn-chauffeur.png"
+            alt=""
+            aria-hidden="true"
+          >
+        </h2>
       </div>
       <div class="table-wrap">
         <table class="table home-workforce__table">
@@ -137,7 +145,14 @@
                   <td rowspan="{{ row.service_rowspan }}">{{ row.service }}</td>
                 {% endif %}
                 {% if row.show_qualification_cell %}
-                  <td rowspan="{{ row.qualification_rowspan }}">{{ row.qualification }}</td>
+                  <td rowspan="{{ row.qualification_rowspan }}">
+                    <span class="home-workforce__qualification">
+                      {{ row.qualification }}
+                      {% if row.qualification == "Chauffeur" %}
+                        <span class="home-workforce__chauffeur-icon" aria-hidden="true"></span>
+                      {% endif %}
+                    </span>
+                  </td>
                 {% endif %}
                 <td>{{ row.employeur }}</td>
                 <td>{{ row.agents_en_contrat }}</td>
@@ -199,6 +214,7 @@
     </div>
   </div>
 </section>
+
 <script>
   (function () {
     var digitalClock = document.getElementById("home-weather-digital-clock");
