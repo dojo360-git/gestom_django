@@ -1,50 +1,642 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Collecte{% endblock %}
 
 {% block content %}
-<div class="card">
-  <div class="card__pad">
-    <div class="header">
-      <div>
-        <h1 class="h1">Collecte #{{ collecte.id_collecte }}</h1>
-        <p class="sub">Details de la collecte</p>
+<style>
+  .bom-page-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  #BOM {
+    width: min(794px, 100%);
+    margin: 0 auto;
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #111111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+  }
+
+  .bom-sheet {
+    display: grid;
+    grid-template-columns: 1.18fr .82fr;
+    min-height: 1040px;
+  }
+
+  .bom-left,
+  .bom-right {
+    padding: 0 8px 8px;
+  }
+
+  .bom-left {
+    border-right: 1px solid #111111;
+  }
+
+  .bom-header {
+    display: grid;
+    grid-template-columns: 106px 1fr;
+    align-items: center;
+    border-bottom: 1px solid #111111;
+    margin: 0 -8px 12px;
+  }
+
+  .bom-logo {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #111111;
+    padding: 8px;
+  }
+
+  .bom-logo img {
+    max-width: 92px;
+    max-height: 46px;
+    object-fit: contain;
+  }
+
+  .bom-title {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #6fa8dc;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .5px;
+  }
+
+  .bom-collecte-number {
+    display: grid;
+    grid-template-columns: 1fr 104px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .bom-collecte-number__label {
+    color: #666666;
+    font-size: 10px;
+    font-style: italic;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .bom-collecte-number__value {
+    min-height: 28px;
+    border: 1px solid #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 6px;
+    font-size: 15px;
+    font-weight: 800;
+    background: #ffffff;
+  }
+
+  .bom-row {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .bom-icon {
+    text-align: center;
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .bom-field {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    border: 1px solid #111111;
+    min-height: 38px;
+  }
+
+  .bom-field__label,
+  .bom-field__value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .bom-field__label {
+    border-right: 1px solid #111111;
+  }
+
+  .bom-section-label {
+    display: grid;
+    grid-template-columns: 38px 1fr 1fr;
+    align-items: end;
+    gap: 6px;
+    margin: 10px 0 2px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .bom-section-label .bom-icon {
+    color: #38761d;
+  }
+
+  .bom-grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .bom-grid th,
+  .bom-grid td {
+    border: 1px solid #111111;
+    padding: 3px 5px;
+    height: 26px;
+    vertical-align: middle;
+  }
+
+  .bom-grid th {
+    background: #ffffff;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .bom-grid td {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .bom-grid .bom-side-label {
+    width: 54px;
+    border: 0;
+    border-right: 1px solid #111111;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: right;
+    padding-right: 8px;
+  }
+
+  .bom-simple-row {
+    display: grid;
+    grid-template-columns: 54px 126px;
+    gap: 6px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .bom-simple-row .bom-icon {
+    color: #1a73e8;
+  }
+
+  .bom-simple-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .bom-simple-value {
+    border: 1px solid #111111;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    font-size: 15px;
+  }
+
+  .bom-main-bottom {
+    display: grid;
+    grid-template-columns: 162px 1fr;
+    gap: 0;
+    margin: 12px -8px -8px 0;
+  }
+
+  .bom-imperatives {
+    border-top: 1px solid #111111;
+    padding: 6px 6px 8px 3px;
+    font-size: 9px;
+    line-height: 1.22;
+  }
+
+  .bom-imperatives p {
+    margin: 6px 0;
+  }
+
+  .bom-imperatives-title {
+    color: #ff0000;
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 4px;
+    align-items: center;
+    font-weight: 800;
+    text-decoration: underline;
+    margin-bottom: 4px;
+  }
+
+  .bom-info-panels {
+    border-left: 1px solid #111111;
+    border-right: 1px solid #111111;
+  }
+
+  .bom-info-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .bom-panel {
+    min-height: 104px;
+    border-top: 1px solid #111111;
+  }
+
+  .bom-panel--tall {
+    min-height: 172px;
+  }
+
+  .bom-panel__head {
+    background: #fce4d6;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px;
+  }
+
+  .bom-panel__body {
+    padding: 5px 6px;
+    text-align: center;
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+
+  .bom-right {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding-top: 0;
+  }
+
+  .bom-circuits-title {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 5px;
+    align-items: center;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .bom-circuits-title .bom-icon {
+    color: #000000;
+  }
+
+  .bom-circuit-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .bom-circuit-table td {
+    border: 1px solid #111111;
+    height: 20px;
+    padding: 2px 5px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .bom-circuit-table td:first-child {
+    width: 30px;
+    background: #ffffff;
+  }
+
+  .bom-circuit-table .bom-circuit-name {
+    background: #bfe7f3;
+  }
+
+  .bom-circuit-table--grey .bom-circuit-name {
+    background: #e6e6e6;
+  }
+
+  .bom-circuit-table--blank-large td {
+    height: 126px;
+  }
+
+  .bom-ticket {
+    display: grid;
+    gap: 8px;
+    color: #666666;
+    font-style: italic;
+    font-size: 10px;
+    margin: 18px 0 8px;
+  }
+
+  .bom-ticket-row {
+    display: grid;
+    grid-template-columns: 1fr 24px 20px;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #999999;
+    padding: 4px 0;
+  }
+
+  .bom-footer-note {
+    color: #666666;
+    font-style: italic;
+    text-align: right;
+    font-size: 9px;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 980px) {
+    #BOM {
+      width: 100%;
+    }
+
+    .bom-sheet {
+      min-width: 0;
+    }
+  }
+
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 6mm;
+    }
+
+    body {
+      background: #ffffff;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    #BOM,
+    #BOM * {
+      visibility: visible;
+    }
+
+    #BOM {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 198mm;
+      margin: 0;
+      border: 0;
+      font-size: 10px;
+    }
+
+    .bom-sheet {
+      min-height: auto;
+    }
+
+    .bom-page-actions,
+    .nav {
+      display: none !important;
+    }
+
+    .main,
+    .container {
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+  }
+</style>
+
+<div class="bom-page-actions">
+  <a href="{% url 'core:collecte_update' collecte.pk %}" class="btn btn--ghost">Modifier</a>
+  <button type="button" class="btn btn--primary" onclick="window.print()">Imprimer la BOM</button>
+  <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Retour</a>
+</div>
+
+<div id="BOM" class="bom">
+  <div class="bom-sheet">
+    <div class="bom-left">
+      <div class="bom-header">
+        <div class="bom-logo">
+          <img src="https://storage.googleapis.com/dojo360-public/cdea/gestom/Logo_coeuressone.png" alt="Coeur d'Essonne Agglomeration">
+        </div>
+        <div class="bom-title">REGIE DE COLLECTE</div>
+      </div>
+
+      <div class="bom-row">
+        <div class="bom-icon" aria-hidden="true">&#9851;</div>
+        <div class="bom-field">
+          <div class="bom-field__label">FLUX</div>
+          <div class="bom-field__value">
+            {% if collecte.id_flux1 %}{{ collecte.id_flux1.flux_long|default:collecte.id_flux1 }}{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="bom-row">
+        <div class="bom-icon" aria-hidden="true">&#10145;</div>
+        <div class="bom-field">
+          <div class="bom-field__label">ITINERAIRE</div>
+          <div class="bom-field__value">{{ collecte.id_itineraire|default:"" }}</div>
+        </div>
+      </div>
+
+      <div class="bom-section-label">
+        <div class="bom-icon" aria-hidden="true">&#128100;</div>
+        <div>NOM</div>
+        <div>&#128338; HEURE DE FIN</div>
+      </div>
+
+      <table class="bom-grid">
+        <tbody>
+          <tr>
+            <th class="bom-side-label">CHAUFF.</th>
+            <td>{{ collecte.id_agent_1|default:"" }}</td>
+            <td>{{ collecte.a1_hr_fin|time:"H:i"|default:"" }}</td>
+          </tr>
+          <tr>
+            <th class="bom-side-label">AGENT 1</th>
+            <td>{{ collecte.id_agent_2|default:"" }}</td>
+            <td>{{ collecte.a2_hr_fin|time:"H:i"|default:"" }}</td>
+          </tr>
+          <tr>
+            <th class="bom-side-label">AGENT 2</th>
+            <td>{{ collecte.id_agent_3|default:"" }}</td>
+            <td>{{ collecte.a3_hr_fin|time:"H:i"|default:"" }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="bom-section-label">
+        <div class="bom-icon" aria-hidden="true">&#128337;</div>
+        <div>KILOMETRAGE</div>
+        <div>&#128338; HEURE</div>
+      </div>
+
+      <table class="bom-grid">
+        <tbody>
+          <tr>
+            <th class="bom-side-label">DEPART<br>DEPOT</th>
+            <td>{% if collecte.km_depart is not None %}{{ collecte.km_depart|floatformat:"0g" }}{% endif %}</td>
+            <td>{{ collecte.hr_depot_depart|time:"H:i"|default:"" }}</td>
+          </tr>
+          <tr>
+            <th class="bom-side-label">RETOUR<br>DEPOT</th>
+            <td>{% if collecte.km_retour is not None %}{{ collecte.km_retour|floatformat:"0g" }}{% endif %}</td>
+            <td>{{ collecte.hr_depot_retour|time:"H:i"|default:"" }}</td>
+          </tr>
+          <tr>
+            <th class="bom-side-label">PARCOURU</th>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="bom-simple-row">
+        <div>
+          <div class="bom-icon" aria-hidden="true">&#128197;</div>
+          <div class="bom-simple-label">DATE</div>
+        </div>
+        <div class="bom-simple-value">{{ collecte.date_collecte|date:"d/m/Y" }}</div>
+      </div>
+
+      <div class="bom-simple-row">
+        <div>
+          <div class="bom-icon" aria-hidden="true" style="color:#ff0000;">&#128666;</div>
+          <div class="bom-simple-label">BENNE</div>
+        </div>
+        <div class="bom-simple-value">{{ collecte.id_vehicule|default:"" }}</div>
+      </div>
+
+      <div class="bom-main-bottom">
+        <div class="bom-imperatives">
+          <div class="bom-imperatives-title">
+            <span aria-hidden="true" style="font-size:24px;">&#9888;</span>
+            <span>CONSIGNES IMPERATIVES<br>A RESPECTER</span>
+          </div>
+          <p>- CONTROLE DES CAMIONS OBLIGATOIRE AVANT LE DEPART EN COLLECTE.</p>
+          <p>- PORT DES EPI OBLIGATOIRES.</p>
+          <p>- FAIRE LE PLEIN EN FIN DE TOURNEE.</p>
+          <p>- AU RETOUR DE COLLECTE FAIRE UNE RESTITUTION DE LA BOM AVEC LE CHEF DE PARC.</p>
+          <p>- RESPECT DU CODE DE LA ROUTE ET DES LIMITATIONS DE VITESSE.</p>
+          <p>- Pour des raisons de securite et pour eviter des surcharges, il convient de faire deux tours.</p>
+          <p>- Les regles legales generales d'hygiene et de securite doivent etre respectees, ainsi que les consignes imposees en la matiere par la Direction.</p>
+
+          <div style="margin-top:14px; text-align:right; color:#666666; font-style:italic;">Ticket ENERGIE ou Kg energie</div>
+          <div class="bom-simple-row" style="grid-template-columns:54px 126px; margin-top:5px;">
+            <div class="bom-icon" aria-hidden="true" style="color:#e87522;">&#9981;</div>
+            <div class="bom-simple-value">
+              {% if collecte.energie_qte_1 is not None %}{{ collecte.energie_qte_1|floatformat:2 }}{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="bom-info-panels">
+          <div class="bom-info-title">INFORMATIONS FIN DE TOURNEES</div>
+          <div class="bom-panel">
+            <div class="bom-panel__head">RATTRAPAGES</div>
+            <div class="bom-panel__body">{{ collecte.consignes|default:"" }}</div>
+          </div>
+          <div class="bom-panel bom-panel--tall">
+            <div class="bom-panel__head">INCIDENT TECHNIQUE<br>OU PANNE AFFECTANT LE VEHICULE :</div>
+            <div class="bom-panel__body">{{ collecte.info_vehicule|default:"" }}</div>
+          </div>
+          <div class="bom-panel">
+            <div class="bom-panel__head">NON CONFORMITE<br>(dechets mal tries, bacs casses..)<br>Bien indiquer l'adresse et le numero de bac concerne :</div>
+            <div class="bom-panel__body">{{ collecte.info_collecte|default:"" }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <ul class="list">
-      <li>Date collecte : {{ collecte.date_collecte }}</li>
-      <li>Itineraire : {{ collecte.id_itineraire|default:"-" }}</li>
-      <li>Agent 1 : {{ collecte.id_agent_1 }}</li>
-      <li>Agent 1 heure debut : {{ collecte.a1_hr_debut }}</li>
-      <li>Agent 1 heure fin : {{ collecte.a1_hr_fin }}</li>
-      <li>Agent 2 : {{ collecte.id_agent_2 }}</li>
-      <li>Agent 2 heure debut : {{ collecte.a2_hr_debut }}</li>
-      <li>Agent 2 heure fin : {{ collecte.a2_hr_fin }}</li>
-      <li>Agent 3 : {{ collecte.id_agent_3 }}</li>
-      <li>Agent 3 heure debut : {{ collecte.a3_hr_debut }}</li>
-      <li>Agent 3 heure fin : {{ collecte.a3_hr_fin }}</li>
-      <li>Vehicule : {{ collecte.id_vehicule }}</li>
-      <li>Km depart : {{ collecte.km_depart }}</li>
-      <li>Km retour : {{ collecte.km_retour }}</li>
-      <li>Flux 1 : {{ collecte.id_flux1 }}</li>
-      <li>Tonnage 1 : {{ collecte.tonnage1 }}</li>
-      <li>Flux 2 : {{ collecte.id_flux2 }}</li>
-      <li>Tonnage 2 : {{ collecte.tonnage2 }}</li>
-      <li>Flux 3 : {{ collecte.id_flux3 }}</li>
-      <li>Tonnage 3 : {{ collecte.tonnage3 }}</li>
-      <li>Energie 1 quantite : {% if collecte.energie_qte_1 is not None %}{{ collecte.energie_qte_1|floatformat:2 }}{% else %}-{% endif %}</li>
-      <li>Consignes : {{ collecte.consignes|default:"" }}</li>
-      <li>Info vehicule : {{ collecte.info_vehicule }}</li>
-      <li>Info collecte : {{ collecte.info_collecte|default:"" }}</li>
-      <li>Date creation : {{ collecte.date_creation }}</li>
-      <li>Date modification : {{ collecte.date_modification }}</li>
-    </ul>
+    <div class="bom-right">
+      <div class="bom-collecte-number">
+        <div class="bom-collecte-number__label">Collecte N°</div>
+        <div class="bom-collecte-number__value">{{ collecte.id_collecte }}</div>
+      </div>
+      <div class="bom-circuits-title">
+        <span class="bom-icon" aria-hidden="true">&#10145;</span>
+        <span>DESIGNATION DU (DES) CIRCUIT(S) :</span>
+      </div>
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name">GABRIEL PERI</td></tr>
+            <tr><td></td><td class="bom-circuit-name">NORMANDIE NIEMMEN</td></tr>
+            <tr><td></td><td class="bom-circuit-name">ROUTE DE CORBEIL</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LES ECOLES</td></tr>
+            <tr><td></td><td class="bom-circuit-name">MARECHAUSSE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">EL KOUTOUBIA</td></tr>
+            <tr><td></td><td class="bom-circuit-name">RESIDENCE DES CHARMES</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="actions">
-      <a href="{% url 'core:collecte_update' collecte.pk %}" class="btn btn--sm btn--ghost">Modifier</a>
-      <a href="{% url 'core:collecte_delete' collecte.pk %}" class="btn btn--sm btn--danger">Supprimer</a>
-      <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Retour</a>
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table bom-circuit-table--grey">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name">LA CROIX BLANCHE Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LES CIROLIERS Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">MAISON NEUVE Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">MONTATONS Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LA TREMBLAIE Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">POINTE A L'ABBE Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">TECHNIPARC Z.A</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LE PARC Z.A</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name">GENS DU VOYAGE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">CUISINE CENTRALE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">CUISINE BARTHELEMY</td></tr>
+            <tr><td></td><td class="bom-circuit-name">CTM</td></tr>
+            <tr><td></td><td class="bom-circuit-name">THALES</td></tr>
+            <tr><td></td><td class="bom-circuit-name">JARDIN DU PLESSIS</td></tr>
+            <tr><td></td><td class="bom-circuit-name">CARREFOUR</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name">FERME DE L'ENVOL</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LA BASE 217</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name">LA CAGE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">MAISON RUSSE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">RUE DES EGLANTIERS</td></tr>
+            <tr><td></td><td class="bom-circuit-name">JEAN ROSTAND</td></tr>
+            <tr><td></td><td class="bom-circuit-name">LA RUCHE</td></tr>
+            <tr><td></td><td class="bom-circuit-name">MAX</td></tr>
+            <tr><td></td><td class="bom-circuit-name">SEQUIGNY EHPAD</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bom-circuit-block">
+        <table class="bom-circuit-table bom-circuit-table--blank-large">
+          <tbody>
+            <tr><td></td><td class="bom-circuit-name"></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

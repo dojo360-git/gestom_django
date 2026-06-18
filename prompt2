@@ -1,0 +1,13 @@
+previsions-semaines/ 
+
+ajoute un bouton "copier les données"  à doite du  bouton plein ecran 
+
+copie en mémoire les données des collectes previsionelle 
+
+itineraire	vehicule	flux	agent1	agent2	agent3	depart
+
+entre les dates <input type="date" id="date" name="date" value="2026-06-17">
+
+et date + 7 jours
+
+je veux pouvoir coller les données dans excel
