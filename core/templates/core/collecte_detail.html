@@ -135,6 +135,22 @@
     border-right: 1px solid #111111;
   }
 
+  .bom-flux-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    max-width: 100%;
+    padding: 3px 10px;
+    border: 1px solid #111111;
+    border-radius: 8px;
+    color: #000000;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
   .bom-section-label {
     display: grid;
     grid-template-columns: 38px 1fr 1fr;
@@ -433,7 +449,14 @@
         <div class="bom-field">
           <div class="bom-field__label">FLUX</div>
           <div class="bom-field__value">
-            {% if collecte.id_flux1 %}{{ collecte.id_flux1.flux_long|default:collecte.id_flux1 }}{% endif %}
+            {% if collecte.id_flux1 %}
+              <span
+                class="bom-flux-badge"
+                {% if collecte.id_flux1.couleur_flux %}style="background: {{ collecte.id_flux1.couleur_flux }};"{% endif %}
+              >
+                {{ collecte.id_flux1.flux_long|default:collecte.id_flux1 }}
+              </span>
+            {% endif %}
           </div>
         </div>
       </div>
