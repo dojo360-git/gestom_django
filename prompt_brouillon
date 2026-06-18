@@ -1,0 +1,25 @@
+previsions-jour/ 
+
+date_jour 
+
+Liste des agents en contrat pour date_jour : 
+date, agent
+where date_jour between arrivee et depart 
+de la table agents 
+
+
+agents prevus : 
+date, agent (depivote agent1 agent2 agent3)
+from collect prev
+where date = date_jour 
+
+
+
+agens absent 
+ 
+
+
+service, qualification, nom prenom, employeur, (depart-date_jour) en jours,ce, qualification, nom prenom, employeur, (depart-date_jour) en jours,
+
+
+

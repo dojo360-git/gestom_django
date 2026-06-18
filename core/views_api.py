@@ -54,11 +54,12 @@ def prevision(request):
 
     output = StringIO()
     writer = csv.writer(output, delimiter="\t", lineterminator="\n")
-    writer.writerow(["date", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart", "infos"])
+    writer.writerow(["date", "regie", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart", "infos"])
     for item in sorted(rows, key=_classement_sort_key):
         writer.writerow(
             [
                 item.date.strftime("%d/%m/%Y") if item.date else "",
+                item.itineraire.regie if item.itineraire else "",
                 str(item.itineraire) if item.itineraire else "",
                 str(item.vehicule) if item.vehicule else "",
                 str(item.flux) if item.flux else "",
