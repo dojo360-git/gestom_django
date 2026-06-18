@@ -54,7 +54,7 @@ def prevision(request):
 
     output = StringIO()
     writer = csv.writer(output, delimiter="\t", lineterminator="\n")
-    writer.writerow(["date", "regie", "itineraire", "vehicule", "flux", "agent1", "agent2", "agent3", "depart", "infos"])
+    writer.writerow(["date", "regie", "itineraire", "vehicule", "flux", "flux_long", "agent1", "agent2", "agent3", "depart", "infos"])
     for item in sorted(rows, key=_classement_sort_key):
         writer.writerow(
             [
@@ -63,6 +63,7 @@ def prevision(request):
                 str(item.itineraire) if item.itineraire else "",
                 str(item.vehicule) if item.vehicule else "",
                 str(item.flux) if item.flux else "",
+                item.flux.flux_long if item.flux else "",
                 _agent_nom(item.agent_1),
                 _agent_nom(item.agent_2),
                 _agent_nom(item.agent_3),
