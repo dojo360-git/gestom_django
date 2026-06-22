@@ -34,6 +34,10 @@ from .forms import (
 from .models import Agent, Flux, Energie, PresenceMotif, Itineraire, Vehicule, Collecte, CollectPrev, HeuresManuelles, Tache, Parametre
 
 
+def _user_in_group(user, group_name):
+    return user.is_authenticated and user.groups.filter(name=group_name).exists()
+
+
 def csrf_failure(request, reason=""):
     return render(
         request,
@@ -1513,6 +1517,9 @@ def statistiques_vehicules(request):
 
 
 def statistiques_hpne(request):
+    if _user_in_group(request.user, "Coordinateur"):
+        raise PermissionDenied
+
     today = timezone.localdate()
 
     def parse_date(value, default):
