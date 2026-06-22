@@ -2227,8 +2227,9 @@ def previsions_jour(request):
             if not (request.user.has_perm("core.delete_collecte") and request.user.has_perm("core.add_collecte")):
                 raise PermissionDenied
 
-            source_rows = list(
-                CollectPrev.objects.filter(date=date_jour).order_by("classement", "id")
+            source_rows = sorted(
+                CollectPrev.objects.filter(date=date_jour),
+                key=_classement_sort_key,
             )
             collectes = [
                 Collecte(
@@ -2956,7 +2957,7 @@ class CollecteListView(PermissionRequiredMixin, ListView):
                 "id_flux3",
             )
             .filter(date_collecte__range=(date_debut, date_fin))
-            .order_by("-date_collecte", "id_itineraire__itineraire", "id_collecte")
+            .order_by("-date_collecte", "id_collecte")
         )
         return qs
 
