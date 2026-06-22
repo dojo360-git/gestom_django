@@ -7,6 +7,7 @@
 <style>
   .bom-page-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 8px;
     margin-bottom: 14px;
@@ -429,6 +430,8 @@
 </style>
 
 <div class="bom-page-actions">
+  <a href="{% url 'core:collecte_detail' id_collecte_precedente %}" class="btn btn--ghost">Collecte precedente</a>
+  <a href="{% url 'core:collecte_detail' id_collecte_suivante %}" class="btn btn--ghost">Collecte du meme jour suivante</a>
   <a href="{% url 'core:collecte_update' collecte.pk %}" class="btn btn--ghost">Modifier</a>
   <button type="button" class="btn btn--primary" onclick="window.print()">Imprimer la BOM</button>
   <a href="{% url 'core:collecte_list' %}" class="btn btn--ghost">Retour</a>

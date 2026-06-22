@@ -3059,6 +3059,29 @@ class CollecteDetailView(PermissionRequiredMixin, DetailView):
     template_name = "core/collecte_detail.html"
     context_object_name = "collecte"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        collecte = self.object
+        liste_collecte_du_jour = list(
+            Collecte.objects.filter(date_collecte=collecte.date_collecte)
+            .order_by("id_collecte")
+            .values_list("id_collecte", flat=True)
+        )
+
+        id_collecte_precedente = collecte.id_collecte
+        id_collecte_suivante = collecte.id_collecte
+        if collecte.id_collecte in liste_collecte_du_jour:
+            position_collecte = liste_collecte_du_jour.index(collecte.id_collecte)
+            if position_collecte > 0:
+                id_collecte_precedente = liste_collecte_du_jour[position_collecte - 1]
+            if position_collecte < len(liste_collecte_du_jour) - 1:
+                id_collecte_suivante = liste_collecte_du_jour[position_collecte + 1]
+
+        ctx["liste_collecte_du_jour"] = liste_collecte_du_jour
+        ctx["id_collecte_precedente"] = id_collecte_precedente
+        ctx["id_collecte_suivante"] = id_collecte_suivante
+        return ctx
+
 
 class CollecteCreateView(PermissionRequiredMixin, CreateView):
     permission_required = "core.add_collecte"

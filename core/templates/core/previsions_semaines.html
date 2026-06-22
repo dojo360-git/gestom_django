@@ -181,12 +181,15 @@
 
   @media print {
     @page {
-      size: A3 landscape;
+      size: 420mm 297mm;
       margin: 8mm;
     }
 
     html,
     body {
+      width: 100%;
+      min-height: 297mm;
+      margin: 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
@@ -206,8 +209,41 @@
       left: 0;
       top: 0;
       width: 100%;
+      max-width: 100%;
       margin: 0;
       padding: 0;
+      gap: 5mm;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    #previsions-v2-semaine .jour {
+      min-width: 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      box-shadow: none;
+    }
+
+    #previsions-v2-semaine .jour th,
+    #previsions-v2-semaine .jour td {
+      padding: 3px 4px;
+      font-size: 10px;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    #previsions-v2-semaine .jour h2 {
+      padding: 4px 6px;
+      font-size: 13px;
+    }
+
+    #previsions-v2-semaine .semaine-titre {
+      padding: 4px 6px;
+      border-radius: 0;
+    }
+
+    #previsions-v2-semaine .semaine-titre-text {
+      font-size: 18px;
     }
 
     #previsions-v2-semaine .semaine-nav {
